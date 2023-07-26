@@ -1,0 +1,16 @@
+{
+    "name": "ffmpeg-web",
+    "short_name": "ffmpeg-web",
+    "start_url": "index.html",
+    "display": "standalone",
+    "background_color": "#191919",
+    "theme_color": "#e2b54c",
+    "orientation": "landscape-primary",
+    "icons": [
+        {
+            "src": "./assets/logo.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ]
+}

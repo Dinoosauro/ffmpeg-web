@@ -1,0 +1,2 @@
+let fs = require("fs");
+if (fs.readFileSync("/Users/dino/Downloads/VS Code/ffmpeg-web/minified/index.html", "utf-8").replaceAll("\n", "").replaceAll("\r", "").replaceAll(" ", "") === fs.readFileSync("/Users/dino/Downloads/VS Code/ffmpeg-web/index.html", "utf-8").replaceAll("\n", "").replaceAll("\r", "").replaceAll(" ", "")) console.log("HEYHEY!!"); else console.log(":(");
