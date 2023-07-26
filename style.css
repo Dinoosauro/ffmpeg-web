@@ -1,10 +1,10 @@
 :root {
   --text: #fcf7f2;
-  --background: #282a36;
-  --card: #44475A;
-  --row: #787b90;
-  --input: #a1a4ba;
-  --select: #30abb6;
+  --background: #191919;
+  --card: #393939;
+  --row: #6b6b6b;
+  --input: #eadb5a;
+  --select: #e2b54c;
 }
 
 body {
@@ -19,6 +19,10 @@ h2,
 h3,
 h4 {
   font-family: 'Josefin Sans', 'Work Sans', sans-serif;
+}
+.fill {
+  width: -webkit-fill-available !important;
+  width: -moz-available !important;
 }
 
 .vidSelect,
@@ -430,4 +434,7 @@ input[type=color] {
 
 .limitWidth {
   width: 40vw;
+}
+.btnLicense {
+  background-color: var(--row)
 }

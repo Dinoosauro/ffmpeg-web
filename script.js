@@ -1,4 +1,3 @@
-//let positionLink = "localhost:8500"; { scope: positionLink }
 if ('serviceWorker' in navigator) {
     let registration;
     const registerServiceWorker = async () => {
@@ -9,7 +8,8 @@ if ('serviceWorker' in navigator) {
 let jsonImg = {
     toload: true
 };
-let appVersion = "1.0.0";
+let appVersion = "1.0.1";
+fetch("./updatecode.txt", { cache: "no-store" }).then((res) => res.text().then((text) => { if (text.replace("\n", "") !== appVersion) if (confirm(`There's a new version of ffmpeg-web. Do you want to update? [${appVersion} --> ${text.replace("\n", "")}]`)) { caches.delete("ffmpegweb-cache"); location.reload(true); } }).catch((e) => { console.error(e) })).catch((e) => console.error(e));
 document.getElementById("version").textContent = appVersion;
 let conversionOptions = {
     videoOptions: {
@@ -45,7 +45,7 @@ document.getElementById("fileInput").addEventListener("input", () => {
     let tempPush = [];
     if (document.querySelector(".sectionSelect").getAttribute("section") === "cmd") conversionOptions.output.custom = true; else conversionOptions.output.custom = false; // Make this so that if the user changes tab for more conversion the custom script isn't kept
     if (document.querySelector(".sectionSelect").getAttribute("section") === "merge") conversionOptions.output.merged = true; else conversionOptions.output.merged = false; // Same as before
-    if (!cardSection) scrollItem();
+    if (document.getElementById("redownload").style.display !== "inline") scrollItem();
     if (conversionOptions.output.merged) {
         mergeContent(files);
         return;
@@ -519,16 +519,8 @@ for (let items of document.querySelectorAll(["[section]"])) items.addEventListen
     if (items.getAttribute("section") === "imgenc") setTimeout(() => { generalHelloAnimation(document.getElementById("videoOpt"), true); }, 1100);
     checkPosition(items.getAttribute("section") === "reenc");
 });
-let cardSection = false;
-document.querySelector("[data-fetch=arrowright]").addEventListener("click", () => {
-    document.getElementById("scrollableItem").scrollTo({ left: document.getElementById("scrollManager").scrollWidth, behavior: "smooth" });
-    cardSection = true;
-})
-document.querySelector("[data-fetch=arrowleft]").addEventListener("click", () => {
-    document.getElementById("scrollableItem").scrollTo({ left: 0, behavior: "smooth" });
-    cardSection = false;
-})
-window.addEventListener("resize", () => { if (cardSection) document.getElementById("scrollableItem").scrollTo({ left: document.getElementById("scrollManager").scrollWidth, behavior: "smooth" }); })
+document.querySelector("[data-fetch=arrowright]").addEventListener("click", () => {scrollItem()})
+document.querySelector("[data-fetch=arrowleft]").addEventListener("click", () => {scrollItem(true)})
 let zip = new JSZip();
 document.getElementById("zipSave").addEventListener("input", () => {
     if (document.getElementById("zipSave").checked) {
@@ -562,14 +554,23 @@ function addHoverEvents(item) {
     item.addEventListener("mouseleave", () => { item.classList.add("byeHover"); setTimeout(() => { item.classList.remove("byeHover") }, 310) })
 }
 for (let item of document.querySelectorAll("input,.button,select,.optionBtn,.isHovered,.slider,img,.circular")) addHoverEvents(item);
+if (localStorage.getItem("ffmpegWeb-advanced") === "a") document.getElementById("advancedFormat").checked = true;
 if (!document.getElementById("advancedFormat").checked) for (let item of document.querySelectorAll("[advanced]")) item.style.display = "none";
-document.getElementById("advancedFormat").addEventListener("input", () => { if (!document.getElementById("advancedFormat").checked) for (let item of document.querySelectorAll("[advanced]")) item.style.display = "none"; else for (let item of document.querySelectorAll("[advanced]")) item.style.display = "flex"; })
+document.getElementById("advancedFormat").addEventListener("input", () => { 
+    if (!document.getElementById("advancedFormat").checked) {
+    for (let item of document.querySelectorAll("[advanced]")) item.style.display = "none"; 
+    localStorage.setItem("ffmpegWeb-advanced", "b");
+} else {
+    for (let item of document.querySelectorAll("[advanced]")) item.style.display = "flex"; 
+    localStorage.setItem("ffmpegWeb-advanced", "a");
+}
+});
 function checkPosition(force) {
     if (force || document.getElementById("vidOutput").checked && document.getElementById("audOutput").checked || !document.getElementById("vidOutput").checked && !document.getElementById("audOutput").checked) {
-        document.getElementById("scrollableItem").classList.remove("rightCard", "limitWidth");
+        document.getElementById("scrollableItem").classList.remove("rightCard");
         document.getElementById("scrollableItem").classList.add("width100");
     } else {
-        document.getElementById("scrollableItem").classList.add("rightCard", "limitWidth");
+        document.getElementById("scrollableItem").classList.add("rightCard");
         document.getElementById("scrollableItem").classList.remove("width100");
     }
     if (window.innerWidth < 800) document.getElementById("scrollableItem").classList.remove("limitWidth");
@@ -795,8 +796,16 @@ document.getElementById("pwaInstall").addEventListener("click", () => {
     });
 });
 if (window.matchMedia('(display-mode: standalone)').matches) scrollItem();
-function scrollItem() {
-    document.getElementById("scrollableItem").scrollTo({ left: document.getElementById("scrollManager").scrollWidth, behavior: "smooth" }); cardSection = true;
+function scrollItem(invert) {
+let itemId = [["pwaPromote", "redownload"], ["Left", "Right"]];
+    if (invert) {itemId[0].reverse(); itemId[1].reverse()}
+    document.getElementById(itemId[0][0]).classList.add("animate__animated", `animate__backOut${itemId[1][0]}`);
+    setTimeout(() => {
+        document.getElementById(itemId[0][0]).style.display = "none";
+    document.getElementById(itemId[0][0]).classList.remove("animate__animated", `animate__backOut${itemId[1][0]}`);
+        document.getElementById(itemId[0][1]).style.display = "inline";
+        document.getElementById(itemId[0][1]).classList.add("animate__animated", `animate__backIn${itemId[1][1]}`);
+    },510)
 }
 document.getElementById("alertDuration").addEventListener("input", () => { localStorage.setItem("ffmpegWeb-alertDuration", document.getElementById("alertDuration").value) });
 document.getElementById("resetBtn").addEventListener("click", () => { localStorage.setItem("ffmpegWeb-ignoredAlert", ""); createAlert("All the alerts are now visible", "alertVisible") });
