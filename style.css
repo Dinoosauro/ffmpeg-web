@@ -29,7 +29,8 @@ h4 {
 .audSelect,
 .sectionSelect,
 .imgSelect,
-.licenseSelect {
+.licenseSelect,
+.metadataSelect {
   background-color: var(--select) !important;
 }
 
@@ -41,7 +42,7 @@ h4 {
   background-color: var(--card);
   padding: 3vw;
   border-radius: 8px;
-  width: 41vw;
+  width: 40vw;
   margin-bottom: 25px;
 }
 
@@ -59,7 +60,7 @@ h4 {
   background-color: var(--row);
   border-radius: 8px;
   display: flex;
-  overflow-y: scroll;
+  overflow-y: hidden;
 }
 
 .optionBtn {
@@ -437,4 +438,9 @@ input[type=color] {
 }
 .btnLicense {
   background-color: var(--row)
+}
+@-moz-document url-prefix() {
+  div {
+    scrollbar-width: none;
+  }
 }

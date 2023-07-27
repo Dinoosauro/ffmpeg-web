@@ -8,7 +8,7 @@ if ('serviceWorker' in navigator) {
 let jsonImg = {
     toload: true
 };
-let appVersion = "1.0.1";
+let appVersion = "1.0.2";
 fetch("./updatecode.txt", { cache: "no-store" }).then((res) => res.text().then((text) => { if (text.replace("\n", "") !== appVersion) if (confirm(`There's a new version of ffmpeg-web. Do you want to update? [${appVersion} --> ${text.replace("\n", "")}]`)) { caches.delete("ffmpegweb-cache"); location.reload(true); } }).catch((e) => { console.error(e) })).catch((e) => console.error(e));
 document.getElementById("version").textContent = appVersion;
 let conversionOptions = {
@@ -31,6 +31,9 @@ let conversionOptions = {
         orientation: -1,
         custom: false,
         merged: false
+    },
+    metadata: {
+        items: [],
     }
 }
 document.getElementById("btnSelect").addEventListener("click", () => {
@@ -133,8 +136,16 @@ async function mergeContent(file) {
     for (let fileItem of deleteFiles) await ffmpeg.FS("unlink", fileItem);
     tempOptions = optionGet();
 }
+function ffmpegReadyMetadata() {
+    tempOptions.ffmpegArray.push("-codec", "copy");
+    if (!document.getElementById("metadataKeep").checked) tempOptions.ffmpegArray.push("-map_metadata", "-1");
+    for (let item of conversionOptions.metadata.items) tempOptions.ffmpegArray.push("-metadata", `${item.key}=${item.value}`);
+    tempOptions.fileExtension = tempOptions.ffmpegName[0].substring(tempOptions.ffmpegName[0].lastIndexOf(".") + 1);
+    if (!document.getElementById("mp4Keep").checked && customCount > 0 && tempOptions.fileExtension === "mp4" || tempOptions.fileExtension === "m4v" || tempOptions.fileExtension === "m4a" || tempOptions.fileExtension === "alac") tempOptions.ffmpegArray.push("-movflags", "use_metadata_tags");
+    tempOptions.ffmpegArray.push(`a${tempOptions.ffmpegName[0]}`);
+}
 async function ffmpegStart() {
-    if (conversionOptions.output.custom) readFfmpegScript(); else buildFfmpegScript();
+    if (conversionOptions.output.custom) readFfmpegScript(); else if (document.querySelector(".sectionSelect").getAttribute("section") === "metadata") ffmpegReadyMetadata(); else buildFfmpegScript();
     let finalScript = [];
     if (tempOptions.itsscale !== []) finalScript.push(...tempOptions.itsscale);
     for (let i = 0; i < tempOptions.ffmpegBuffer.length; i++) {
@@ -372,6 +383,7 @@ function buildFfmpegScript() {
         if (audioFilters.length > 0) {
             audioFilters = audioFilters.substring(1);
             tempOptions.ffmpegArray.push("-filter:a", audioFilters);
+
         }
     }
     if (conversionOptions.output.name === "output") conversionOptions.output.name = tempOptions.ffmpegName[0].substring(0, tempOptions.ffmpegArray[0].lastIndexOf("."));
@@ -493,6 +505,11 @@ function sectionRefer() {
             id: [document.getElementById("imgSection"), document.getElementById("onlyVidSettings")],
             visible: [true, false],
             value: 4
+        },
+        metadata: {
+            id: [document.getElementById("metadataSection"), document.getElementById("metadaOpt")],
+            visible: [true, true],
+            value: 4
         }
     }
 }
@@ -517,10 +534,9 @@ for (let items of document.querySelectorAll(["[section]"])) items.addEventListen
     document.getElementById("multiVideoHandle").value = refer[Object.keys(refer)[Object.keys(refer).indexOf(items.getAttribute("section"))]].value;
     if (parseInt(document.getElementById("multiVideoHandle").value) === -1) document.getElementById("multiVideoHandle").disabled = true; else document.getElementById("multiVideoHandle").disabled = false;
     if (items.getAttribute("section") === "imgenc") setTimeout(() => { generalHelloAnimation(document.getElementById("videoOpt"), true); }, 1100);
-    checkPosition(items.getAttribute("section") === "reenc");
 });
-document.querySelector("[data-fetch=arrowright]").addEventListener("click", () => {scrollItem()})
-document.querySelector("[data-fetch=arrowleft]").addEventListener("click", () => {scrollItem(true)})
+document.querySelector("[data-fetch=arrowright]").addEventListener("click", () => { scrollItem() })
+document.querySelector("[data-fetch=arrowleft]").addEventListener("click", () => { scrollItem(true) })
 let zip = new JSZip();
 document.getElementById("zipSave").addEventListener("input", () => {
     if (document.getElementById("zipSave").checked) {
@@ -556,14 +572,14 @@ function addHoverEvents(item) {
 for (let item of document.querySelectorAll("input,.button,select,.optionBtn,.isHovered,.slider,img,.circular")) addHoverEvents(item);
 if (localStorage.getItem("ffmpegWeb-advanced") === "a") document.getElementById("advancedFormat").checked = true;
 if (!document.getElementById("advancedFormat").checked) for (let item of document.querySelectorAll("[advanced]")) item.style.display = "none";
-document.getElementById("advancedFormat").addEventListener("input", () => { 
+document.getElementById("advancedFormat").addEventListener("input", () => {
     if (!document.getElementById("advancedFormat").checked) {
-    for (let item of document.querySelectorAll("[advanced]")) item.style.display = "none"; 
-    localStorage.setItem("ffmpegWeb-advanced", "b");
-} else {
-    for (let item of document.querySelectorAll("[advanced]")) item.style.display = "flex"; 
-    localStorage.setItem("ffmpegWeb-advanced", "a");
-}
+        for (let item of document.querySelectorAll("[advanced]")) item.style.display = "none";
+        localStorage.setItem("ffmpegWeb-advanced", "b");
+    } else {
+        for (let item of document.querySelectorAll("[advanced]")) item.style.display = "flex";
+        localStorage.setItem("ffmpegWeb-advanced", "a");
+    }
 });
 function checkPosition(force) {
     if (force || document.getElementById("vidOutput").checked && document.getElementById("audOutput").checked || !document.getElementById("vidOutput").checked && !document.getElementById("audOutput").checked) {
@@ -583,6 +599,26 @@ function checkPosition(force) {
     }
     generalHelloAnimation(document.getElementById("scrollableItem"));
 }
+for (let item of ["[section=metadata]", "[section=imgenc]"]) document.querySelector(item).addEventListener("click", () => {
+    setTimeout(() => {
+        document.getElementById("scrollableItem").classList.add("rightCard");
+        document.getElementById("scrollableItem").classList.remove("width100");
+        if (window.innerWidth < 800) document.getElementById("scrollableItem").classList.remove("limitWidth");
+        generalHelloAnimation(document.getElementById("scrollableItem"));
+    }, 1100)
+});
+for (let item of ["[section=merge]", "[section=cmd]"]) document.querySelector(item).addEventListener("click", () => {
+    setTimeout(() => {
+        document.getElementById("scrollableItem").classList.remove("rightCard");
+        document.getElementById("scrollableItem").classList.add("width100");
+        if (window.innerWidth < 800) document.getElementById("scrollableItem").classList.remove("limitWidth");
+        generalHelloAnimation(document.getElementById("scrollableItem"));
+    }, 1100)
+});
+document.querySelector("[section=reenc]").addEventListener("click", () => { checkPosition() });
+document.querySelector("[section=imgenc]").addEventListener("click", () => {
+    setTimeout(() => { document.getElementById("videoOpt").style.maxHeight = "" }, 150);
+})
 for (let switchItems of ["vidOutput", "audOutput"]) document.getElementById(switchItems).addEventListener("input", () => { checkPosition() });
 let defaultThemes = {
     themes: [{
@@ -630,34 +666,40 @@ if (storageItem !== null && storageItem.indexOf("themes\":") !== -1) customTheme
 let finalObj = { themes: [] };
 for (let i = 0; i < defaultThemes.themes.length; i++) finalObj.themes.push(defaultThemes.themes[i]);
 for (let i = 0; i < customTheme.themes.length; i++) finalObj.themes.push(customTheme.themes[i]);
-for (let themeOption of finalObj.themes) addTheme(themeOption)
-function addTheme(themeOption) {
-    let containerDiv = document.createElement("div");
-    containerDiv.classList.add("colorSelect");
+for (let themeOption of finalObj.themes) addTheme(themeOption);
+function createSubOption(content) {
     let nameDiv = document.createElement("div");
     nameDiv.style = "display: flex; float: left; height: 100%";
     let textName = document.createElement("l");
-    textName.textContent = themeOption.name;
+    textName.textContent = content;
     textName.classList.add("textName");
-    function createBtn(image) {
-        let genericBtn = document.createElement("div");
-        genericBtn.classList.add("circular");
-        genericBtn.style.backgroundColor = themeOption.color.card;
-        let genericImg = document.createElement("img");
-        fetchData(genericImg, image, themeOption.color.select);
-        genericImg.style = "width: 15px; height: 15px;";
-        genericBtn.append(genericImg);
-        addHoverEvents(genericBtn);
-        return genericBtn;
-    }
-    let exportBtn = createBtn("export");
+    nameDiv.append(textName);
+    return nameDiv;
+}
+function createBtn(image, card, select) {
+    let genericBtn = document.createElement("div");
+    genericBtn.classList.add("circular");
+    genericBtn.style.backgroundColor = card;
+    let genericImg = document.createElement("img");
+    fetchData(genericImg, image, select);
+    genericImg.style = "width: 15px; height: 15px;";
+    genericBtn.append(genericImg);
+    addHoverEvents(genericBtn);
+    return genericBtn;
+}
+
+function addTheme(themeOption) {
+    let containerDiv = document.createElement("div");
+    containerDiv.classList.add("colorSelect");
+    let nameDiv = createSubOption(themeOption.name)
+    let exportBtn = createBtn("export", themeOption.color.card, themeOption.color.select);
     exportBtn.addEventListener("click", () => {
         let link = document.createElement("a");
         link.href = URL.createObjectURL(new Blob([JSON.stringify(themeOption)]));
         link.download = `${themeOption.name}-export.json`;
         link.click();
     });
-    let applyBtn = createBtn("color");
+    let applyBtn = createBtn("color", themeOption.color.card, themeOption.color.select);
     applyBtn.addEventListener("click", () => {
         for (let values in themeOption.color) document.documentElement.style.setProperty(`--${values}`, themeOption.color[values]);
         for (let items of document.querySelectorAll("[data-fetch]")) fetchData(items, items.getAttribute("data-fetch"));
@@ -666,7 +708,7 @@ function addTheme(themeOption) {
     });
     let exportDiv = document.createElement("div");
     if (!themeOption.custom.startsWith("a")) {
-        let deleteBtn = createBtn("delete");
+        let deleteBtn = createBtn("delete", themeOption.color.card, themeOption.color.select);
         deleteBtn.addEventListener("click", () => {
             for (let i = 0; i < customTheme.themes.length; i++) if (customTheme.themes[i].custom === themeOption.custom) customTheme.themes.splice(i, 1);
             setTimeout(() => { containerDiv.remove() }, 300);
@@ -675,7 +717,6 @@ function addTheme(themeOption) {
         });
         exportDiv.append(deleteBtn);
     }
-    nameDiv.append(textName);
     exportDiv.style = "display: flex; float: right";
     exportDiv.append(exportBtn, applyBtn);
     containerDiv.append(nameDiv, exportDiv);
@@ -797,15 +838,15 @@ document.getElementById("pwaInstall").addEventListener("click", () => {
 });
 if (window.matchMedia('(display-mode: standalone)').matches) scrollItem();
 function scrollItem(invert) {
-let itemId = [["pwaPromote", "redownload"], ["Left", "Right"]];
-    if (invert) {itemId[0].reverse(); itemId[1].reverse()}
+    let itemId = [["pwaPromote", "redownload"], ["Left", "Right"]];
+    if (invert) { itemId[0].reverse(); itemId[1].reverse() }
     document.getElementById(itemId[0][0]).classList.add("animate__animated", `animate__backOut${itemId[1][0]}`);
     setTimeout(() => {
         document.getElementById(itemId[0][0]).style.display = "none";
-    document.getElementById(itemId[0][0]).classList.remove("animate__animated", `animate__backOut${itemId[1][0]}`);
+        document.getElementById(itemId[0][0]).classList.remove("animate__animated", `animate__backOut${itemId[1][0]}`);
         document.getElementById(itemId[0][1]).style.display = "inline";
         document.getElementById(itemId[0][1]).classList.add("animate__animated", `animate__backIn${itemId[1][1]}`);
-    },510)
+    }, 510)
 }
 document.getElementById("alertDuration").addEventListener("input", () => { localStorage.setItem("ffmpegWeb-alertDuration", document.getElementById("alertDuration").value) });
 document.getElementById("resetBtn").addEventListener("click", () => { localStorage.setItem("ffmpegWeb-ignoredAlert", ""); createAlert("All the alerts are now visible", "alertVisible") });
@@ -835,3 +876,50 @@ for (let item of document.querySelectorAll("[data-license]")) item.addEventListe
     if (document.querySelector(".licenseSelect") !== null) document.querySelector(".licenseSelect").classList.remove("licenseSelect");
     item.classList.add("licenseSelect");
 });
+let suggestedMetadata = [["album", "composer", "genre", "copyright", "title", "language", "artist", "album_artist", "performer", "disc", "publisher", "track", "lyrics", "compilation", "date", "creation_time", "album-sort", "artist-sort", "title-sort"], ["Album name", "Composers", "Genre", "Copyright", "Title", "Language", "Artists", "Album Artists", "Performers", "Disc", "Publishers", "Track number", "Lyrics", "Compilation", "Published date", "Creation time", "Album sort name", "Artist sort name", "Title sort name"]]
+for (let i = 0; i < suggestedMetadata[0].length; i++) {
+    let metadataAppend = document.createElement("div");
+    metadataAppend.classList.add("optionBtn", "minWidth");
+    metadataAppend.setAttribute("data-key", suggestedMetadata[0][i]);
+    let label = document.createElement("l");
+    label.classList.add("totalCenter");
+    label.textContent = suggestedMetadata[1][i];
+    metadataAppend.addEventListener("click", () => {
+        if (document.querySelector(".metadataSelect") !== null) document.querySelector(".metadataSelect").classList.remove("metadataSelect");
+        metadataAppend.classList.add("metadataSelect");
+        generalByeAnimation(document.getElementById("onlyCustom"));
+    });
+    metadataAppend.append(label);
+    document.getElementById("metadataShow").append(metadataAppend);
+    addHoverEvents(metadataAppend);
+}
+document.querySelector("[data-key=custom]").addEventListener("click", () => {
+    if (document.querySelector(".metadataSelect") !== null) document.querySelector(".metadataSelect").classList.remove("metadataSelect");
+    document.querySelector("[data-key=custom]").classList.add("metadataSelect");
+    generalHelloAnimation(document.getElementById("onlyCustom"), true)
+});
+let customCount = 0;
+document.getElementById("itemAdd").addEventListener("click", () => {
+    let elementKey = document.querySelector(".metadataSelect").getAttribute("data-key");
+    let currentCustom = false;
+    if (elementKey === "custom") { elementKey = document.getElementById("metadataKey").value; customCount++; currentCustom = true; }
+    let pushId = conversionOptions.metadata.items.length;
+    conversionOptions.metadata.items.push({ key: elementKey, value: document.getElementById("metadataValue").value });
+    let containerDiv = document.createElement("div");
+    containerDiv.classList.add("colorSelect");
+    containerDiv.style = "background-color: var(--row)";
+    let metadataName = createSubOption(`${elementKey} | ${document.getElementById("metadataValue").value}`);
+    let deleteDiv = document.createElement("div");
+    deleteDiv.style = "display: flex; float: right";
+    let deleteBtn = createBtn("delete", "var(--card)", `${getComputedStyle(document.body).getPropertyValue("--select")}`);
+    deleteBtn.addEventListener("click", () => {
+        if (currentCustom) customCount--;
+        conversionOptions.metadata.items.splice(pushId, 1);
+        setTimeout(() => { containerDiv.remove() }, 300);
+        document.getElementById("metadataAdded").style.maxHeight = `${parseInt(document.getElementById("metadataAdded").style.maxHeight.replace("px", "")) - 55}px`;
+    });
+    deleteDiv.append(deleteBtn);
+    containerDiv.append(metadataName, deleteDiv);
+    document.getElementById("metadataAdded").append(containerDiv);
+    document.getElementById("metadataAdded").style.maxHeight = `${parseInt(document.getElementById("metadataAdded").style.maxHeight.replace("px", "")) + 55}px`
+})

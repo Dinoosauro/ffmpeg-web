@@ -21,9 +21,9 @@
     <br><br><i>Convert locally videos, audios and images using ffmpeg, directly from your browser</i><br><br>
     <div class="flexAdaptive">
         <div class="card leftCard">
-            <div class="rowDisplay maxHeight" style="flex-direction: column;">
+            <div class="rowDisplay maxHeight" style="flex-direction: column; overflow-y: hidden;">
                 <h3 style="display: block; text-align: center;">What do you want to do?</h3>
-                <div style="display: flex; flex-direction: row; overflow-y: scroll; padding-bottom: 10px;">
+                <div style="display: flex; flex-direction: row; overflow-y: hidden; padding-bottom: 10px;">
                     <div class="optionBtn sectionSelect minWidth" section="reenc">
                         <l class="totalCenter">Media encoding</l>
                     </div>
@@ -35,6 +35,9 @@
                     </div>
                     <div class="optionBtn minWidth" section="imgenc">
                         <l class="totalCenter">Convert images</l>
+                    </div>
+                    <div class="optionBtn minWidth" section="metadata">
+                        <l class="totalCenter">Change metadata</l>
                     </div>
                 </div>
             </div>
@@ -188,6 +191,23 @@
                 </div>
                 <i>ffmpeg uses the same parameters of video outputs for images, so you can edit them below.</i>
             </div>
+            <div style="display: none;" id="metadataSection">
+                <div class="titleContainer">
+                    <img data-fetch="search" class="fetchStyle">
+                    <h2>Add metadata:</h2>
+                </div>
+                <l>You can edit metadatas directly from ffmpeg, without re-encoding your file. You'll be able to change metadata below</l><br><br>
+                <label class="switch">
+                    <input type="checkbox" id="metadataKeep" checked>
+                    <span class="slider"></span>
+                </label>
+                <l>Keep current metadata</l><br><br>
+                <label class="switch">
+                    <input type="checkbox" id="mp4Keep" checked>
+                    <span class="slider"></span>
+                </label>
+                <l>Keep album art in a MP4 files, disabling custom metadata</l>
+            </div>
             <div>
                 <br><br>
                 <l>If you are re-encoding the media file, you can choose its options by scrolling below. Otherwise, go
@@ -232,6 +252,26 @@
                         GitHub.</a>
                 </l>
             </div>
+        </div>
+        <div class="card leftCard" id="metadaOpt" style="display: none;">
+            <div class="titleContainer">
+                <img data-fetch="metadata" class="fetchStyle">
+                <h2 style="margin-left: 10px;">Manage metadata:</h2>
+            </div>
+                <l>Choose one of the metadata below, or create your own custom. If you want to delete one, add a new metadata leaving the value blank.</l><br><br>
+                <div id="metadataShow" class="rowDisplay maxHeight">
+                    <div class="optionBtn minWidth metadataSelect" data-key="custom">
+                        <l class="totalCenter">Custom metadata</l>
+                    </div>
+                </div><br>
+                <div>
+                    <div id="onlyCustom">
+                        <l>Key:</l><input type="text" id="metadataKey">
+                    </div><br>
+                    <l>Value:</l><input type="text" id="metadataValue">
+                </div><br>
+                <div class="button" id="itemAdd">Add item</div><br>
+                <div id="metadataAdded" class="maxHeight" style="max-height: 0px; display: grid;"></div>
         </div>
         <div class="card leftCard" id="videoOpt" style="display: none;">
             <div class="titleContainer">
