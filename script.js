@@ -583,11 +583,10 @@ document.getElementById("advancedFormat").addEventListener("input", () => {
 });
 function checkPosition(force) {
     if (force || document.getElementById("vidOutput").checked && document.getElementById("audOutput").checked || !document.getElementById("vidOutput").checked && !document.getElementById("audOutput").checked) {
-        document.getElementById("scrollableItem").classList.remove("rightCard");
-        document.getElementById("scrollableItem").classList.add("width100");
+        document.getElementById("scrollableItem").classList.add("leftCard", "rightCard", "width100");
     } else {
         document.getElementById("scrollableItem").classList.add("rightCard");
-        document.getElementById("scrollableItem").classList.remove("width100");
+        document.getElementById("scrollableItem").classList.remove("width100", "leftCard");
     }
     if (window.innerWidth < 800) document.getElementById("scrollableItem").classList.remove("limitWidth");
     if (!document.getElementById("vidOutput").checked && document.getElementById("audOutput").checked) {
@@ -602,15 +601,14 @@ function checkPosition(force) {
 for (let item of ["[section=metadata]", "[section=imgenc]"]) document.querySelector(item).addEventListener("click", () => {
     setTimeout(() => {
         document.getElementById("scrollableItem").classList.add("rightCard");
-        document.getElementById("scrollableItem").classList.remove("width100");
+        document.getElementById("scrollableItem").classList.remove("width100", "leftCard");
         if (window.innerWidth < 800) document.getElementById("scrollableItem").classList.remove("limitWidth");
         generalHelloAnimation(document.getElementById("scrollableItem"));
     }, 1100)
 });
 for (let item of ["[section=merge]", "[section=cmd]"]) document.querySelector(item).addEventListener("click", () => {
     setTimeout(() => {
-        document.getElementById("scrollableItem").classList.remove("rightCard");
-        document.getElementById("scrollableItem").classList.add("width100");
+        document.getElementById("scrollableItem").classList.add("leftCard", "rightCard", "width100");
         if (window.innerWidth < 800) document.getElementById("scrollableItem").classList.remove("limitWidth");
         generalHelloAnimation(document.getElementById("scrollableItem"));
     }, 1100)

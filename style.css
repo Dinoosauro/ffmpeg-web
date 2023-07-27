@@ -309,6 +309,7 @@ progress::-webkit-progress-value {
 .flexAdaptive {
   display: flex;
   flex-wrap: wrap;
+  justify-content:center
 }
 
 .width100 {
