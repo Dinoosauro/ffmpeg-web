@@ -19,6 +19,8 @@ You can add both video and audio filters. The most common (I think) ones have a 
 Do you have a ffmpeg command that you need to execute? Write that in the "Custom command" section, and ffmpeg-web will execute that.
 ### Merge media
 If you have two or more videos/audios and you want to merge them, use this section. This will avoid re-encoding, so your media will be immediately ready.
+### Edit metadata
+If you need to quickly edit some metadata, there's a section dedicated to it. Choose from lots of default metadata keys, or create your own. Add the value and then click to "Add value". Select the files and, without any re-encoding, the metadata will be edited.
 ### Convert images
 Just like videos and audios, ffmpeg-web can also convert images to lots of formats. You can also add some filters, the same as video's ones.
 ## File selection
