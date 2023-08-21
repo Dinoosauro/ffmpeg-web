@@ -2,7 +2,7 @@ const cacheName = 'ffmpegweb-cache';
 const filestoCache = [
     './',
     './index.html',
-    './script.js',
+    './out.js',
     './style.css',
     './assets/mergedAssets.json',
     './assets/logo.png',
