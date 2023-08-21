@@ -12,6 +12,7 @@
     <meta name="theme-color" content="#e2b54c" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
     <link rel="icon" href="./assets/logo.png">
+    <title>ffmpeg-web</title>
 </head>
 
 <body>
@@ -21,7 +22,7 @@
     </div>
     <br><br><i>Convert locally videos, audios and images using ffmpeg, directly from your browser</i><br><br>
     <div class="flexAdaptive">
-        <div class="card leftCard">
+        <div class="card leftCard" data-card="contentCard">
             <div class="rowDisplay maxHeight" style="flex-direction: column; overflow-y: hidden;">
                 <h3 style="display: block; text-align: center;">What do you want to do?</h3>
                 <div style="display: flex; flex-direction: row; overflow-y: hidden; padding-bottom: 10px;">
@@ -39,6 +40,9 @@
                     </div>
                     <div class="optionBtn minWidth" section="metadata">
                         <l class="totalCenter">Change metadata</l>
+                    </div>
+                    <div class="optionBtn minWidth" section="extractalbum">
+                        <l class="totalCenter">Extract album art</l>
                     </div>
                 </div>
             </div>
@@ -126,10 +130,10 @@
                     <h2>Custom ffmpeg script:</h2>
                 </div>
                 <br>
-                <l>Write a custom ffmpeg script, avoiding writing ffmpeg at the start. Useful commands:
+                <l>Write a custom ffmpeg script, avoiding writing ffmpeg at the start and dividing each argument with a space. Useful commands:
                     <ul>
                         <li><code>"$input[number]"</code> - where ffmpeg-web should add the input files.</li>
-                        <li><code>"$space"</code> - add a space (ex: output files)</li>
+                        <li><code>"$space"</code> - add a space in the same argument (ex: output files)</li>
                     </ul> <br>
                     <code class="rowDisplay">
                 -i $input[0] -acodec libmp3lame -vn MyFile$spacehey!.mp3
@@ -137,6 +141,7 @@
                     <div>
                         <input type="text" id="ffmpegScript" style="padding: 8px;" class="fill"><br><br>
                     </div>
+                    <i>Divide each argument with a space</i>
             </div>
             <div id="mergeSection" style="display: none;">
                 <div class="titleContainer">
@@ -158,7 +163,8 @@
                     <h2>Convert image:</h2>
                 </div>
                 <l>Choose the output image format:</l>
-                <div class="rowDisplay maxHeight" id="audioElementsDisplay">
+                <div id="imgChooser1">
+                <div class="rowDisplay maxHeight" id="imgElementsDisplay">
                     <div class="optionBtn" data-imgval="no" data-extension="bmp">
                         <l class="totalCenter">Bitmap (.bmp)</l>
                     </div>
@@ -190,6 +196,7 @@
                         <l class="totalCenter">Lossles JPEG (.jpg)</l>
                     </div>
                 </div>
+            </div>
                 <i>ffmpeg uses the same parameters of video outputs for images, so you can edit them below.</i>
             </div>
             <div style="display: none;" id="metadataSection">
@@ -209,13 +216,40 @@
                 </label>
                 <l>Keep album art in a MP4 files, disabling custom metadata</l>
             </div>
+            <div style="display: none;" id="albumArtSection">
+                <div class="titleContainer">
+                    <img data-fetch="imgsparkle" class="fetchStyle">
+                    <h2>Extract album art</h2>
+                </div>
+                <l>Export album art in:</l>
+                <div id="imgChooser2"></div>
+            </div>
             <div>
+                <div id="smartCut"><br>
+                    <div style="display: flex; align-items: center;">
+                        <h3>Trim content length:</h3><select id="cutVideoSelect" style="margin-left: 10px;">
+                            <option value="0" selected>No</option>
+                            <option value="1">Yes (single)</option>
+                            <option value="2">Yes (multiple timestamps)</option>
+                        </select>    
+                    </div>
+                    <div id="singleCrop" class="rowDisplay" style="display: none">
+                        <l>Start (hh:mm:ss):</l><input type="text" id="startCut"><br><l>End (hh:mm:ss):</l><input type="text" id="endCut">
+                    </div>
+                    <div class="rowDisplay" style="display: none;" id="multiCrop">
+                        <i>Write the file title, then add a divider and put the timestamp.</i><br><br>
+                        <l>Divider:</l><input type="text" style="width: 25%; margin-right: 10px;" id="dividerInput"><l>Timestamp position:</l><select id="timestampPosition">
+                            <option value="0" selected>Left</option>
+                            <option value="1" selected>Right</option>
+                    </select><br><br>
+                    <textarea id="timestampArea" placeholder="Write here your timestamps!" class="fill"></textarea>
+                    </div>
+                </div>
                 <br><br>
-                <l>If you are re-encoding the media file, you can choose its options by scrolling below. Otherwise, go
-                    to the next card to choose the files.</l>
+                <l>If you are re-encoding the media file, you can choose its options by scrolling below. Otherwise, choose the files on the <span id="textAdapt">second last card</span></l>
             </div>
         </div>
-        <div class="card rightCard">
+        <div class="card rightCard" data-card="fileSelection">
             <div class="titleContainer">
                 <img data-fetch="document" class="fetchStyle">
                 <h2>File selection:</h2>
@@ -254,7 +288,7 @@
                 </l>
             </div>
         </div>
-        <div class="card leftCard" id="metadaOpt" style="display: none;">
+        <div class="card leftCard" id="metadaOpt" style="display: none;" data-card="metadata">
             <div class="titleContainer">
                 <img data-fetch="metadata" class="fetchStyle">
                 <h2 style="margin-left: 10px;">Manage metadata:</h2>
@@ -271,10 +305,20 @@
                     </div><br>
                     <l>Value:</l><input type="text" id="metadataValue">
                 </div><br>
+                <label class="switch">
+                    <input type="checkbox" id="customAlbumArt">
+                    <span class="slider"></span>
+                </label>
+                <l>Add a custom album art</l><br><br>
+                <label class="switch">
+                    <input type="checkbox" id="removeOlderArt">
+                    <span class="slider"></span>
+                </label>
+                <l>Delete the video output (this will delete the previous album art, but also any other video stream)</l><br><br>
                 <div class="button" id="itemAdd">Add item</div><br>
                 <div id="metadataAdded" class="maxHeight" style="max-height: 0px; display: grid;"></div>
         </div>
-        <div class="card leftCard" id="videoOpt" style="display: none;">
+        <div class="card leftCard" id="videoOpt" style="display: none;" data-card="video">
             <div class="titleContainer">
                 <img data-fetch="video" class="fetchStyle">
                 <h2 style="margin-left: 10px;">Video settings:</h2>
@@ -340,7 +384,7 @@
             <br><br>
             <div class="button" id="showFilter2">Video filters</div><br>
         </div>
-        <div class="card rightCard" id="audioOpt" style="display: none;">
+        <div class="card rightCard" id="audioOpt" data-card="audio" style="display: none;">
             <div class="titleContainer">
                 <img data-fetch="audio" class="fetchStyle">
                 <h2 style="margin-left: 10px;">Audio settings:</h2>
@@ -375,7 +419,7 @@
             </div>
             <div class="button" id="showFilter">Audio filters</div>
         </div>
-        <div class="card leftCard rightCard width100" style="overflow-x: hidden; display: flex;" id="scrollableItem">
+        <div class="card leftCard rightCard width100" data-card="progress" style="overflow-x: hidden; display: flex;" id="scrollableItem">
                 <div id="pwaPromote" style="width: 100%; animation-duration: 1s;">
                     <div class="titleContainer">
                         <img data-fetch="app" class="fetchStyle">
@@ -616,5 +660,7 @@
     <script crossorigin="anonymous" src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.0/dist/ffmpeg.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"
         integrity="sha256-rMfkFFWoB2W1/Zx+4bgHim0WC7vKRVrq6FTeZclH1Z4=" crossorigin="anonymous"></script>
-    <script src="./script.js"></script>
+        <script>// Adding separated JS files if debugging with local server
+            if (location.hostname === "localhost" && location.pathname.indexOf("dist") === -1) {let a = document.createElement("script"); a.src = "./script.js"; document.body.append(a);}
+        </script>
 </body>

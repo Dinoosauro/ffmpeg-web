@@ -8,7 +8,7 @@ if ('serviceWorker' in navigator) {
 let jsonImg = {
     toload: true
 };
-let appVersion = "1.0.2";
+let appVersion = "1.1.0";
 fetch("./updatecode.txt", { cache: "no-store" }).then((res) => res.text().then((text) => { if (text.replace("\n", "") !== appVersion) if (confirm(`There's a new version of ffmpeg-web. Do you want to update? [${appVersion} --> ${text.replace("\n", "")}]`)) { caches.delete("ffmpegweb-cache"); location.reload(true); } }).catch((e) => { console.error(e) })).catch((e) => console.error(e));
 document.getElementById("version").textContent = appVersion;
 let conversionOptions = {
@@ -34,18 +34,37 @@ let conversionOptions = {
     },
     metadata: {
         items: [],
+        img: undefined,
     }
 }
 document.getElementById("btnSelect").addEventListener("click", () => {
     if (document.getElementById("btnSelect").classList.contains("disabled")) { createAlert("Wait until ffmpeg is loaded.", "ffmpegLoadRemind"); return; };
+    document.getElementById("reset").reset();
+    tempOptions = optionGet();
     document.getElementById("fileInput").click();
 });
 let isMultiCheck = [false, 0];
+async function extractAlbumArt() {
+    for (let item of document.getElementById("fileInput").files) {
+        ffmpeg.FS("writeFile", item.name, await fetchFile(item));
+        let prepareScript = ["-i", item.name];
+        if (document.querySelector(".imgSelect").getAttribute("data-imgval") !== "no") prepareScript.push("-vcodec", document.querySelector(".imgSelect").getAttribute("data-imgval"));
+        let outName = `${item.name.substring(0, item.name.lastIndexOf("."))}.${document.querySelector(".imgSelect").getAttribute("data-extension")}`;
+        await ffmpeg.run(...prepareScript, outName);
+        downloadItem(await ffmpeg.FS("readFile", outName), outName);
+    }
+    createAlert("All the album arts are exported", "albumArtExported");
+}
 document.getElementById("fileInput").addEventListener("input", () => {
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
     let files = document.getElementById("fileInput").files;
     if (document.getElementById("mergeName").value.endsWith(".alac")) document.getElementById("mergeName").value = `${document.getElementById("mergeName").value.substring(0, document.getElementById("mergeName").value.length - 5)}.m4a`;
     let tempPush = [];
+    if (document.querySelector(".sectionSelect").getAttribute("section") === "extractalbum") {
+        extractAlbumArt();
+        return;
+    }
+    if (document.getElementById("cutVideoSelect").value === "2") tempOptions.isSecondCut = true;
     if (document.querySelector(".sectionSelect").getAttribute("section") === "cmd") conversionOptions.output.custom = true; else conversionOptions.output.custom = false; // Make this so that if the user changes tab for more conversion the custom script isn't kept
     if (document.querySelector(".sectionSelect").getAttribute("section") === "merge") conversionOptions.output.merged = true; else conversionOptions.output.merged = false; // Same as before
     if (document.getElementById("redownload").style.display !== "inline") scrollItem();
@@ -54,7 +73,8 @@ document.getElementById("fileInput").addEventListener("input", () => {
         return;
     }
     switch (parseInt(document.getElementById("multiVideoHandle").value)) {
-        case 1:
+        case 1: case -1:
+            tempPush = files;
             break;
         case 2:
             for (let i = 1; i < files.length; i++) if (files[0].name.substring(0, files[0].name.lastIndexOf(".")) === files[i].name.substring(0, files[i].name.lastIndexOf("."))) tempPush.push(files[i], files[0]);
@@ -72,6 +92,7 @@ document.getElementById("fileInput").addEventListener("input", () => {
 });
 function ffmpegMultiCheck() {
     let files = document.getElementById("fileInput").files;
+    if (document.getElementById("cutVideoSelect").value === "2") tempOptions.isSecondCut = true;
     if (isMultiCheck[1] >= files.length) { document.getElementById("reset").reset(); createAlert("Executed conversion of all selected files :D", "convertAll"); isMultiCheck = [false, 0]; return }
     if (parseInt(document.getElementById("multiVideoHandle").value) === 3) {
         let stopLooking = false;
@@ -116,7 +137,7 @@ async function mergeContent(file) {
         try {
             await ffmpeg.run("-i", file[0].name, "temp.jpg");
             await ffmpeg.run("-i", `a${document.getElementById("mergeName").value}`, "-i", "temp.jpg", "-map", "0", "-map", "1", "-c", "copy", "-disposition:v:0", "attached_pic", `aa${document.getElementById("mergeName").value}`);
-            data = ffmpeg.FS("readFile", `aa${document.getElementById("mergeName").value}`);
+            data = await ffmpeg.FS("readFile", `aa${document.getElementById("mergeName").value}`);
             deleteFiles.push(`aa${document.getElementById("mergeName").value}`, "temp.jpg");
             start = "aa";
         } catch (ex) {
@@ -125,7 +146,7 @@ async function mergeContent(file) {
     }
     try {
         await ffmpeg.run("-i", `${start}${document.getElementById("mergeName").value}`, "-i", file[0].name, "-map", "0", "-map_metadata", "1", "-c", "copy", `aaa${document.getElementById("mergeName").value}`);
-        data = ffmpeg.FS("readFile", `aaa${document.getElementById("mergeName").value}`);
+        data = await ffmpeg.FS("readFile", `aaa${document.getElementById("mergeName").value}`);
         deleteFiles.push(`aaa${document.getElementById("mergeName").value}`);
     } catch (ex) {
         console.error(ex);
@@ -136,22 +157,58 @@ async function mergeContent(file) {
     for (let fileItem of deleteFiles) await ffmpeg.FS("unlink", fileItem);
     tempOptions = optionGet();
 }
-function ffmpegReadyMetadata() {
+async function ffmpegReadyMetadata() {
     tempOptions.ffmpegArray.push("-codec", "copy");
     if (!document.getElementById("metadataKeep").checked) tempOptions.ffmpegArray.push("-map_metadata", "-1");
     for (let item of conversionOptions.metadata.items) tempOptions.ffmpegArray.push("-metadata", `${item.key}=${item.value}`);
+    if (conversionOptions.metadata.img !== undefined && document.getElementById("customAlbumArt").checked) {
+        ffmpeg.FS("writeFile", "temp.jpg", await fetchFile(conversionOptions.metadata.img));
+        tempOptions.deleteFile.push("temp.jpg");
+    }
+    if (document.getElementById("removeOlderArt").checked) tempOptions.ffmpegArray.push("-vn");
     tempOptions.fileExtension = tempOptions.ffmpegName[0].substring(tempOptions.ffmpegName[0].lastIndexOf(".") + 1);
     if (!document.getElementById("mp4Keep").checked && customCount > 0 && tempOptions.fileExtension === "mp4" || tempOptions.fileExtension === "m4v" || tempOptions.fileExtension === "m4a" || tempOptions.fileExtension === "alac") tempOptions.ffmpegArray.push("-movflags", "use_metadata_tags");
+    addSimpleCut();
     tempOptions.ffmpegArray.push(`a${tempOptions.ffmpegName[0]}`);
 }
+function getFfmpegItem() {
+    let item = document.getElementById("timestampArea").value.split("\n");
+    let getOptions = item[tempOptions.secondCutProgress];
+    getOptions = getOptions.split(document.getElementById("dividerInput").value);
+    let cutTimestamp = ["", ""];
+    function getCutAlignment() {
+        if (document.getElementById("timestampPosition").value === "0") return [getOptions[1], getOptions[0].replaceAll(" ", "")];
+        return [getOptions[0], getOptions[1].replaceAll(" ", "")]
+    }
+    let alignmentResult = getCutAlignment();
+    conversionOptions.output.name = alignmentResult[0];
+    cutTimestamp[0] = alignmentResult[1];
+    tempOptions.secondCutProgress++;
+    if (item.length > tempOptions.secondCutProgress && item[tempOptions.secondCutProgress].replaceAll(" ", "").length > 1) {
+        getOptions = item[tempOptions.secondCutProgress];
+    getOptions = getOptions.split(document.getElementById("dividerInput").value);
+        cutTimestamp[1] = getCutAlignment()[1];
+    }
+    if (conversionOptions.output.custom) {
+        tempOptions.fileExtension = tempOptions.ffmpegArray[tempOptions.ffmpegArray.length - 1].substring(tempOptions.ffmpegArray[tempOptions.ffmpegArray.length - 1].lastIndexOf("."));
+    }
+    return cutTimestamp;
+}
 async function ffmpegStart() {
-    if (conversionOptions.output.custom) readFfmpegScript(); else if (document.querySelector(".sectionSelect").getAttribute("section") === "metadata") ffmpegReadyMetadata(); else buildFfmpegScript();
+    if (conversionOptions.output.custom) readFfmpegScript(); else if (document.querySelector(".sectionSelect").getAttribute("section") === "metadata") await ffmpegReadyMetadata(); else buildFfmpegScript();
     let finalScript = [];
     if (tempOptions.itsscale !== []) finalScript.push(...tempOptions.itsscale);
     for (let i = 0; i < tempOptions.ffmpegBuffer.length; i++) {
         ffmpeg.FS('writeFile', tempOptions.ffmpegName[i], await fetchFile(tempOptions.ffmpegBuffer[i]));
         if (conversionOptions.output.custom && tempOptions.ffmpegArray.indexOf(`$input[${i}]`) !== -1) tempOptions.ffmpegArray[tempOptions.ffmpegArray.indexOf(`$input[${i}]`)] = tempOptions.ffmpegName[i]; else finalScript.push("-i", tempOptions.ffmpegName[i]);
         tempOptions.deleteFile.push(tempOptions.ffmpegName[i]);
+    }
+    if (tempOptions.isSecondCut) {
+        let fetchTimestamp = getFfmpegItem();
+        tempOptions.ffmpegArray.pop();
+        tempOptions.ffmpegArray.push("-ss", fetchTimestamp[0]);
+        if (fetchTimestamp[1] !== "") tempOptions.ffmpegArray.push("-to", fetchTimestamp[1]); else tempOptions.isSecondCut = false;
+        tempOptions.ffmpegArray.push(`a${conversionOptions.output.name}.${tempOptions.fileExtension}`);
     }
     finalScript.push(...tempOptions.ffmpegArray);
     await ffmpeg.run(...finalScript);
@@ -163,9 +220,9 @@ async function ffmpegStart() {
     }
     let data = ffmpeg.FS('readFile', `${startDifferentText}${conversionOptions.output.name}.${tempOptions.fileExtension}`);
     tempOptions.deleteFile.push(`${startDifferentText}${conversionOptions.output.name}.${tempOptions.fileExtension}`);
-    if (document.getElementById("albumArtCheck").checked && conversionOptions.output.audExtension !== "ogg") {
+    if (document.getElementById("albumArtCheck").checked && conversionOptions.output.audExtension !== "ogg" || document.querySelector(".sectionSelect").getAttribute("section") === "metadata" && document.getElementById("customAlbumArt").checked && conversionOptions.metadata.img !== undefined) {
         try {
-            await ffmpeg.run("-i", tempOptions.ffmpegName[0], "temp.jpg");
+            if (document.getElementById("albumArtCheck").checked && conversionOptions.output.audExtension !== "ogg" && !document.getElementById("customAlbumArt").checked) await ffmpeg.run("-i", tempOptions.ffmpegName[0], "temp.jpg");
             await ffmpeg.run("-i", `${startDifferentText}${conversionOptions.output.name}.${tempOptions.fileExtension}`, "-i", "temp.jpg", "-map", "0", "-map", "1", "-c", "copy", "-disposition:v:0", "attached_pic", `aa${conversionOptions.output.name}.${tempOptions.fileExtension}`);
             data = ffmpeg.FS("readFile", `aa${conversionOptions.output.name}.${tempOptions.fileExtension}`)
             tempOptions.deleteFile.push(`temp.jpg`, `aa${conversionOptions.output.name}.${tempOptions.fileExtension}`);
@@ -176,7 +233,16 @@ async function ffmpegStart() {
     downloadItem(data);
     document.getElementById("console").innerHTML = consoleText;
     document.getElementById("console").parentElement.scrollTo({ top: document.getElementById("console").parentElement.scrollHeight, behavior: 'smooth' });
-    for (let file of tempOptions.deleteFile) await ffmpeg.FS('unlink', file);
+    let textCutSplit = document.getElementById("timestampArea").value.split("\n");
+    for (let file of tempOptions.deleteFile) try {await ffmpeg.FS('unlink', file)} catch(ex) {console.warn(ex)};
+    if (tempOptions.isSecondCut && textCutSplit.length > tempOptions.secondCutProgress && textCutSplit[tempOptions.secondCutProgress].replaceAll(" ", "").length > 1) {
+        tempOptions.ffmpegArray.splice(tempOptions.ffmpegArray.lastIndexOf("-ss"), tempOptions.ffmpegArray.length);
+        try {
+            await ffmpegStart();
+        } catch (ex) {
+            console.warn(ex);
+        }
+    }
     tempOptions = optionGet();
     if (isMultiCheck[0]) setTimeout(() => { finalScript = []; ffmpegMultiCheck() }, 350); else document.getElementById("reset").reset();
 }
@@ -286,6 +352,8 @@ function optionGet() {
         fileExtension: "mp4",
         itsscale: [],
         deleteFile: [],
+        secondCutProgress: 0,
+        isSecondCut: false
     }
 }
 let tempOptions = optionGet();
@@ -386,9 +454,16 @@ function buildFfmpegScript() {
 
         }
     }
+    addSimpleCut();
     if (conversionOptions.output.name === "output") conversionOptions.output.name = tempOptions.ffmpegName[0].substring(0, tempOptions.ffmpegArray[0].lastIndexOf("."));
     if (conversionOptions.videoOptions.codec === "copy" && document.getElementById("vidOutput").checked) tempOptions.fileExtension = tempOptions.ffmpegName[0].substring(tempOptions.ffmpegName[0].lastIndexOf(".") + 1); else if (conversionOptions.output.vidExtension !== null) tempOptions.fileExtension = conversionOptions.output.vidExtension; else if (conversionOptions.audioOptions.codec === "copy") tempOptions.fileExtension = tempOptions.ffmpegName[0].substring(tempOptions.ffmpegName[0].lastIndexOf(".") + 1); else tempOptions.fileExtension = conversionOptions.output.audExtension;
     tempOptions.ffmpegArray.push(`a${conversionOptions.output.name}.${tempOptions.fileExtension}`);
+}
+function addSimpleCut() {
+    if (document.getElementById("cutVideoSelect").value === "1") {
+        if (document.getElementById("startCut").value !== "") tempOptions.ffmpegArray.push("-ss", document.getElementById("startCut").value);
+        if (document.getElementById("endCut").value !== "") tempOptions.ffmpegArray.push("-to", document.getElementById("endCut").value);
+    }
 }
 const { createFFmpeg, fetchFile } = FFmpeg;
 let ffmpeg = createFFmpeg({ log: false, corePath: 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js' });
@@ -400,7 +475,7 @@ ffmpeg.setLogger(({ type, message }) => {
         document.getElementById("console").innerHTML = consoleText;
         progressMove = false;
         document.getElementById("console").parentElement.scrollTo({ top: document.getElementById("console").parentElement.scrollHeight, behavior: 'smooth' });
-        setTimeout(() => { progressMove = true }, 600);
+        setTimeout(() => { progressMove = true; document.getElementById("console").innerHTML = consoleText; document.getElementById("console").parentElement.scrollTo({ top: document.getElementById("console").parentElement.scrollHeight, behavior: 'smooth' }); }, 600);
     }
 });
 ffmpeg.setProgress(({ ratio }) => {
@@ -483,6 +558,10 @@ document.getElementById("checkPixelSpace").addEventListener("input", () => { pix
 window.scrollTo({ top: 0, behavior: "smooth" });
 function readFfmpegScript() {
     for (let part of document.getElementById("ffmpegScript").value.split(" ")) tempOptions.ffmpegArray.push(part.replaceAll("$space", " "));
+    let outputName = tempOptions.ffmpegArray[tempOptions.ffmpegArray.length - 1];
+    tempOptions.ffmpegArray.pop();
+    addSimpleCut();
+    tempOptions.ffmpegArray.push(outputName);
 }
 function sectionRefer() {
     return {
@@ -510,6 +589,11 @@ function sectionRefer() {
             id: [document.getElementById("metadataSection"), document.getElementById("metadaOpt")],
             visible: [true, true],
             value: 4
+        },
+        extractalbum: {
+            id: [document.getElementById("albumArtSection")],
+            visible: [true],
+            value: -1
         }
     }
 }
@@ -534,6 +618,8 @@ for (let items of document.querySelectorAll(["[section]"])) items.addEventListen
     document.getElementById("multiVideoHandle").value = refer[Object.keys(refer)[Object.keys(refer).indexOf(items.getAttribute("section"))]].value;
     if (parseInt(document.getElementById("multiVideoHandle").value) === -1) document.getElementById("multiVideoHandle").disabled = true; else document.getElementById("multiVideoHandle").disabled = false;
     if (items.getAttribute("section") === "imgenc") setTimeout(() => { generalHelloAnimation(document.getElementById("videoOpt"), true); }, 1100);
+    if (items.getAttribute("section") === "imgenc" || items.getAttribute("section") === "merge") generalByeAnimation(document.getElementById("smartCut")); else setTimeout(() => {generalHelloAnimation(document.getElementById("smartCut"), true)}, 1100);
+    if (items.getAttribute("section") === "imgenc") document.getElementById("imgChooser1").append(document.getElementById("imgElementsDisplay")); else if (items.getAttribute("section") === "extractalbum") document.getElementById("imgChooser2").append(document.getElementById("imgElementsDisplay"));
 });
 document.querySelector("[data-fetch=arrowright]").addEventListener("click", () => { scrollItem() })
 document.querySelector("[data-fetch=arrowleft]").addEventListener("click", () => { scrollItem(true) })
@@ -606,7 +692,7 @@ for (let item of ["[section=metadata]", "[section=imgenc]"]) document.querySelec
         generalHelloAnimation(document.getElementById("scrollableItem"));
     }, 1100)
 });
-for (let item of ["[section=merge]", "[section=cmd]"]) document.querySelector(item).addEventListener("click", () => {
+for (let item of ["[section=merge]", "[section=cmd]", "[section=extractalbum]"]) document.querySelector(item).addEventListener("click", () => {
     setTimeout(() => {
         document.getElementById("scrollableItem").classList.add("leftCard", "rightCard", "width100");
         if (window.innerWidth < 800) document.getElementById("scrollableItem").classList.remove("limitWidth");
@@ -748,7 +834,7 @@ document.getElementById("saveTheme").addEventListener("click", () => {
     addTheme(customTheme.themes[customTheme.themes.length - 1]);
     localStorage.setItem("ffmpegWeb-currentTheme", customTheme.themes[customTheme.themes.length - 1].custom);
     localStorage.setItem("ffmpegWeb-customThemes", JSON.stringify(customTheme));
-    createAlert("Theme saved and applied successfully! You can manage it from the 'Manage Themes' section above.")
+    createAlert("Theme saved and applied successfully! You can manage it from the 'Manage Themes' section above.", "themeApplied")
 });
 document.getElementById("importTheme").addEventListener("click", () => {
     let quickInput = document.createElement("input");
@@ -897,6 +983,18 @@ document.querySelector("[data-key=custom]").addEventListener("click", () => {
     generalHelloAnimation(document.getElementById("onlyCustom"), true)
 });
 let customCount = 0;
+document.getElementById("customAlbumArt").addEventListener("change", () => {
+    if (document.getElementById("customAlbumArt").checked) {
+        document.getElementById("customAlbumArt").checked = false;
+        let imgInput = document.createElement("input");
+        imgInput.type = "file";
+        imgInput.addEventListener("change", () => {
+            document.getElementById("customAlbumArt").checked = true;
+            conversionOptions.metadata.img = imgInput.files[0];
+        });
+        imgInput.click();
+    }
+})
 document.getElementById("itemAdd").addEventListener("click", () => {
     let elementKey = document.querySelector(".metadataSelect").getAttribute("data-key");
     let currentCustom = false;
@@ -920,4 +1018,21 @@ document.getElementById("itemAdd").addEventListener("click", () => {
     containerDiv.append(metadataName, deleteDiv);
     document.getElementById("metadataAdded").append(containerDiv);
     document.getElementById("metadataAdded").style.maxHeight = `${parseInt(document.getElementById("metadataAdded").style.maxHeight.replace("px", "")) + 55}px`
+})
+document.getElementById("cutVideoSelect").addEventListener("change", () => {
+    let showValue = [undefined, document.getElementById("singleCrop"), document.getElementById("multiCrop")]
+    for (let i = 1; i < showValue.length; i++) if (parseInt(document.getElementById("cutVideoSelect").value) === i) generalHelloAnimation(showValue[i], true); else generalByeAnimation(showValue[i]);
+})
+let currentState = document.querySelector("html").offsetWidth > 799 ? 0 : 1;
+if (currentState === 0) document.getElementById("textAdapt").textContent = "card at the right of this one";
+window.addEventListener("resize", () => {
+    if (document.querySelector("html").offsetWidth > 799 && currentState === 1) {
+        currentState = 0;
+        document.getElementById("textAdapt").textContent = "card at the right of this one";
+        document.querySelector(".flexAdaptive").prepend(document.querySelector("[data-card=contentCard]"), document.querySelector("[data-card=fileSelection]"), document.querySelector("[data-card=metadata]"), document.querySelector("[data-card=video]"), document.querySelector("[data-card=audio]", document.querySelector("[data-card=progress]")));
+    } else if (document.querySelector("html").offsetWidth < 800 && currentState === 0) {
+        document.getElementById("textAdapt").textContent = "second last card";
+        currentState = 1;
+        document.querySelector(".flexAdaptive").prepend(document.querySelector("[data-card=contentCard]"), document.querySelector("[data-card=metadata]"), document.querySelector("[data-card=video]"), document.querySelector("[data-card=audio]",  document.querySelector("[data-card=fileSelection]"), document.querySelector("[data-card=progress]")));
+    }
 })

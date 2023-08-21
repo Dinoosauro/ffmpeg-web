@@ -23,6 +23,8 @@ If you have two or more videos/audios and you want to merge them, use this secti
 If you need to quickly edit some metadata, there's a section dedicated to it. Choose from lots of default metadata keys, or create your own. Add the value and then click to "Add value". Select the files and, without any re-encoding, the metadata will be edited.
 ### Convert images
 Just like videos and audios, ffmpeg-web can also convert images to lots of formats. You can also add some filters, the same as video's ones.
+### Extract album art
+ffmpeg-web can easily extract album arts. Just choose the "Extract album art" option and select the audio files.
 ## File selection
 At the top right of the page, you can see a "File selection" tab. Before doing that, make sure you've set everything you want correctly. Then, if you are converting your media, you should look at all the ways you can manage multiple files by clicking on the select below the title:
 - You can keep only the first file in the script
@@ -30,7 +32,10 @@ At the top right of the page, you can see a "File selection" tab. Before doing t
 - Keep the files that have the same name
   * You can choose if keeping only the files that have the same name as the first file or do the script for each combination of equal names
 - Execute the same command for each selected file
-
+## Trim content
+ffmpeg-web permits you to trim content in lots of cases. You can choose to trim a video:
+- Providing the start and the end of the new video
+- Writing a lists of timestamps with a divider (ex: useful if you need to trim video by chapters)
 ## Settings
 You can change some settings in ffmpeg-web:
 - Show less popular encoders 

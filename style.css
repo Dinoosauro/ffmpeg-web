@@ -128,7 +128,7 @@ h4 {
 
 select,
 input[type=text],
-input[type=number] {
+input[type=number], textarea {
   padding: 5px;
   background-color: var(--row);
   border-radius: 8px;
@@ -139,19 +139,19 @@ input[type=number] {
   width: 35%;
 }
 
-input[type=text]::-webkit-input-placeholder {
+input[type=text]::-webkit-input-placeholder, textarea::-webkit-input-placeholder {
   color: var(--text);
 }
 
-input[type=text]::-moz-placeholder {
+input[type=text]::-moz-placeholder, textarea::-moz-placeholder {
   color: var(--text);
 }
 
-input[type=text]:-moz-placeholder {
+input[type=text]:-moz-placeholder, textarea:-moz-placeholder {
   color: var(--text);
 }
 
-input[type=text]:-ms-input-placeholder {
+input[type=text]:-ms-input-placeholder, textarea:-ms-input-placeholder {
   color: var(--text);
 }
 
