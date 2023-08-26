@@ -925,6 +925,8 @@ if (!ffmpeg.isLoaded()) ffmpeg.load().then(() => {
     // ffmpeg is loaded, so the "File select" button can now be clicked
     createAlert("Loaded ffmpeg successfully!", "ffmpegSuccessful");
     document.getElementById("btnSelect").classList.remove("disabled");
+}).catch((ex) => {
+    createAlert(`An error occourred while loading ffmpeg: ${ex}`, "ffmpegFail");
 });
 // Set up PWA installation prompt: catch the popup and display it when the user clicks the "Install as PWA" button
 let installationPrompt;
@@ -1062,3 +1064,15 @@ window.addEventListener("resize", () => resizeTab());
 if (currentState === 1) verticalTabPrefer(); // Add it now so that, if the website has a vertical layout, the tabs will be moved
 document.getElementById("zipSave").addEventListener("change", () => {localStorage.setItem("ffmpegWeb-zipSave", document.getElementById("zipSave").checked ? "a" : "b");}) // Save the choiche the user has made to save or not the content to a zip file
 if (localStorage.getItem("ffmpegWeb-zipSave") === "a") {document.getElementById("zipSave").checked = true; document.getElementById("zipSave").dispatchEvent(new Event("input"))}; // If checked, trigger the "input" event of the checkbox, that shows/hide the zip manager section
+function hexToRgbNew(hex) { // Borrowed from https://stackoverflow.com/a/11508164. Gets a RGB value from a hex color
+    var arrBuff = new ArrayBuffer(4);
+    var vw = new DataView(arrBuff);
+    vw.setUint32(0, parseInt(hex, 16), false);
+    var arrByte = new Uint8Array(arrBuff);
+
+    return arrByte[1] + "," + arrByte[2] + "," + arrByte[3];
+}
+if (navigator.userAgent.toLowerCase().indexOf("safari") !== -1 && navigator.userAgent.toLowerCase().indexOf("chrome") === -1) { // Fix select look on Safari
+    let rgbOption = hexToRgbNew(getComputedStyle(document.body).getPropertyValue("--text").replace("#", "")).split(",");
+    document.getElementById("safariFix").innerHTML = `select {-webkit-appearance: none; background-image: url("data:image/svg+xml;utf8,<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='24' height='24' viewBox='0 0 24 24'><path fill='rgb(${rgbOption[0]},${rgbOption[1]},${rgbOption[2]}' d='M7.406 7.828l4.594 4.594 4.594-4.594 1.406 1.406-6 6-6-6z'></path></svg>"); background-position: 100% 50%; background-repeat: no-repeat; font-size: 10pt}`;
+}
