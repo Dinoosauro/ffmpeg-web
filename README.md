@@ -1,7 +1,12 @@
 # ffmpeg-web
 A Web UI for ffmpeg-wasm: convert video, audio and images using the power of ffmpeg, directly from your browser
 
-Try it: https://ffmpeg-web.netlify.app/
+Try it: https://ffmpeg-web.netlify.app/ 
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/54deaa95-e730-4007-8037-0d878109e6da/deploy-status)](https://app.netlify.com/sites/ffmpeg-web/deploys)
+
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/Dinoosauro/ffmpeg-web/tree/main/dist)
 ## What you can do:
 ### Convert video and audio
 You can convert video and audio files with lots of encoders. You can convert thanks to this tool basically every:

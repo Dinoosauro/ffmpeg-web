@@ -1146,7 +1146,7 @@ let supportedLanguages = ["it", "en"];
 for (let lang of supportedLanguages) {
     if (language.indexOf(lang) !== -1 && localStorage.getItem("ffmpegWeb-CurrentLanguage") === null || localStorage.getItem("ffmpegWeb-CurrentLanguage") === lang) { // If there's no preferred language and the browser suggested language is this one, OR if the preferred language is this one, apply it
         manageTranslations(lang);
-        if (localStorage.getItem("ffmpegWeb-CurrentLanguage") === null) createAlert("A foreign language has been automatically applied", "foreignLanguage", true); // If there's no preferred language, create a bottom alert that asks the user if they want to go back to English
+        if (localStorage.getItem("ffmpegWeb-CurrentLanguage") === null && lang !== "en") createAlert("A foreign language has been automatically applied", "foreignLanguage", true); // If there's no preferred language, create a bottom alert that asks the user if they want to go back to English
         break;
     }
 }
