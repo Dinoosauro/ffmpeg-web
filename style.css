@@ -405,7 +405,6 @@ input[type=color] {
 
 .alert {
   position: fixed;
-  top: 5vh;
   margin-left: 15vw;
   margin-right: 15vw;
   z-index: 3;

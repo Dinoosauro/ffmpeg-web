@@ -12,6 +12,7 @@ const filestoCache = [
     'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
     'https://unpkg.com/@ffmpeg/ffmpeg@0.11.0/dist/ffmpeg.min.js',
     'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js',
+    "./translations/it.json"
 ];
 self.addEventListener('install', e => {
     e.waitUntil(

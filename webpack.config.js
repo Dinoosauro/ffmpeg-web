@@ -6,7 +6,7 @@ const cleanCss = require("clean-css");
 if (fs.existsSync("dist/")) fs.rmdirSync("dist/", { recursive: true, force: true });
 fs.mkdirSync("dist");
 fs.mkdirSync("dist/assets");
-for (let item of ["service-worker.js", "updatecode.txt", "netlify.toml", "manifest.json", "assets/logo.png", "assets/mergedAssets.json"]) {
+for (let item of ["service-worker.js", "updatecode.txt", "netlify.toml", "manifest.json", "assets/logo.png", "assets/mergedAssets.json", "translations/it.json"]) {
     if (item.indexOf("/") !== -1 && !fs.existsSync(`dist/${item.substring(0, item.lastIndexOf("/"))}`)) fs.mkdirSync(`dist/${item.substring(0, item.lastIndexOf("/"))}`);
     fs.copyFileSync(item, `dist/${item}`);
 }

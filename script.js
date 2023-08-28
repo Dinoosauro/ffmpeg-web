@@ -7,9 +7,34 @@ if ('serviceWorker' in navigator) {
     registerServiceWorker();
 } else console.error(":/")
 // Check if there's a new version fetching updatecode.txt with no cache. If the result isn't the same as the current app version, a confirm dialog will be shown so that the user can update.
-let appVersion = "1.1.0";
+let appVersion = "1.1.1";
 fetch("./updatecode.txt", { cache: "no-store" }).then((res) => res.text().then((text) => { if (text.replace("\n", "") !== appVersion) if (confirm(`There's a new version of ffmpeg-web. Do you want to update? [${appVersion} --> ${text.replace("\n", "")}]`)) { caches.delete("ffmpegweb-cache"); location.reload(true); } }).catch((e) => { console.error(e) })).catch((e) => console.error(e));
 document.getElementById("version").textContent = appVersion; // Write current text version to the info tab in settings
+// Load English translations for strings that come from JavaScript
+let englishTranslations = {
+    html: {},
+    js: {
+        added: "Aggiunto",
+        toZip: "al file zip",
+        downloadHere: "Download here",
+        troubleDownload: "Having trouble downloading? Click here",
+        wait: "Please wait a second",
+        chooseName: "Choose a name for your theme",
+        themeCreated: "Theme saved and applied successfully! You can manage it from the 'Manage Themes' section above.",
+        themeApplied: "Theme applied! Make sure to save it, so that you won't need to import it again.",
+        ffmpegLoad: "Loading ffmpeg. The 'Select files' button will be disabled until it has been loaded.",
+        successful: "Loaded ffmpeg successfully!",
+        error: "An error occourred while loading ffmpeg",
+        rightCard: "card at the right of this one",
+        secondCard: "second last card",
+        noAgain: "Don't show again",
+        visibleAlerts: "All the alerts are now visible",
+        ffmpegWait: "Wait until ffmpeg is loaded",
+        allAlbum: "All the album arts are exported",
+        conversionEnded: "Executed conversion of all selected files :D"
+    }
+}
+let currentTranslation = englishTranslations;
 // conversionOptions: an object that contains options about the encoding settings. These options will be applied to every file passed.
 let conversionOptions = {
     videoOptions: {
@@ -40,7 +65,7 @@ let conversionOptions = {
 
 document.getElementById("btnSelect").addEventListener("click", () => { // The "Select file" button.
     // If ffmpeg.wasm is not loaded, don't do anything.
-    if (document.getElementById("btnSelect").classList.contains("disabled")) { createAlert("Wait until ffmpeg is loaded.", "ffmpegLoadRemind"); return; };
+    if (document.getElementById("btnSelect").classList.contains("disabled")) { createAlert(englishTranslations.js.ffmpegWait, "ffmpegLoadRemind"); return; };
     // Reset the inputs so that, even if there's an error in the ffmpeg conversion, it'll be possible to continue using the website.
     document.getElementById("reset").reset();
     tempOptions = optionGet();
@@ -59,7 +84,7 @@ async function extractAlbumArt() {
         await ffmpeg.run(...prepareScript, outName);
         downloadItem(await ffmpeg.FS("readFile", outName), outName);
     }
-    createAlert("All the album arts are exported", "albumArtExported");
+    createAlert(englishTranslations.js.allAlbum, "albumArtExported");
 }
 
 document.getElementById("fileInput").addEventListener("input", () => { // After a file has been selected, the website will start to look into the selected files and start the conversion
@@ -100,7 +125,7 @@ document.getElementById("fileInput").addEventListener("input", () => { // After 
 function ffmpegMultiCheck() { // Manages multiple outputs
     let files = document.getElementById("fileInput").files;
     if (document.getElementById("cutVideoSelect").value === "2") tempOptions.isSecondCut = true; // If the value is "2", the user wants that the content divided in some parts (with timestamps)
-    if (isMultiCheck[1] >= files.length) { document.getElementById("reset").reset(); createAlert("Executed conversion of all selected files :D", "convertAll"); isMultiCheck = [false, 0]; return } // All the files are converted, so nothing else will be done
+    if (isMultiCheck[1] >= files.length) { document.getElementById("reset").reset(); createAlert(currentTranslation.js.conversionEnded, "convertAll"); isMultiCheck = [false, 0]; return } // All the files are converted, so nothing else will be done
     if (parseInt(document.getElementById("multiVideoHandle").value) === 3) { // Add input to the command if they have the same name (for each content selected)
         let stopLooking = false;
         for (let i = isMultiCheck[1]; i < files.length; i++) {
@@ -258,13 +283,13 @@ function downloadItem(data, name) { // Function to download a file
     downloadName = name !== undefined ? name : `${conversionOptions.output.name}.${tempOptions.fileExtension}`; // If no name is provided, fetch the result of the conversion
     if (document.getElementById("zipSave").checked) { // If the user wants a zip file, add it to JSZIP, and notify the user
         zip.file(downloadName, new File([data.buffer], downloadName));
-        createAlert(`Added ${downloadName} to zip file`, "zipFileAdd");
+        createAlert(`${currentTranslation.js.added} ${downloadName} ${currentTranslation.js.toZip}`, "zipFileAdd");
         return;
     }
     var link = document.createElement("a");
     link.href = URL.createObjectURL(new File([data.buffer], downloadName));
     link.download = downloadName;
-    link.textContent = "Download here";
+    link.textContent = currentTranslation.js.downloadHere;
     link.setAttribute("ref", linkStore.length);
     link.click();
     if (document.getElementById("saveFiles").checked) { // If the user hasn't disabled the "Keep the link of the video/audio" option, it'll be added to a Select, so that the download can be restored at a later time
@@ -478,6 +503,7 @@ let progressMove = true;
 let consoleText = "";
 ffmpeg.setLogger(({ type, message }) => { // Set an event every time there's an update from ffmpeg.wasm: add the message to the progress div
     consoleText += `<br>[${type}] ${message}`;
+    if (consoleText.length > parseInt(document.getElementById("maxCharacters").value)) consoleText = consoleText.substring(consoleText.length - Math.floor(parseInt(document.getElementById("maxCharacters").value) * 9 / 10));
     if (progressMove) {
         document.getElementById("console").innerHTML = consoleText;
         progressMove = false;
@@ -651,7 +677,7 @@ document.getElementById("downloadZip").addEventListener("click", () => { // Gene
         if (previousLink !== undefined) URL.revokeObjectURL(previousLink);
         // It's similar to the downlaodFiles part, but it doesn't save it in the selection and it has a different text
         let specialLink = document.createElement("a"); // Create a link to download it since it might be blocked on some mobile browsers
-        specialLink.textContent = "Having trouble downloading? Click here";
+        specialLink.textContent = currentTranslation.js.troubleDownload;
         specialLink.href = URL.createObjectURL(new Blob([content]));
         specialLink.style = "text-align: center; display: block;";
         specialLink.download = "ffmpeg-web.zip";
@@ -826,12 +852,12 @@ let secTimeout = false;
 document.getElementById("saveTheme").addEventListener("click", () => { // The function that permits to save the custom theme
     // Add a second timeout to avoid spamming and to avoid same custom id.
     if (secTimeout) {
-        createAlert("Please wait a second.", "secondWait");
+        createAlert(currentTranslation.js.wait, "secondWait");
         return;
     }
     secTimeout = true;
     setTimeout(() => { secTimeout = false }, 1000);
-    let name = prompt("Choose the name of your new theme");
+    let name = prompt(currentTranslation.js.chooseName);
     if (name === null) return;
     customTheme.themes.push({ // Add item to the customTheme property
         name: name,
@@ -848,7 +874,7 @@ document.getElementById("saveTheme").addEventListener("click", () => { // The fu
     addTheme(customTheme.themes[customTheme.themes.length - 1]); // And add it to the DOM
     localStorage.setItem("ffmpegWeb-currentTheme", customTheme.themes[customTheme.themes.length - 1].custom); // Set the new theme as the current one, so that it'll be kept if the page is refreshed
     localStorage.setItem("ffmpegWeb-customThemes", JSON.stringify(customTheme)); // And save the new theme in the custom theme LocalStorage property
-    createAlert("Theme saved and applied successfully! You can manage it from the 'Manage Themes' section above.", "themeApplied")
+    createAlert(englishTranslations.js.themeCreated, "themeApplied")
 });
 document.getElementById("importTheme").addEventListener("click", () => { // Function that permits to import a theme
     let quickInput = document.createElement("input"); // Create a file input that will fetch the file
@@ -863,7 +889,7 @@ document.getElementById("importTheme").addEventListener("click", () => { // Func
                     document.querySelector(`[data-change=${colorTheme}]`).value = getJson.color[colorTheme];
                     document.documentElement.style.setProperty(`--${colorTheme}`, getJson.color[colorTheme]);
                 }
-                createAlert("Theme applied! Make sure to save it, so that you won't need to import it again.", "appliedTheme");
+                createAlert(currentTranslation.js.themeApplied, "appliedTheme");
             }
         });
         reader.readAsText(quickInput.files[0]);
@@ -880,7 +906,8 @@ if (currentTheme !== null) { // The user has changed theme at least once, so the
 for (let item of document.querySelectorAll("[data-change]")) item.value = getComputedStyle(document.body).getPropertyValue(`--${item.getAttribute("data-change")}`) // Set the new color as the value of the "New theme" input colors
 if (localStorage.getItem("ffmpegWeb-alertDuration") === null) localStorage.setItem("ffmpegWeb-alertDuration", "5000");
 let oldAlert = undefined;
-function createAlert(text, noRepeat) { // Create an alert at the top of the page for informations
+function createAlert(text, noRepeat, showBottom) { // Create an alert at the top of the page for informations
+    console.log(showBottom);
     if (localStorage.getItem("ffmpegWeb-showAlert") === "b" || localStorage.getItem("ffmpegWeb-ignoredAlert") !== null && localStorage.getItem("ffmpegWeb-ignoredAlert").split(",").indexOf(noRepeat) !== -1) return; // If the user doesn't want to see alerts, or the alert ID is the list of dismissed items, don't show it.
     let firstAlertContainer = document.createElement("div");
     firstAlertContainer.classList.add("totalCenter", "fill", "opacity");
@@ -898,7 +925,7 @@ function createAlert(text, noRepeat) { // Create an alert at the top of the page
     // Create the "Don't show this again" button
     let noRepeatIndication = document.createElement("l");
     noRepeatIndication.style = "text-decoration: underline; display: flex; justify-content: flex-end; width: 25%";
-    noRepeatIndication.textContent = "Don't show again";
+    noRepeatIndication.textContent = currentTranslation.js.noAgain;
     noRepeatIndication.addEventListener("click", () => { if (localStorage.getItem("ffmpegWeb-ignoredAlert") === null) localStorage.setItem("ffmpegWeb-ignoredAlert", `${noRepeat},`); else localStorage.setItem("ffmpegWeb-ignoredAlert", `${localStorage.getItem("ffmpegWeb-ignoredAlert")}${noRepeat},`); deleteAlert(firstAlertContainer); });
     textContainer.append(img, content, noRepeatIndication);
     alertContainer.append(textContainer);
@@ -907,11 +934,21 @@ function createAlert(text, noRepeat) { // Create an alert at the top of the page
         document.body.append(firstAlertContainer);
         setTimeout(() => { firstAlertContainer.style.opacity = "1", 15 });
     }
-    if (oldAlert !== undefined) { // If there's an old alert, delete it before appending the new one.
+    if (oldAlert !== undefined && !showBottom) { // If there's an old alert, delete it before appending the new one. This won't be done for bottom alerts, that are reserved for language changes
         deleteAlert(oldAlert);
         setTimeout(() => { appendThis() }, 300);
     } else appendThis();
-    oldAlert = firstAlertContainer;
+    if (!showBottom) oldAlert = firstAlertContainer; else { // Don't save the bottom alert as an old alert, since it's only for language, and instead add a label to go back to English.
+        let restoreEnglish = document.createElement("l");
+        restoreEnglish.style.textDecoration = "underline";
+        restoreEnglish.style.marginLeft = "15px";
+        restoreEnglish.style.fontSize = "0.8em";
+        restoreEnglish.textContent = "Go back to English";
+        restoreEnglish.addEventListener("click", () => { manageTranslations("en"); deleteAlert(firstAlertContainer) })
+        addHoverEvents(restoreEnglish);
+        content.append(restoreEnglish);
+    }
+    if (showBottom) alertContainer.style.bottom = "5vh"; else alertContainer.style.top = "5vh";
     appendThis();
     function deleteAlert(alert) {
         alert.style.opacity = "0"; setTimeout(() => { alert.remove(); oldAlert = undefined; }, 400)
@@ -919,14 +956,14 @@ function createAlert(text, noRepeat) { // Create an alert at the top of the page
     setTimeout(() => deleteAlert(firstAlertContainer), parseInt(localStorage.getItem("ffmpegWeb-alertDuration"))); // Delete the current alert after an amount of ms the user has decided from the settings
     for (let item of [noRepeatIndication, img]) addHoverEvents(item);
 }
-createAlert("Loading ffmpeg. The 'Select files' button will be disabled until it has been loaded.", "ffmpegLoading"); // Wait until ffmpeg-web loads the ffmpeg.wasm core component.
+createAlert(currentTranslation.js.ffmpegLoad, "ffmpegLoading"); // Wait until ffmpeg-web loads the ffmpeg.wasm core component.
 document.getElementById("btnSelect").classList.add("disabled"); // Disable the "Select file" button until it has loaded
 if (!ffmpeg.isLoaded()) ffmpeg.load().then(() => {
     // ffmpeg is loaded, so the "File select" button can now be clicked
-    createAlert("Loaded ffmpeg successfully!", "ffmpegSuccessful");
+    createAlert(currentTranslation.js.successful, "ffmpegSuccessful");
     document.getElementById("btnSelect").classList.remove("disabled");
 }).catch((ex) => {
-    createAlert(`An error occourred while loading ffmpeg: ${ex}`, "ffmpegFail");
+    createAlert(`${englishTranslations.js.error} ${ex}`, "ffmpegFail");
 });
 // Set up PWA installation prompt: catch the popup and display it when the user clicks the "Install as PWA" button
 let installationPrompt;
@@ -953,7 +990,7 @@ function scrollItem(invert) { // Scroll between the two parts (PWA promotion & p
     }, 510)
 }
 document.getElementById("alertDuration").addEventListener("input", () => { localStorage.setItem("ffmpegWeb-alertDuration", document.getElementById("alertDuration").value) }); // When the user changes the value of the "Alert duration" textbox, it'll be automatically saved in the LocalStorage
-document.getElementById("resetBtn").addEventListener("click", () => { localStorage.setItem("ffmpegWeb-ignoredAlert", ""); createAlert("All the alerts are now visible", "alertVisible") }); // Show again all the ignored values
+document.getElementById("resetBtn").addEventListener("click", () => { localStorage.setItem("ffmpegWeb-ignoredAlert", ""); createAlert(currentTranslation.js.visibleAlerts, "alertVisible") }); // Show again all the ignored values
 document.getElementById("alertAsk").addEventListener("input", () => { // The checkbox that permits the user to disable alerts entirely
     if (document.getElementById("alertAsk").checked) { // The user wants to see alerts
         localStorage.setItem("ffmpegWeb-showAlert", "a"); // a = show alerts
@@ -1049,10 +1086,10 @@ let currentState = document.querySelector("html").offsetWidth > 799 ? 0 : 1; // 
 function resizeTab() {
     if (document.querySelector("html").offsetWidth > 799 && currentState === 1) { // Setup two cards per row
         currentState = 0;
-        document.getElementById("textAdapt").textContent = "card at the right of this one";
+        document.getElementById("textAdapt").textContent = currentTranslation.js.rightCard;
         document.querySelector(".flexAdaptive").prepend(document.querySelector("[data-card=contentCard]"), document.querySelector("[data-card=fileSelection]"), document.querySelector("[data-card=metadata]"), document.querySelector("[data-card=video]"), document.querySelector("[data-card=audio]", document.querySelector("[data-card=progress]"))); // Move the file selection tab at the right of the first row
     } else if (document.querySelector("html").offsetWidth < 800 && currentState === 0) { // Setup a card per row
-        document.getElementById("textAdapt").textContent = "second last card";
+        document.getElementById("textAdapt").textContent = currentTranslation.js.secondCard;
         currentState = 1;
         verticalTabPrefer();
     }
@@ -1062,8 +1099,8 @@ function verticalTabPrefer() {
 }
 window.addEventListener("resize", () => resizeTab());
 if (currentState === 1) verticalTabPrefer(); // Add it now so that, if the website has a vertical layout, the tabs will be moved
-document.getElementById("zipSave").addEventListener("change", () => {localStorage.setItem("ffmpegWeb-zipSave", document.getElementById("zipSave").checked ? "a" : "b");}) // Save the choiche the user has made to save or not the content to a zip file
-if (localStorage.getItem("ffmpegWeb-zipSave") === "a") {document.getElementById("zipSave").checked = true; document.getElementById("zipSave").dispatchEvent(new Event("input"))}; // If checked, trigger the "input" event of the checkbox, that shows/hide the zip manager section
+document.getElementById("zipSave").addEventListener("change", () => { localStorage.setItem("ffmpegWeb-zipSave", document.getElementById("zipSave").checked ? "a" : "b"); }) // Save the choiche the user has made to save or not the content to a zip file
+if (localStorage.getItem("ffmpegWeb-zipSave") === "a") { document.getElementById("zipSave").checked = true; document.getElementById("zipSave").dispatchEvent(new Event("input")) }; // If checked, trigger the "input" event of the checkbox, that shows/hide the zip manager section
 function hexToRgbNew(hex) { // Borrowed from https://stackoverflow.com/a/11508164. Gets a RGB value from a hex color
     var arrBuff = new ArrayBuffer(4);
     var vw = new DataView(arrBuff);
@@ -1075,4 +1112,41 @@ function hexToRgbNew(hex) { // Borrowed from https://stackoverflow.com/a/1150816
 if (navigator.userAgent.toLowerCase().indexOf("safari") !== -1 && navigator.userAgent.toLowerCase().indexOf("chrome") === -1) { // Fix select look on Safari
     let rgbOption = hexToRgbNew(getComputedStyle(document.body).getPropertyValue("--text").replace("#", "")).split(",");
     document.getElementById("safariFix").innerHTML = `select {-webkit-appearance: none; background-image: url("data:image/svg+xml;utf8,<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='24' height='24' viewBox='0 0 24 24'><path fill='rgb(${rgbOption[0]},${rgbOption[1]},${rgbOption[2]}' d='M7.406 7.828l4.594 4.594 4.594-4.594 1.406 1.406-6 6-6-6z'></path></svg>"); background-position: 100% 50%; background-repeat: no-repeat; font-size: 10pt}`;
+}
+document.getElementById("maxCharacters").addEventListener("input", () => {
+    if (parseInt(document.getElementById("maxCharacters").value) > 9) localStorage.setItem("ffmpegWeb-maxConsole", document.getElementById("maxCharacters").value);
+})
+if (localStorage.getItem("ffmpegWeb-maxConsole") !== null) document.getElementById("maxCharacters").value = localStorage.getItem("ffmpegWeb-maxConsole");
+for (let item of document.querySelectorAll("[data-translate]")) englishTranslations.html[item.getAttribute("data-translate")] = item.textContent; // Fetch the translation of the HTML elements, so that if the user changes language, they'll be able to restore English without refreshing.
+function applyTranslation(jsonItem) { // The function that applies the translations to the HTML document
+    currentTranslation = jsonItem; // Save the new translation in the object
+    for (let item in jsonItem.html) {
+        for (let htmlelement of document.querySelectorAll(`[data-translate=${item}]`)) htmlelement.textContent = jsonItem.html[item];
+    }
+}
+let language = navigator.language || navigator.userLanguage; // Get the preferred language of the browser
+function manageTranslations(langId) { // The function that fetches the language JSON file
+    document.getElementById("langSelect").value = langId; // Change the selected language on the Language settings tab
+    if (langId === "en") { // If it's English, use the default translations that are included with the default HTML & JavaScript
+        applyTranslation(englishTranslations);
+        return;
+    }
+    // Otherwise, fetch the translations and apply them
+    fetch(`/translations/${langId}.json`).then((res) => {
+        res.json().then((json) => {
+            applyTranslation(json);
+        })
+    })
+}
+document.getElementById("langSelect").addEventListener("change", () => { // When the user changes the selected language, fetch the new language JSON file and save their choice for the future usage of the website
+    manageTranslations(document.getElementById("langSelect").value);
+    localStorage.setItem("ffmpegWeb-CurrentLanguage", document.getElementById("langSelect").value);
+})
+let supportedLanguages = ["it", "en"]; 
+for (let lang of supportedLanguages) {
+    if (language.indexOf(lang) !== -1 && localStorage.getItem("ffmpegWeb-CurrentLanguage") === null || localStorage.getItem("ffmpegWeb-CurrentLanguage") === lang) { // If there's no preferred language and the browser suggested language is this one, OR if the preferred language is this one, apply it
+        manageTranslations(lang);
+        if (localStorage.getItem("ffmpegWeb-CurrentLanguage") === null) createAlert("A foreign language has been automatically applied", "foreignLanguage", true); // If there's no preferred language, create a bottom alert that asks the user if they want to go back to English
+        break;
+    }
 }
