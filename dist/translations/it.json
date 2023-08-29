@@ -45,7 +45,7 @@
         "timestampPosition": "Posizione del timestamp",
         "left": "Sinistra",
         "right": "Destra",
-        "reEncAlert": "Se stai ricodificando il file multimediale, puoi modificare le sue opzioni con uno scroll in basso. Altrimenti, scegli i file nella !ToAdapt",
+        "reEncAlert": "Se stai ricodificando il file multimediale, puoi modificare le sue opzioni con uno scroll in basso. Altrimenti, scegli i file nella ",
         "fileSelect": "Selezione dei file",
         "selectFile": "Scegli i file",
         "keepfirst": "Mantieni solamente il primo file",

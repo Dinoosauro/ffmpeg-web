@@ -14,8 +14,8 @@ document.getElementById("version").textContent = appVersion; // Write current te
 let englishTranslations = {
     html: {},
     js: {
-        added: "Aggiunto",
-        toZip: "al file zip",
+        added: "Added",
+        toZip: "to the zip file",
         downloadHere: "Download here",
         troubleDownload: "Having trouble downloading? Click here",
         wait: "Please wait a second",
@@ -907,7 +907,6 @@ for (let item of document.querySelectorAll("[data-change]")) item.value = getCom
 if (localStorage.getItem("ffmpegWeb-alertDuration") === null) localStorage.setItem("ffmpegWeb-alertDuration", "5000");
 let oldAlert = undefined;
 function createAlert(text, noRepeat, showBottom) { // Create an alert at the top of the page for informations
-    console.log(showBottom);
     if (localStorage.getItem("ffmpegWeb-showAlert") === "b" || localStorage.getItem("ffmpegWeb-ignoredAlert") !== null && localStorage.getItem("ffmpegWeb-ignoredAlert").split(",").indexOf(noRepeat) !== -1) return; // If the user doesn't want to see alerts, or the alert ID is the list of dismissed items, don't show it.
     let firstAlertContainer = document.createElement("div");
     firstAlertContainer.classList.add("totalCenter", "fill", "opacity");
@@ -1123,6 +1122,7 @@ function applyTranslation(jsonItem) { // The function that applies the translati
     for (let item in jsonItem.html) {
         for (let htmlelement of document.querySelectorAll(`[data-translate=${item}]`)) htmlelement.textContent = jsonItem.html[item];
     }
+    document.getElementById("textAdapt").textContent = document.querySelector("html").offsetWidth > 799 ? currentTranslation.js.rightCard : currentTranslation.js.secondCard; // Change the language of the "second last card" or "card at the right", that refers to the card where the user can choose a file
 }
 let language = navigator.language || navigator.userLanguage; // Get the preferred language of the browser
 function manageTranslations(langId) { // The function that fetches the language JSON file
