@@ -249,7 +249,13 @@
                             <option value="0" data-translate="left">Left</option>
                             <option value="1" selected data-translate="right">Right</option>
                     </select><br><br>
-                    <textarea id="timestampArea" placeholder="Write here your timestamps!" class="fill"></textarea>
+                    <textarea id="timestampArea" placeholder="Write here your timestamps!" class="fill"></textarea><br><br>
+                    <div class="switchContainer">
+                        <label class="switch">
+                            <input type="checkbox" id="smartMetadata" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <l data-translate="smartDesc">Add title and track metadata</l></div><br><br>
                     </div>
                 </div>
                 <br><br>
@@ -312,20 +318,20 @@
                     </div><br>
                     <l data-translate="value">Value:</l><input data-text id="metadataValue">
                 </div><br>
+                <div class="button" id="itemAdd" data-translate="additem">Add item</div><br>
+                <div id="metadataAdded" class="maxHeight" style="max-height: 0px; display: grid;"></div><br>
                 <div class="switchContainer">
                 <label class="switch">
                     <input type="checkbox" id="customAlbumArt">
                     <span class="slider"></span>
                 </label>
-                <l data-translate="customAlbumArt">Add a custom album art</l></div><br><br>
+                <l data-translate="customAlbumArt">Add a custom album art</l></div><br>
                 <div class="switchContainer">
                 <label class="switch">
                     <input type="checkbox" id="removeOlderArt">
                     <span class="slider"></span>
                 </label>
                 <l data-translate="deletevid">Delete the video output (this will delete the previous album art, but also any other video stream)</l></div><br><br>
-                <div class="button" id="itemAdd" data-translate="additem">Add item</div><br>
-                <div id="metadataAdded" class="maxHeight" style="max-height: 0px; display: grid;"></div>
         </div>
         <div class="card leftCard" id="videoOpt" style="display: none;" data-card="video">
             <div class="titleContainer">

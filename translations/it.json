@@ -153,7 +153,8 @@
         "language": "Lingua",
         "languageDesc": "Cambia la lingua utilizzata da ffmpeg-web",
         "chooseFile": "Scegli file",
-        "chooseFileDesc": "Scegli come gestire la selezione dei file multipla"
+        "chooseFileDesc": "Scegli come gestire la selezione dei file multipla",
+        "smartDesc": "Aggiungi i metadati titolo e numero traccia"
     },
     "js": {
         "added": "Aggiunto", 

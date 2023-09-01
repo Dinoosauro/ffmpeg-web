@@ -55,7 +55,8 @@ let conversionOptions = {
         audExtension: "mp4",
         orientation: -1,
         custom: false,
-        merged: false
+        merged: false,
+        dividerProgression: 0,
     },
     metadata: {
         items: [],
@@ -213,6 +214,7 @@ function getFfmpegItem() { // The function that will manage the start and the en
         return [getOptions[0], getOptions[1].replaceAll(" ", "")] // Timestamp at the right
     }
     let alignmentResult = getCutAlignment();
+    conversionOptions.output.dividerProgression++;
     conversionOptions.output.name = alignmentResult[0];
     cutTimestamp[0] = alignmentResult[1];
     tempOptions.secondCutProgress++;
@@ -241,6 +243,7 @@ async function ffmpegStart() { // The function that manages most of the ffmpeg c
         tempOptions.ffmpegArray.pop();
         tempOptions.ffmpegArray.push("-ss", fetchTimestamp[0]);
         if (fetchTimestamp[1] !== "") tempOptions.ffmpegArray.push("-to", fetchTimestamp[1]); else tempOptions.isSecondCut = false;
+    if (document.getElementById("smartMetadata").checked) tempOptions.ffmpegArray.push("-metadata", `title=${conversionOptions.output.name}`, "-metadata", `track=${conversionOptions.output.dividerProgression}`); // Smart metadata for multiple dividers
         tempOptions.ffmpegArray.push(`a${conversionOptions.output.name}.${tempOptions.fileExtension}`); // Push the output file name
     }
     finalScript.push(...tempOptions.ffmpegArray);
@@ -256,7 +259,10 @@ async function ffmpegStart() { // The function that manages most of the ffmpeg c
     if (document.getElementById("albumArtCheck").checked && conversionOptions.output.audExtension !== "ogg" || document.querySelector(".sectionSelect").getAttribute("section") === "metadata" && document.getElementById("customAlbumArt").checked && conversionOptions.metadata.img !== undefined) { // If these conditions are satisfied, the album art must be added
         try {
             if (document.getElementById("albumArtCheck").checked && conversionOptions.output.audExtension !== "ogg" && !document.getElementById("customAlbumArt").checked) await ffmpeg.run("-i", tempOptions.ffmpegName[0], "temp.jpg"); // If the album art isn't provided by the user (this is only possible in the metadata tab), it'll be fetched from the input file.
-            await ffmpeg.run("-i", `${startDifferentText}${conversionOptions.output.name}.${tempOptions.fileExtension}`, "-i", "temp.jpg", "-map", "0", "-map", "1", "-c", "copy", "-disposition:v:0", "attached_pic", `aa${conversionOptions.output.name}.${tempOptions.fileExtension}`); // Add the album art to the file
+            let tempArray = [];
+    if (document.getElementById("smartMetadata").checked && tempOptions.isSecondCut) tempArray.push("-metadata", `title=${conversionOptions.output.name}`, "-metadata", `track=${conversionOptions.output.dividerProgression}`); // Smart metadata for cutting item by timestamp
+            console.log("-i", `${startDifferentText}${conversionOptions.output.name}.${tempOptions.fileExtension}`, "-i", "temp.jpg", "-map", "0", "-map", "1", "-c", "copy", "-disposition:v:0", "attached_pic", ...tempArray, `aa${conversionOptions.output.name}.${tempOptions.fileExtension}`);
+            await ffmpeg.run("-i", `${startDifferentText}${conversionOptions.output.name}.${tempOptions.fileExtension}`, "-i", "temp.jpg", "-map", "0", "-map", "1", "-c", "copy", "-disposition:v:0", "attached_pic", ...tempArray, `aa${conversionOptions.output.name}.${tempOptions.fileExtension}`); // Add the album art to the file
             data = ffmpeg.FS("readFile", `aa${conversionOptions.output.name}.${tempOptions.fileExtension}`) // Read the exported file with the album art
             tempOptions.deleteFile.push(`temp.jpg`, `aa${conversionOptions.output.name}.${tempOptions.fileExtension}`);
         } catch (ex) {
@@ -277,6 +283,7 @@ async function ffmpegStart() { // The function that manages most of the ffmpeg c
         }
     }
     tempOptions = optionGet(); // Delete the conversion-specific informations, so that a new item can be converted
+    conversionOptions.output.dividerProgression = 0; // Restore the divider progression so that each conversion has its own track progression
     if (isMultiCheck[0]) setTimeout(() => { finalScript = []; ffmpegMultiCheck() }, 350); else document.getElementById("reset").reset(); // if antother item must be converted, restart all of this process; otherwise reset the text input so that the user can select another file.
 }
 function downloadItem(data, name) { // Function to download a file
@@ -488,7 +495,7 @@ function buildFfmpegScript() {
     }
     addSimpleCut(); // Check if the user wants to trim to only a specific part of the video
     if (conversionOptions.output.name === "output") conversionOptions.output.name = tempOptions.ffmpegName[0].substring(0, tempOptions.ffmpegArray[0].lastIndexOf(".")); // If no output name is specified, it'll be extracted from the first file
-    if (conversionOptions.videoOptions.codec === "copy" && document.getElementById("vidOutput").checked) tempOptions.fileExtension = tempOptions.ffmpegName[0].substring(tempOptions.ffmpegName[0].lastIndexOf(".") + 1); else if (conversionOptions.output.vidExtension !== null) tempOptions.fileExtension = conversionOptions.output.vidExtension; else if (conversionOptions.audioOptions.codec === "copy") tempOptions.fileExtension = tempOptions.ffmpegName[0].substring(tempOptions.ffmpegName[0].lastIndexOf(".") + 1); else tempOptions.fileExtension = conversionOptions.output.audExtension; // If there's a video track and the user wants to have it, make the video extension the final file extension. Otherwise, use the audio extension.
+    if (conversionOptions.videoOptions.codec === "copy" && document.getElementById("vidOutput").checked) tempOptions.fileExtension = tempOptions.ffmpegName[0].substring(tempOptions.ffmpegName[0].lastIndexOf(".") + 1); else if (conversionOptions.output.vidExtension !== null && document.getElementById("vidOutput").checked || conversionOptions.output.vidExtension !== null && document.querySelector(".sectionSelect").getAttribute("section") === "imgenc") tempOptions.fileExtension = conversionOptions.output.vidExtension; else if (conversionOptions.audioOptions.codec === "copy") tempOptions.fileExtension = tempOptions.ffmpegName[0].substring(tempOptions.ffmpegName[0].lastIndexOf(".") + 1); else tempOptions.fileExtension = conversionOptions.output.audExtension; // If there's a video track and the user wants to have it, make the video extension the final file extension. Otherwise, use the audio extension.
     tempOptions.ffmpegArray.push(`a${conversionOptions.output.name}.${tempOptions.fileExtension}`); // Temp output file
 }
 function addSimpleCut() { // Trim content  from a start time to an end time
