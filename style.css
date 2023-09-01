@@ -153,6 +153,9 @@ select {
   display: flex;
   align-items: center;
 }
+.hcenter {
+  justify-content: center;
+}
 .switchContainer > l{
   flex-shrink: 999;
 }
@@ -418,5 +421,20 @@ input[type=color] {
 @-moz-document url-prefix() {
   div {
     scrollbar-width: none;
+  }
+}
+.spinner {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 11.5px solid;
+  border-color: var(--select);
+  border-right-color: var(--background);
+  animation: spinner-d3wgkg 0.8s infinite linear;
+}
+
+@keyframes spinner-d3wgkg {
+  to {
+     transform: rotate(1turn);
   }
 }

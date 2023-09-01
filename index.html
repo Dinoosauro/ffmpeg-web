@@ -486,6 +486,9 @@
                             </div>
                             <div class="button" style="width: 48%; margin-left: 2%;" id="cleanZip" data-translate="cleanZip">Clean zip file</div>
                         </div>
+                        <div style="justify-content: center; display: none;" id="zipSpinner">
+                        <div class="spinner" id="zipSpinner"></div>
+                        </div>
                         <div id="troubleContainer"></div>
                     </div>
                     <img data-fetch="arrowleft" width="40px" height="40px" class="centerImg isHovered">
@@ -583,13 +586,13 @@
             <div class="rowDisplay textcenter" style="display: block;">
                 <h3 data-translate="savingOpt">Saving options:</h3>
                 <i data-translate="mediaSaveType">Choose how you want to save your media</i><br><br>
-                <div class="switchContainer">
+                <div class="switchContainer hcenter">
                 <label class="switch">
                     <input type="checkbox" id="zipSave">
                     <span class="slider"></span>
                 </label>
                 <l data-translate="saveZip">Save files in a .zip file</l></div><br><br>
-                <div class="switchContainer">
+                <div class="switchContainer hcenter">
                 <label class="switch">
                     <input type="checkbox" id="advancedFormat">
                     <span class="slider"></span>
@@ -635,7 +638,7 @@
             <div class="rowDisplay textcenter" style="display: block;">
                 <h3 data-translate="alerts">Alerts</h3>
                 <i data-translate="alertManage">Manage useful comunications about the current operation</i><br><br>
-                <div class="switchContainer">
+                <div class="switchContainer hcenter">
                 <label class="switch">
                     <input type="checkbox" id="alertAsk" checked>
                     <span class="slider"></span>

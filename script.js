@@ -274,6 +274,7 @@ async function ffmpegStart() { // The function that manages most of the ffmpeg c
     document.getElementById("console").parentElement.scrollTo({ top: document.getElementById("console").parentElement.scrollHeight, behavior: 'smooth' }); // Scroll to the end of the console text
     let textCutSplit = document.getElementById("timestampArea").value.split("\n");
     for (let file of tempOptions.deleteFile) try { await ffmpeg.FS('unlink', file) } catch (ex) { console.warn(ex) }; // Delete the files from the ffmpeg file system
+    tempOptions.deleteFile = []; // Restore the deleteFile array. This is useful especially with multiple timestamp cut, since otherwise ffmpeg-web would continue to try deleting the old files.
     if (tempOptions.isSecondCut && textCutSplit.length > tempOptions.secondCutProgress && textCutSplit[tempOptions.secondCutProgress].replaceAll(" ", "").length > 1) { // If there's another timestamp, run again the conversion
         tempOptions.ffmpegArray.splice(tempOptions.ffmpegArray.lastIndexOf("-ss"), tempOptions.ffmpegArray.length);
         try {
@@ -284,7 +285,7 @@ async function ffmpegStart() { // The function that manages most of the ffmpeg c
     }
     tempOptions = optionGet(); // Delete the conversion-specific informations, so that a new item can be converted
     conversionOptions.output.dividerProgression = 0; // Restore the divider progression so that each conversion has its own track progression
-    if (isMultiCheck[0]) setTimeout(() => { finalScript = []; ffmpegMultiCheck() }, 350); else document.getElementById("reset").reset(); // if antother item must be converted, restart all of this process; otherwise reset the text input so that the user can select another file.
+    if (isMultiCheck[0]) setTimeout(async () => { finalScript = []; await resetFfmpeg(); ffmpegMultiCheck() }, 350); else {document.getElementById("reset").reset(); await resetFfmpeg()} // if antother item must be converted, restart all of this process; otherwise reset the text input so that the user can select another file. In both cases, restore ffmpeg to free memory
 }
 function downloadItem(data, name) { // Function to download a file
     downloadName = name !== undefined ? name : `${safeCharacters(conversionOptions.output.name)}.${tempOptions.fileExtension}`; // If no name is provided, fetch the result of the conversion
@@ -683,6 +684,7 @@ document.getElementById("zipSave").addEventListener("input", () => { // Save con
 });
 let previousLink = undefined;
 document.getElementById("downloadZip").addEventListener("click", () => { // Generate a blob and download it
+    document.getElementById("zipSpinner").style.display = "flex";
     zip.generateAsync({ type: "blob" }).then(function (content) {
         if (previousLink !== undefined) URL.revokeObjectURL(previousLink);
         // It's similar to the downlaodFiles part, but it doesn't save it in the selection and it has a different text
@@ -694,6 +696,7 @@ document.getElementById("downloadZip").addEventListener("click", () => { // Gene
         specialLink.click();
         document.getElementById("troubleContainer").innerHTML = "";
         document.getElementById("troubleContainer").appendChild(specialLink);
+    document.getElementById("zipSpinner").style.display = "none";
     });
 });
 document.getElementById("cleanZip").addEventListener("click", () => { // Create a new empty zip
@@ -964,15 +967,26 @@ function createAlert(text, noRepeat, showBottom) { // Create an alert at the top
     setTimeout(() => deleteAlert(firstAlertContainer), parseInt(localStorage.getItem("ffmpegWeb-alertDuration"))); // Delete the current alert after an amount of ms the user has decided from the settings
     for (let item of [noRepeatIndication, img]) addHoverEvents(item);
 }
+function loadFfmpeg() {
+    return new Promise((resolve) => {
 createAlert(currentTranslation.js.ffmpegLoad, "ffmpegLoading"); // Wait until ffmpeg-web loads the ffmpeg.wasm core component.
 document.getElementById("btnSelect").classList.add("disabled"); // Disable the "Select file" button until it has loaded
 if (!ffmpeg.isLoaded()) ffmpeg.load().then(() => {
     // ffmpeg is loaded, so the "File select" button can now be clicked
     createAlert(currentTranslation.js.successful, "ffmpegSuccessful");
     document.getElementById("btnSelect").classList.remove("disabled");
+    resolve();
 }).catch((ex) => {
     createAlert(`${englishTranslations.js.error} ${ex}`, "ffmpegFail");
+    resolve();
 });
+})
+}
+loadFfmpeg();
+async function resetFfmpeg() {
+    ffmpeg.exit();
+    await loadFfmpeg();
+}
 // Set up PWA installation prompt: catch the popup and display it when the user clicks the "Install as PWA" button
 let installationPrompt;
 window.addEventListener('beforeinstallprompt', (event) => {
