@@ -691,10 +691,9 @@ document.getElementById("cleanZip").addEventListener("click", () => { // Create 
     URL.revokeObjectURL(document.querySelector("[download='ffmpeg-web.zip']").href);
 })
 function addHoverEvents(item) { // Add a brightness effect when the user hovers on an item
-    item.addEventListener("mouseenter", () => { item.classList.add("isHovered") });
-    item.addEventListener("mouseleave", () => { item.classList.add("byeHover"); setTimeout(() => { item.classList.remove("byeHover") }, 310) })
+    item.classList.add("isHovered");
 }
-for (let item of document.querySelectorAll("input,.button,select,.optionBtn,.isHovered,.slider,img,.circular")) addHoverEvents(item); // A list of elements from the DOM that should have the hover effect
+for (let item of document.querySelectorAll("input,.button,select,.optionBtn,.slider,img,.circular")) addHoverEvents(item); // A list of elements from the DOM that should have the hover effect
 if (localStorage.getItem("ffmpegWeb-advanced") === "a") document.getElementById("advancedFormat").checked = true; // Show advanced formats
 if (!document.getElementById("advancedFormat").checked) for (let item of document.querySelectorAll("[advanced]")) item.style.display = "none"; // If the user doesn't want to see "advanced" encoders (that basically no one uses nowdays), hide them
 document.getElementById("advancedFormat").addEventListener("input", () => { // Show or hide advanced codecs setting
@@ -1150,3 +1149,4 @@ for (let lang of supportedLanguages) {
         break;
     }
 }
+for (let item of document.querySelectorAll("[data-text]")) item.type = "text"; // Since Webpack delets the "type=text" attribute, it'll be added again from JavaScript

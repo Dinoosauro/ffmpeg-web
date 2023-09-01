@@ -76,39 +76,9 @@ h4 {
   cursor: pointer;
   filter: brightness(130%);
   -webkit-filter: brightness(130%);
-  animation-name: hoverAnimate;
-  animation-duration: 0.3s;
-  animation-iteration-count: 1;
 }
-
-.byeHover {
-  animation-name: hoverNotAnimate;
-  animation-duration: 0.3s;
-  animation-iteration-count: 1;
-}
-
-@keyframes hoverAnimate {
-  from {
-    filter: brightness(100%);
-    -webkit-filter: brightness(100%);
-  }
-
-  to {
-    filter: brightness(130%);
-    -webkit-filter: brightness(130%);
-  }
-}
-
-@keyframes hoverNotAnimate {
-  from {
-    filter: brightness(130%);
-    -webkit-filter: brightness(130%);
-  }
-
-  to {
-    filter: brightness(100%);
-    -webkit-filter: brightness(100%);
-  }
+.isHovered {
+  transition: filter 0.3s ease-in-out
 }
 
 .button {
@@ -179,11 +149,17 @@ select {
   margin-right: 8px !important;
   margin-left: 8px !important;
 }
-
+.switchContainer {
+  display: flex;
+  align-items: center;
+}
+.switchContainer > l{
+  flex-shrink: 999;
+}
 /* Borrowed from W3Schools /*
 /* The switch - the box around the slider */
 .switch {
-  margin-left: 15px;
+  margin-right: 10px;
   position: relative;
   display: inline-block;
   width: 60px;

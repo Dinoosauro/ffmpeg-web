@@ -151,7 +151,9 @@
         "licenses": "Licenze:",
         "licensesDesc": "Mostra una licenza da qui in basso (potresti dover eseguire uno scroll)",
         "language": "Lingua",
-        "languageDesc": "Cambia la lingua utilizzata da ffmpeg-web"
+        "languageDesc": "Cambia la lingua utilizzata da ffmpeg-web",
+        "chooseFile": "Scegli file",
+        "chooseFileDesc": "Scegli come gestire la selezione dei file multipla"
     },
     "js": {
         "added": "Aggiunto", 

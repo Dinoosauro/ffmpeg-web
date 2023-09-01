@@ -56,11 +56,12 @@
                 <l data-translate="outputDesc">You can choose between lots of formats. Click on the switch to select what media type(s) you want in
                     your final file:</l>
                 <h3 data-translate="outputVid">Video output:</h3>
+                <div class="switchContainer">
                 <label class="switch">
                     <input type="checkbox" id="vidOutput">
                     <span class="slider"></span>
                 </label>
-                <l data-translate="outputVidDesc">Add a video output</l>
+                <l data-translate="outputVidDesc">Add a video output</l></div>
                 <div class="rowDisplay maxHeight" id="videoElementsDisplay" style="display: none;">
                     <div class="optionBtn" data-videoval="copy" data-extension="default">
                         <l class="totalCenter" data-translate="copyvideo">Copy video</l>
@@ -88,11 +89,12 @@
                     </div>
                 </div>
                 <h3 data-translate="outputAud">Audio output</h3>
+                <div class="switchContainer">
                 <label class="switch">
                     <input type="checkbox" id="audOutput">
                     <span class="slider"></span>
                 </label>
-                <l data-translate="outputAudDesc">Add an audio output</l>
+                <l data-translate="outputAudDesc">Add an audio output</l></div>
                 <div class="rowDisplay maxHeight" id="audioElementsDisplay" style="display: none;">
                     <div class="optionBtn" data-audioval="copy" data-extension="default">
                         <l class="totalCenter" data-translate="copyaudio">Copy audio</l>
@@ -141,7 +143,7 @@
                 -i $input[0] -acodec libmp3lame -vn MyFile$spacehey!.mp3
             </code><br>
                     <div>
-                        <input type="text" id="ffmpegScript" style="padding: 8px;" class="fill"><br><br>
+                        <input data-text id="ffmpegScript" style="padding: 8px;" class="fill"><br><br>
                     </div>
                     <i data-translate="spaceInfo">Divide each argument with a space</i>
             </div>
@@ -152,12 +154,13 @@
                 </div>
                 <l data-translate="mediamergeDesc">The media files will be merged without re-encoding. Plase write the output file name (with its
                     extension) below.</l><br><br>
-                <input type="text" id="mergeName" placeholder="example.mp4" class="fill"><br><br>
+                <input data-text id="mergeName" placeholder="example.mp4" class="fill"><br><br>
+                <div class="switchContainer">
                 <label class="switch">
                     <input type="checkbox" id="keepAlbumArt" checked>
                     <span class="slider"></span>
                 </label>
-                <l data-translate="keepAlbumArt">Keep the album art (or thumbnail) of the first file. Disable if conversion fails.</l>
+                <l data-translate="keepAlbumArt">Keep the album art (or thumbnail) of the first file. Disable if conversion fails.</l></div>
             </div>
             <div id="imgSection" style="display: none;">
                 <div class="titleContainer">
@@ -207,16 +210,18 @@
                     <h2 data-translate="addmetadata">Add metadata:</h2>
                 </div>
                 <l data-translate="addmetadataDesc">You can edit metadatas directly from ffmpeg, without re-encoding your file. You'll be able to change metadata below</l><br><br>
+                <div class="switchContainer">
                 <label class="switch">
                     <input type="checkbox" id="metadataKeep" checked>
                     <span class="slider"></span>
                 </label>
-                <l data-translate="keepMetadata">Keep current metadata</l><br><br>
+                <l data-translate="keepMetadata">Keep current metadata</l></div><br><br>
+                <div class="switchContainer">
                 <label class="switch">
                     <input type="checkbox" id="mp4Keep" checked>
                     <span class="slider"></span>
                 </label>
-                <l data-translate="keepMp4Metadata">Keep album art in a MP4 files, disabling custom metadata</l>
+                <l data-translate="keepMp4Metadata">Keep album art in a MP4 files, disabling custom metadata</l></div>
             </div>
             <div style="display: none;" id="albumArtSection">
                 <div class="titleContainer">
@@ -236,11 +241,11 @@
                         </select>    
                     </div>
                     <div id="singleCrop" class="rowDisplay" style="display: none">
-                        <l data-translate="start">Start (hh:mm:ss):</l><input type="text" id="startCut"><br><l data-translate="end">End (hh:mm:ss):</l><input type="text" id="endCut">
+                        <l data-translate="start">Start (hh:mm:ss):</l><input data-text id="startCut"><br><l data-translate="end">End (hh:mm:ss):</l><input data-text id="endCut">
                     </div>
                     <div class="rowDisplay" style="display: none;" id="multiCrop">
                         <i data-translate="fileTitle">Write the file title, then add a divider and put the timestamp.</i><br><br>
-                        <l data-translate="divider">Divider:</l><input type="text" style="width: 25%; margin-right: 10px;" id="dividerInput"><l data-translate="timestampPosition">Timestamp position:</l><select id="timestampPosition">
+                        <l data-translate="divider">Divider:</l><input data-text style="width: 25%; margin-right: 10px;" id="dividerInput"><l data-translate="timestampPosition">Timestamp position:</l><select id="timestampPosition">
                             <option value="0" data-translate="left">Left</option>
                             <option value="1" selected data-translate="right">Right</option>
                     </select><br><br>
@@ -256,8 +261,8 @@
                 <img data-fetch="document" class="fetchStyle">
                 <h2 data-translate="fileSelect">File selection:</h2>
             </div>
-            <h3 data-select="selectFile">Choose files:</h3>
-            <l>Select how multiple files should be handled:</l><br><br>
+            <h3 data-select="selectFile" data-translate="chooseFile">Choose files:</h3>
+            <l data-translate="chooseFileDesc">Select how multiple files should be handled:</l><br><br>
             <select id="multiVideoHandle" class="fill">
                 <option value="0" data-translate="keepfirst">Keep only the first file</option>
                 <option value="1" data-translate="addall">Add all of them in the output file</option>
@@ -303,20 +308,22 @@
                 </div><br>
                 <div>
                     <div id="onlyCustom">
-                        <l data-translate="key">Key:</l><input type="text" id="metadataKey">
+                        <l data-translate="key">Key:</l><input data-text id="metadataKey">
                     </div><br>
-                    <l data-translate="value">Value:</l><input type="text" id="metadataValue">
+                    <l data-translate="value">Value:</l><input data-text id="metadataValue">
                 </div><br>
+                <div class="switchContainer">
                 <label class="switch">
                     <input type="checkbox" id="customAlbumArt">
                     <span class="slider"></span>
                 </label>
-                <l data-translate="customAlbumArt">Add a custom album art</l><br><br>
+                <l data-translate="customAlbumArt">Add a custom album art</l></div><br><br>
+                <div class="switchContainer">
                 <label class="switch">
                     <input type="checkbox" id="removeOlderArt">
                     <span class="slider"></span>
                 </label>
-                <l data-translate="deletevid">Delete the video output (this will delete the previous album art, but also any other video stream)</l><br><br>
+                <l data-translate="deletevid">Delete the video output (this will delete the previous album art, but also any other video stream)</l></div><br><br>
                 <div class="button" id="itemAdd" data-translate="additem">Add item</div><br>
                 <div id="metadataAdded" class="maxHeight" style="max-height: 0px; display: grid;"></div>
         </div>
@@ -338,14 +345,15 @@
                 </div>
                 <div class="rowDisplay" id="vidManual" style="display: none;">
                     <l data-translate="writeBitrate">Write the specified bitrate (you can add "k" for kbit/s):</l> <input data-update="vidBitLength"
-                        type="text" style="float: right;">
+                        data-text style="float: right;">
                 </div><br>
                 <div id="fpsContainerDiv">
+                    <div class="switchContainer">
                     <label class="switch">
                         <input type="checkbox" id="checkFps" checked>
                         <span class="slider"></span>
                     </label>
-                    <l data-translate="keepFps">Keep the same FPS</l><br>
+                    <l data-translate="keepFps">Keep the same FPS</l></div><br>
                     <div class="rowDisplay maxHeight" id="fpsDiv" style="display: none;">
                         <l id="copyComplicated" data-translate="writeFps">Write the current number of FPS:</l> <input type="number" id="fpsInput"
                             step="1" min="1">
@@ -355,11 +363,12 @@
                     <br>
                 </div>
             </div>
+            <div class="switchContainer">
             <label class="switch">
                 <input type="checkbox" id="checkOrientation">
                 <span class="slider"></span>
             </label>
-            <l data-translate="aspectratio">Edit aspect ratio and display options</l>
+            <l data-translate="aspectratio">Edit aspect ratio and display options</l></div>
             <div id="orientationDiv" class="rowDisplay maxHeight" block="a" style="display: none;">
                 <h3>Aspect ratio</h3>
                 <i data-translate="leaveBlank">Leave it to zero to not change this.</i>
@@ -375,13 +384,14 @@
                 </select>
             </div>
             <br><br>
+            <div class="switchContainer">
             <label class="switch">
                 <input type="checkbox" id="checkPixelSpace">
                 <span class="slider"></span>
             </label>
-            <l data-translate="pixelSpace">Change pixel space</l>
+            <l data-translate="pixelSpace">Change pixel space</l></div>
             <div id="pixelSpaceDiv" class="rowDisplay maxHeight" style="display: none;">
-                <l data-translate="pixelSpaceDesc">Write the pixel space name. Leave blank for default.</l><input type="text" id="pixelSpace">
+                <l data-translate="pixelSpaceDesc">Write the pixel space name. Leave blank for default.</l><input data-text id="pixelSpace">
             </div>
             <br><br>
             <div class="button" data-translate="vidFilter" id="showFilter2">Video filters</div><br>
@@ -404,7 +414,7 @@
                 </div>
                 <div class="rowDisplay" id="audManual" style="display: none;">
                     <l data-translate="writeBitrate">Write the specified bitrate (you can add "k" for kbit/s):</l> <input data-update="audBitLength"
-                        type="text" style="float: right;">
+                        data-text style="float: right;">
                 </div><br>
             </div>
             <l>Audio channels:</l><select id="audioChannelSelect">
@@ -413,11 +423,12 @@
                 <option value="2" data-translate="stereo">Stereo</option>
             </select><br><br>
             <div id="albumArtContainer">
+                <div class="switchContainer">
                 <label class="switch">
                     <input type="checkbox" id="albumArtCheck">
                     <span class="slider"></span>
                 </label>
-                <l data-translate="keepArt">Keep the album art</l><br><br>
+                <l data-translate="keepArt">Keep the album art</l></div><br><br>
             </div>
             <div class="button" id="showFilter" data-translate="audFilters">Audio filters</div>
         </div>
@@ -445,11 +456,12 @@
                     </div>
                     <div id="redownloadPart">
                         <h3 data-translate="redownload">Redownload files</h3><br>
+                        <div class="switchContainer">
                         <label class="switch">
                             <input type="checkbox" id="saveFiles" checked>
                             <span class="slider"></span>
                         </label>
-                        <l data-translate="keepOutput">Keep the output files saved in memory</l><br><br>
+                        <l data-translate="keepOutput">Keep the output files saved in memory</l></div><br><br>
                         <i data-translate="missedDownload">In case you've missed a download, you can find that here.</i><br><br>
                         <select id="redownloadVideos" class="fill">
                             <option value="-1" disabled selected data-translate="selection">Select a file</option>
@@ -499,7 +511,7 @@
             <div class="rowDisplay textcenter" style="display: block;">
 
                 <h3 data-translate="customFilter">Custom filter:</h3>
-                <i data-translate="customFilterDesc">Write here a custom audio filter that works with the ffmpeg syntax.</i><br><br><input type="text"
+                <i data-translate="customFilterDesc">Write here a custom audio filter that works with the ffmpeg syntax.</i><br><br><input data-text
                     id="customAudio">
             </div>
         </div>
@@ -517,17 +529,18 @@
                 <l data-translate="width">Width:</l><input type="number" id="cropWidth" class="small">
                 <l data-translate="pxHeight">px; Height:</l><input type="number" id="cropHeight" class="small">
                 <l>px</l><br><br>
-                <l><span data-translate="position">Position</span> (x):</l><input type="text" value="center-w" id="positionItemX" class="small">
-                <l><span data-translate="position">Position</span> (y):</l><input type="text" value="center-h" id="positionItemY" class="small">
+                <l><span data-translate="position">Position</span> (x):</l><input data-text value="center-w" id="positionItemX" class="small">
+                <l><span data-translate="position">Position</span> (y):</l><input data-text value="center-h" id="positionItemY" class="small">
             </div>
             <div class="rowDisplay textcenter" style="display: block;">
 
                 <h3 data-translate="deinterlace">Deinterlace video</h3>
+                <div class="switchContainer">
                 <label class="switch">
                     <input type="checkbox" id="deinterlaceCheck">
                     <span class="slider"></span>
                 </label>
-                <l data-translate="deinterlace">Deinterlace video</l>
+                <l data-translate="deinterlace">Deinterlace video</l></div>
             </div>
             <div class="rowDisplay textcenter" style="display: block;">
 
@@ -549,7 +562,7 @@
             <div class="rowDisplay textcenter" style="display: block;">
 
                 <h3 data-translate="customFilter">Custom filter</h3>
-                <i data-translate="customFilterDesc">Write here a custom video filter that works with the ffmpeg syntax.</i><br><br><input type="text"
+                <i data-translate="customFilterDesc">Write here a custom video filter that works with the ffmpeg syntax.</i><br><br><input data-text
                     id="customVideo">
             </div>
         </div>
@@ -564,16 +577,18 @@
             <div class="rowDisplay textcenter" style="display: block;">
                 <h3 data-translate="savingOpt">Saving options:</h3>
                 <i data-translate="mediaSaveType">Choose how you want to save your media</i><br><br>
+                <div class="switchContainer">
                 <label class="switch">
                     <input type="checkbox" id="zipSave">
                     <span class="slider"></span>
                 </label>
-                <l data-translate="saveZip">Save files in a .zip file</l><br><br>
+                <l data-translate="saveZip">Save files in a .zip file</l></div><br><br>
+                <div class="switchContainer">
                 <label class="switch">
                     <input type="checkbox" id="advancedFormat">
                     <span class="slider"></span>
                 </label>
-                <l data-translate="advancedEnc">Show less popular encoders</l><br> <br>
+                <l data-translate="advancedEnc">Show less popular encoders</l></div><br> <br>
             </div><br>
             <div class="rowDisplay" style="display: block;">
                 <h3 class="textcenter" data-translate="manageTheme">Manage themes:</h3>
@@ -614,11 +629,12 @@
             <div class="rowDisplay textcenter" style="display: block;">
                 <h3 data-translate="alerts">Alerts</h3>
                 <i data-translate="alertManage">Manage useful comunications about the current operation</i><br><br>
+                <div class="switchContainer">
                 <label class="switch">
                     <input type="checkbox" id="alertAsk" checked>
                     <span class="slider"></span>
                 </label>
-                <l data-translate="showAlert">Show alerts for operations</l><br><br>
+                <l data-translate="showAlert">Show alerts for operations</l></div><br><br>
                 <div class="rowDisplay maxHeight" id="alertOptions"
                     style="background-color: var(--card); display: block; margin-top: 10px; padding-top: 25px; padding-bottom: 25px;">
                     <l data-translate="alertDuration">Write the duration of the alert (in ms):</l><input type="number" id="alertDuration"
