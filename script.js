@@ -261,7 +261,6 @@ async function ffmpegStart() { // The function that manages most of the ffmpeg c
             if (document.getElementById("albumArtCheck").checked && conversionOptions.output.audExtension !== "ogg" && !document.getElementById("customAlbumArt").checked) await ffmpeg.run("-i", tempOptions.ffmpegName[0], "temp.jpg"); // If the album art isn't provided by the user (this is only possible in the metadata tab), it'll be fetched from the input file.
             let tempArray = [];
     if (document.getElementById("smartMetadata").checked && tempOptions.isSecondCut) tempArray.push("-metadata", `title=${conversionOptions.output.name}`, "-metadata", `track=${conversionOptions.output.dividerProgression}`); // Smart metadata for cutting item by timestamp
-            console.log("-i", `${startDifferentText}${conversionOptions.output.name}.${tempOptions.fileExtension}`, "-i", "temp.jpg", "-map", "0", "-map", "1", "-c", "copy", "-disposition:v:0", "attached_pic", ...tempArray, `aa${conversionOptions.output.name}.${tempOptions.fileExtension}`);
             await ffmpeg.run("-i", `${startDifferentText}${conversionOptions.output.name}.${tempOptions.fileExtension}`, "-i", "temp.jpg", "-map", "0", "-map", "1", "-c", "copy", "-disposition:v:0", "attached_pic", ...tempArray, `aa${conversionOptions.output.name}.${tempOptions.fileExtension}`); // Add the album art to the file
             data = ffmpeg.FS("readFile", `aa${conversionOptions.output.name}.${tempOptions.fileExtension}`) // Read the exported file with the album art
             tempOptions.deleteFile.push(`temp.jpg`, `aa${conversionOptions.output.name}.${tempOptions.fileExtension}`);
@@ -278,6 +277,7 @@ async function ffmpegStart() { // The function that manages most of the ffmpeg c
     if (tempOptions.isSecondCut && textCutSplit.length > tempOptions.secondCutProgress && textCutSplit[tempOptions.secondCutProgress].replaceAll(" ", "").length > 1) { // If there's another timestamp, run again the conversion
         tempOptions.ffmpegArray.splice(tempOptions.ffmpegArray.lastIndexOf("-ss"), tempOptions.ffmpegArray.length);
         try {
+            await resetFfmpeg();
             await ffmpegStart();
         } catch (ex) {
             console.warn(ex);
