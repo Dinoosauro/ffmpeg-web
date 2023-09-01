@@ -7,7 +7,7 @@ if ('serviceWorker' in navigator) {
     registerServiceWorker();
 } else console.error(":/")
 // Check if there's a new version fetching updatecode.txt with no cache. If the result isn't the same as the current app version, a confirm dialog will be shown so that the user can update.
-let appVersion = "1.1.1";
+let appVersion = "1.1.2";
 fetch("./updatecode.txt", { cache: "no-store" }).then((res) => res.text().then((text) => { if (text.replace("\n", "") !== appVersion) if (confirm(`There's a new version of ffmpeg-web. Do you want to update? [${appVersion} --> ${text.replace("\n", "")}]`)) { caches.delete("ffmpegweb-cache"); location.reload(true); } }).catch((e) => { console.error(e) })).catch((e) => console.error(e));
 document.getElementById("version").textContent = appVersion; // Write current text version to the info tab in settings
 // Load English translations for strings that come from JavaScript
