@@ -134,7 +134,7 @@ function ffmpegMultiCheck() { // Manages multiple outputs
                 if (files[i].name === files[x].name) continue;
                 if (files[i].name.substring(0, files[i].name.lastIndexOf(".")) === files[x].name.substring(0, files[x].name.lastIndexOf("."))) {
                     stopLooking = true;
-                    conversionOptions.output.name = files[i].name.substring(0, files[i].name.lastIndexOf("."));
+                    conversionOptions.output.name = safeCharacters(files[i].name.substring(0, files[i].name.lastIndexOf(".")));
                     isMultiCheck[1] = i + 1; // i !== isMultiCheck[1]
                     loadFile(files[i]); // Add information about the selected files
                     loadFile(files[x]); // Add information about the selected files
@@ -146,7 +146,7 @@ function ffmpegMultiCheck() { // Manages multiple outputs
         }
     } else { // For each file selected, execute the same command
         loadFile(files[isMultiCheck[1]]); // Fetch file information
-        conversionOptions.output.name = files[isMultiCheck[1]].name.substring(0, files[isMultiCheck[1]].name.lastIndexOf("."));
+        conversionOptions.output.name = safeCharacters(files[isMultiCheck[1]].name.substring(0, files[isMultiCheck[1]].name.lastIndexOf(".")));
         isMultiCheck[1] += 1;
         ffmpegStart(); // Start conversion
     }
@@ -215,7 +215,7 @@ function getFfmpegItem() { // The function that will manage the start and the en
     }
     let alignmentResult = getCutAlignment();
     conversionOptions.output.dividerProgression++;
-    conversionOptions.output.name = alignmentResult[0];
+    conversionOptions.output.name = safeCharacters(alignmentResult[0]);
     cutTimestamp[0] = alignmentResult[1];
     tempOptions.secondCutProgress++;
     if (item.length > tempOptions.secondCutProgress && item[tempOptions.secondCutProgress].replaceAll(" ", "").length > 1) { // If there's another timestamp next, get its length for the end of the current content.
@@ -250,7 +250,7 @@ async function ffmpegStart() { // The function that manages most of the ffmpeg c
     await ffmpeg.run(...finalScript); // Run conversion
     let startDifferentText = "a";
     if (conversionOptions.output.custom) { // Get file name and extension of the custom file output
-        conversionOptions.output.name = tempOptions.ffmpegArray[tempOptions.ffmpegArray.length - 1].substring(0, tempOptions.ffmpegArray[tempOptions.ffmpegArray.length - 1].lastIndexOf("."));
+        conversionOptions.output.name = safeCharacters(tempOptions.ffmpegArray[tempOptions.ffmpegArray.length - 1].substring(0, tempOptions.ffmpegArray[tempOptions.ffmpegArray.length - 1].lastIndexOf(".")));
         tempOptions.fileExtension = tempOptions.ffmpegArray[tempOptions.ffmpegArray.length - 1].substring(tempOptions.ffmpegArray[tempOptions.ffmpegArray.length - 1].lastIndexOf(".") + 1);
         startDifferentText = "";
     }
@@ -287,7 +287,7 @@ async function ffmpegStart() { // The function that manages most of the ffmpeg c
     if (isMultiCheck[0]) setTimeout(() => { finalScript = []; ffmpegMultiCheck() }, 350); else document.getElementById("reset").reset(); // if antother item must be converted, restart all of this process; otherwise reset the text input so that the user can select another file.
 }
 function downloadItem(data, name) { // Function to download a file
-    downloadName = name !== undefined ? name : `${conversionOptions.output.name}.${tempOptions.fileExtension}`; // If no name is provided, fetch the result of the conversion
+    downloadName = name !== undefined ? name : `${safeCharacters(conversionOptions.output.name)}.${tempOptions.fileExtension}`; // If no name is provided, fetch the result of the conversion
     if (document.getElementById("zipSave").checked) { // If the user wants a zip file, add it to JSZIP, and notify the user
         zip.file(downloadName, new File([data.buffer], downloadName));
         createAlert(`${currentTranslation.js.added} ${downloadName} ${currentTranslation.js.toZip}`, "zipFileAdd");
@@ -327,6 +327,9 @@ function loadFile(file) { // Add additional informations about the file
     tempOptions.ffmpegName.push(file.name);
 }
 let isAudBitrateShown = true;
+function safeCharacters(input) { // Replaces characters that aren't permittend on Windows with characters that look similar to them
+    return input.replaceAll("<", "‹").replaceAll(">", "›").replaceAll(":", "∶").replaceAll("\"", "″").replaceAll("/", "∕").replaceAll("\\", "∖").replaceAll("|", "¦").replaceAll("?", "¿").replaceAll("*", "");
+}
 for (let item of document.querySelectorAll("[data-audioval]")) item.addEventListener("click", () => {
     switch (item.getAttribute("data-audioval")) {
         case "libopus": // libopus doesn't support the bitrate slider, so that option must be made invisible, and instead the textbox will be shown.
@@ -494,7 +497,7 @@ function buildFfmpegScript() {
         }
     }
     addSimpleCut(); // Check if the user wants to trim to only a specific part of the video
-    if (conversionOptions.output.name === "output") conversionOptions.output.name = tempOptions.ffmpegName[0].substring(0, tempOptions.ffmpegArray[0].lastIndexOf(".")); // If no output name is specified, it'll be extracted from the first file
+    if (conversionOptions.output.name === "output") conversionOptions.output.name = safeCharacters(tempOptions.ffmpegName[0].substring(0, tempOptions.ffmpegArray[0].lastIndexOf("."))); // If no output name is specified, it'll be extracted from the first file
     if (conversionOptions.videoOptions.codec === "copy" && document.getElementById("vidOutput").checked) tempOptions.fileExtension = tempOptions.ffmpegName[0].substring(tempOptions.ffmpegName[0].lastIndexOf(".") + 1); else if (conversionOptions.output.vidExtension !== null && document.getElementById("vidOutput").checked || conversionOptions.output.vidExtension !== null && document.querySelector(".sectionSelect").getAttribute("section") === "imgenc") tempOptions.fileExtension = conversionOptions.output.vidExtension; else if (conversionOptions.audioOptions.codec === "copy") tempOptions.fileExtension = tempOptions.ffmpegName[0].substring(tempOptions.ffmpegName[0].lastIndexOf(".") + 1); else tempOptions.fileExtension = conversionOptions.output.audExtension; // If there's a video track and the user wants to have it, make the video extension the final file extension. Otherwise, use the audio extension.
     tempOptions.ffmpegArray.push(`a${conversionOptions.output.name}.${tempOptions.fileExtension}`); // Temp output file
 }
