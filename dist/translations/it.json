@@ -158,7 +158,9 @@
         "ram": "Gestione della RAM",
         "ramDesc": "Gestisci quando il processo ffmpeg debba essere chiuso",
         "quitOperation": "Esci alla fine di ogni singola operazione",
-        "quitTimestamp": "Esci ad ogni taglio del contenuto"
+        "quitTimestamp": "Esci ad ogni taglio del contenuto",
+        "quitNow": "Esci ora dal processo ffmpeg",
+        "quitNowDesc": "Esci solamente se hai ricevuto un errore Out of memory."
     },
     "js": {
         "added": "Aggiunto", 

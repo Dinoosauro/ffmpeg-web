@@ -522,6 +522,7 @@ let progressMove = true;
 let consoleText = "";
 ffmpeg.setLogger(({ type, message }) => { // Set an event every time there's an update from ffmpeg.wasm: add the message to the progress div
     consoleText += `<br>[${type}] ${message}`;
+    if (`[${type}] ${message}`.startsWith("[fferr] OOM") && confirm("The ffmpeg process has reported an Out of memory error. Do you want to close it? Remember that, if you are using multiple timestamp cut, you'll need to delete the timestamps ffmpeg-web has converted.")) resetFfmpeg();
     if (consoleText.length > parseInt(document.getElementById("maxCharacters").value)) consoleText = consoleText.substring(consoleText.length - Math.floor(parseInt(document.getElementById("maxCharacters").value) * 9 / 10));
     if (progressMove) {
         document.getElementById("console").innerHTML = consoleText;
@@ -1186,3 +1187,4 @@ document.getElementById("quitFfmpegGeneral").addEventListener("change", () => {d
 document.getElementById("quitFfmpegTimestamp").addEventListener("change", () => {document.getElementById("quitFfmpegTimestamp").checked ? localStorage.setItem("ffmpegWeb-TimestampQuit", "a") : localStorage.setItem("ffmpegWeb-TimestampQuit", "a")});
 if (localStorage.getItem("ffmpegWeb-GeneralQuit") === "a") document.getElementById("quitFfmpegGeneral").checked = false;
 if (localStorage.getItem("ffmpegWeb-TimestampQuit") === "a") document.getElementById("quitFfmpegTimestamp").checked = true;
+document.getElementById("quitProcess").addEventListener("click", () => resetFfmpeg());
