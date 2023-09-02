@@ -660,6 +660,22 @@
                 </div>
                 </div><br>
             <div class="rowDisplay textcenter" style="display: block;">
+                <h3 data-translate="ram">RAM management</h3>
+                <i data-translate="ramDesc">Manage when ffmpeg-web should exit the current process</i><br><br>
+                <div class="switchContainer hcenter">
+                    <label class="switch">
+                        <input type="checkbox" id="quitFfmpegGeneral" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <l data-translate="quitOperation">Quit after each operation</l></div><br><br>
+                    <div class="switchContainer hcenter">
+                        <label class="switch">
+                            <input type="checkbox" id="quitFfmpegTimestamp">
+                            <span class="slider"></span>
+                        </label>
+                        <l data-translate="quitTimestamp">Quit for each timestamp cut</l></div><br><br>            
+                </div><br>
+            <div class="rowDisplay textcenter" style="display: block;">
                 <h3 data-translate="language">Language</h3>
                 <i data-translate="languageDesc">Change the language used by ffmpeg-web</i><br><br>
                 <select id="langSelect">

@@ -154,7 +154,11 @@
         "languageDesc": "Cambia la lingua utilizzata da ffmpeg-web",
         "chooseFile": "Scegli file",
         "chooseFileDesc": "Scegli come gestire la selezione dei file multipla",
-        "smartDesc": "Aggiungi i metadati titolo e numero traccia"
+        "smartDesc": "Aggiungi i metadati titolo e numero traccia",
+        "ram": "Gestione della RAM",
+        "ramDesc": "Gestisci quando il processo ffmpeg debba essere chiuso",
+        "quitOperation": "Esci alla fine di ogni singola operazione",
+        "quitTimestamp": "Esci ad ogni taglio del contenuto"
     },
     "js": {
         "added": "Aggiunto", 

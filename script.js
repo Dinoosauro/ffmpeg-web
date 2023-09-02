@@ -228,19 +228,20 @@ function getFfmpegItem() { // The function that will manage the start and the en
     }
     return cutTimestamp;
 }
-async function ffmpegStart() { // The function that manages most of the ffmpeg conversions
-    if (conversionOptions.output.custom) readFfmpegScript(); else if (document.querySelector(".sectionSelect").getAttribute("section") === "metadata") await ffmpegReadyMetadata(); else buildFfmpegScript();
+async function ffmpegStart(skipImport) { // The function that manages most of the ffmpeg conversions
     let finalScript = [];
+    if (!skipImport) {
+    if (conversionOptions.output.custom) readFfmpegScript(); else if (document.querySelector(".sectionSelect").getAttribute("section") === "metadata") await ffmpegReadyMetadata(); else buildFfmpegScript();
     if (tempOptions.itsscale !== []) finalScript.push(...tempOptions.itsscale); // tempOptions.itsscale contains the options that go before the input files
     for (let i = 0; i < tempOptions.ffmpegBuffer.length; i++) { // Add each file to the ffmpeg filesystem
         ffmpeg.FS('writeFile', tempOptions.ffmpegName[i], await fetchFile(tempOptions.ffmpegBuffer[i]));
         if (conversionOptions.output.custom && tempOptions.ffmpegArray.indexOf(`$input[${i}]`) !== -1) tempOptions.ffmpegArray[tempOptions.ffmpegArray.indexOf(`$input[${i}]`)] = tempOptions.ffmpegName[i]; else finalScript.push("-i", tempOptions.ffmpegName[i]);
         tempOptions.deleteFile.push(tempOptions.ffmpegName[i]);
     }
+} else for (let name of tempOptions.ffmpegName) finalScript.push("-i", name);
     if (tempOptions.isSecondCut) { // Cut content by timestamp
         let fetchTimestamp = getFfmpegItem();
-        // Delete the last item of the array (the output file) and insert the start and end of the new item
-        tempOptions.ffmpegArray.pop();
+        if (!skipImport) tempOptions.ffmpegArray.pop();  // Delete the last item of the array (the output file) and insert the start and end of the new item. This is necessary only for the first time
         tempOptions.ffmpegArray.push("-ss", fetchTimestamp[0]);
         if (fetchTimestamp[1] !== "") tempOptions.ffmpegArray.push("-to", fetchTimestamp[1]); else tempOptions.isSecondCut = false;
     if (document.getElementById("smartMetadata").checked) tempOptions.ffmpegArray.push("-metadata", `title=${conversionOptions.output.name}`, "-metadata", `track=${conversionOptions.output.dividerProgression}`); // Smart metadata for multiple dividers
@@ -272,20 +273,27 @@ async function ffmpegStart() { // The function that manages most of the ffmpeg c
     document.getElementById("console").innerHTML = consoleText; // Add output text to the console
     document.getElementById("console").parentElement.scrollTo({ top: document.getElementById("console").parentElement.scrollHeight, behavior: 'smooth' }); // Scroll to the end of the console text
     let textCutSplit = document.getElementById("timestampArea").value.split("\n");
-    for (let file of tempOptions.deleteFile) try { await ffmpeg.FS('unlink', file) } catch (ex) { console.warn(ex) }; // Delete the files from the ffmpeg file system
-    tempOptions.deleteFile = []; // Restore the deleteFile array. This is useful especially with multiple timestamp cut, since otherwise ffmpeg-web would continue to try deleting the old files.
     if (tempOptions.isSecondCut && textCutSplit.length > tempOptions.secondCutProgress && textCutSplit[tempOptions.secondCutProgress].replaceAll(" ", "").length > 1) { // If there's another timestamp, run again the conversion
         tempOptions.ffmpegArray.splice(tempOptions.ffmpegArray.lastIndexOf("-ss"), tempOptions.ffmpegArray.length);
         try {
-            await resetFfmpeg();
-            await ffmpegStart();
+            if (document.getElementById("quitFfmpegTimestamp").checked) await resetFfmpeg();
+            await ffmpegStart(true);
         } catch (ex) {
             console.warn(ex);
         }
     }
+    for (let file of tempOptions.deleteFile) try { await ffmpeg.FS('unlink', file); } catch (ex) { console.warn(ex) }; // Delete the files from the ffmpeg file system
+    tempOptions.deleteFile = []; // Restore the deleteFile array. This is useful especially with multiple timestamp cut, since otherwise ffmpeg-web would continue to try deleting the old files.
     tempOptions = optionGet(); // Delete the conversion-specific informations, so that a new item can be converted
     conversionOptions.output.dividerProgression = 0; // Restore the divider progression so that each conversion has its own track progression
-    if (isMultiCheck[0]) setTimeout(async () => { finalScript = []; await resetFfmpeg(); ffmpegMultiCheck() }, 350); else {document.getElementById("reset").reset(); await resetFfmpeg()} // if antother item must be converted, restart all of this process; otherwise reset the text input so that the user can select another file. In both cases, restore ffmpeg to free memory
+    if (isMultiCheck[0]) setTimeout(async () => { // if antother item must be converted, restart all of this process; otherwise reset the text input so that the user can select another file. In both cases, restore ffmpeg to free memory
+        finalScript = []; 
+        if (document.getElementById("quitFfmpegGeneral").checked) await resetFfmpeg(); 
+        ffmpegMultiCheck() 
+    }, 350); else {
+        document.getElementById("reset").reset(); 
+        if (document.getElementById("quitFfmpegGeneral").checked) await resetFfmpeg()
+    } 
 }
 function downloadItem(data, name) { // Function to download a file
     downloadName = name !== undefined ? name : `${safeCharacters(conversionOptions.output.name)}.${tempOptions.fileExtension}`; // If no name is provided, fetch the result of the conversion
@@ -967,13 +975,13 @@ function createAlert(text, noRepeat, showBottom) { // Create an alert at the top
     setTimeout(() => deleteAlert(firstAlertContainer), parseInt(localStorage.getItem("ffmpegWeb-alertDuration"))); // Delete the current alert after an amount of ms the user has decided from the settings
     for (let item of [noRepeatIndication, img]) addHoverEvents(item);
 }
-function loadFfmpeg() {
+function loadFfmpeg(skipInfo) {
     return new Promise((resolve) => {
-createAlert(currentTranslation.js.ffmpegLoad, "ffmpegLoading"); // Wait until ffmpeg-web loads the ffmpeg.wasm core component.
+if (!skipInfo) createAlert(currentTranslation.js.ffmpegLoad, "ffmpegLoading"); // Wait until ffmpeg-web loads the ffmpeg.wasm core component.
 document.getElementById("btnSelect").classList.add("disabled"); // Disable the "Select file" button until it has loaded
 if (!ffmpeg.isLoaded()) ffmpeg.load().then(() => {
     // ffmpeg is loaded, so the "File select" button can now be clicked
-    createAlert(currentTranslation.js.successful, "ffmpegSuccessful");
+    if (!skipInfo) createAlert(currentTranslation.js.successful, "ffmpegSuccessful");
     document.getElementById("btnSelect").classList.remove("disabled");
     resolve();
 }).catch((ex) => {
@@ -985,7 +993,7 @@ if (!ffmpeg.isLoaded()) ffmpeg.load().then(() => {
 loadFfmpeg();
 async function resetFfmpeg() {
     ffmpeg.exit();
-    await loadFfmpeg();
+    await loadFfmpeg(true);
 }
 // Set up PWA installation prompt: catch the popup and display it when the user clicks the "Install as PWA" button
 let installationPrompt;
@@ -1174,3 +1182,7 @@ for (let lang of supportedLanguages) {
     }
 }
 for (let item of document.querySelectorAll("[data-text]")) item.type = "text"; // Since Webpack delets the "type=text" attribute, it'll be added again from JavaScript
+document.getElementById("quitFfmpegGeneral").addEventListener("change", () => {document.getElementById("quitFfmpegGeneral").checked ? localStorage.removeItem("ffmpegWeb-GeneralQuit") : localStorage.setItem("ffmpegWeb-GeneralQuit", "a")});
+document.getElementById("quitFfmpegTimestamp").addEventListener("change", () => {document.getElementById("quitFfmpegTimestamp").checked ? localStorage.setItem("ffmpegWeb-TimestampQuit", "a") : localStorage.setItem("ffmpegWeb-TimestampQuit", "a")});
+if (localStorage.getItem("ffmpegWeb-GeneralQuit") === "a") document.getElementById("quitFfmpegGeneral").checked = false;
+if (localStorage.getItem("ffmpegWeb-TimestampQuit") === "a") document.getElementById("quitFfmpegTimestamp").checked = true;
