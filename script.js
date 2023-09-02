@@ -277,7 +277,7 @@ async function ffmpegStart(skipImport) { // The function that manages most of th
         tempOptions.ffmpegArray.splice(tempOptions.ffmpegArray.lastIndexOf("-ss"), tempOptions.ffmpegArray.length);
         try {
             if (document.getElementById("quitFfmpegTimestamp").checked) await resetFfmpeg();
-            await ffmpegStart(true);
+            await ffmpegStart(!document.getElementById("quitFfmpegTimestamp").checked);
         } catch (ex) {
             console.warn(ex);
         }
