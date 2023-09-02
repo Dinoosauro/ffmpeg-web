@@ -226,7 +226,19 @@ function getFfmpegItem() { // The function that will manage the start and the en
     if (conversionOptions.output.custom) { // If this is used in a custom script, fetch the final extension 
         tempOptions.fileExtension = tempOptions.ffmpegArray[tempOptions.ffmpegArray.length - 1].substring(tempOptions.ffmpegArray[tempOptions.ffmpegArray.length - 1].lastIndexOf("."));
     }
-    return cutTimestamp;
+    return intelligentTime(cutTimestamp);
+}
+function intelligentTime(timeArray) {
+    for (let i = 0; i < timeArray.length; i++) {
+        if (timeArray[i] === "" && i === 0) timeArray = "00:00:00"; else if (timeArray[i] === "") continue;
+        timeArray[i] = timeArray[i].replaceAll(".", ":");
+        let splitArray = timeArray[i].split(":");
+        for (let x = 0; x < splitArray.length; x++) if (splitArray[x].length === 1) splitArray[x] = `0${splitArray[x]}`;
+        if (splitArray.length === 1) splitArray.unshift("00", "00"); else if (splitArray.length === 2) splitArray.unshift("00");
+        timeArray[i] = splitArray.join(":");     
+    }
+    console.warn(timeArray);
+    return timeArray;
 }
 async function ffmpegStart(skipImport) { // The function that manages most of the ffmpeg conversions
     let finalScript = [];
