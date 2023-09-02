@@ -31,7 +31,8 @@ let englishTranslations = {
         visibleAlerts: "All the alerts are now visible",
         ffmpegWait: "Wait until ffmpeg is loaded",
         allAlbum: "All the album arts are exported",
-        conversionEnded: "Executed conversion of all selected files :D"
+        conversionEnded: "Executed conversion of all selected files :D",
+        oom: "The ffmpeg process has reported an Out of memory error. Please refresh the webpage and restart the operation. If you are using the \"Multiple timestamp\" cut, add again only the missing files."
     }
 }
 let currentTranslation = englishTranslations;
@@ -97,6 +98,7 @@ document.getElementById("fileInput").addEventListener("input", () => { // After 
         extractAlbumArt();
         return;
     }
+    conversionOptions.output.dividerProgression = parseInt(document.getElementById("trackStart").value) - 1;
     if (document.getElementById("cutVideoSelect").value === "2") tempOptions.isSecondCut = true; // If the value is "2", the user wants that the content divided in some parts (with timestamps)
     if (document.querySelector(".sectionSelect").getAttribute("section") === "cmd") conversionOptions.output.custom = true; else conversionOptions.output.custom = false; // Make this so that if the user changes tab for more conversion the custom script isn't kept
     if (document.querySelector(".sectionSelect").getAttribute("section") === "merge") conversionOptions.output.merged = true; else conversionOptions.output.merged = false; // Same as before
@@ -237,7 +239,6 @@ function intelligentTime(timeArray) {
         if (splitArray.length === 1) splitArray.unshift("00", "00"); else if (splitArray.length === 2) splitArray.unshift("00");
         timeArray[i] = splitArray.join(":");     
     }
-    console.warn(timeArray);
     return timeArray;
 }
 async function ffmpegStart(skipImport) { // The function that manages most of the ffmpeg conversions
@@ -289,6 +290,7 @@ async function ffmpegStart(skipImport) { // The function that manages most of th
         tempOptions.ffmpegArray.splice(tempOptions.ffmpegArray.lastIndexOf("-ss"), tempOptions.ffmpegArray.length);
         try {
             if (document.getElementById("quitFfmpegTimestamp").checked) await resetFfmpeg();
+            for (let file of [`a${conversionOptions.output.name}.${tempOptions.fileExtension}`, `aa${conversionOptions.output.name}.${tempOptions.fileExtension}`]) try { await ffmpeg.FS('unlink', file); } catch (ex) { console.warn(ex) }; // Delete the files from the ffmpeg file system
             await ffmpegStart(!document.getElementById("quitFfmpegTimestamp").checked);
         } catch (ex) {
             console.warn(ex);
@@ -535,7 +537,8 @@ let consoleText = "";
 ffmpeg.setLogger(({ type, message }) => { // Set an event every time there's an update from ffmpeg.wasm: add the message to the progress div
     consoleText += `<br>[${type}] ${message}`;
     if (`[${type}] ${message}`.startsWith("[fferr] OOM")) setTimeout(() => {
-        createAlert("The ffmpeg process has reported an Out of memory error, and it'll be closed. If you are using multiple timestamp cut, you need to delete the timestamps ffmpeg-web has converted.", "ffmpegWeb-OutOfMemory");
+        alert(currentTranslation.js.oom);
+        document.getElementById("trackStart").value = conversionOptions.output.dividerProgression - 1;
     }, 400);
     if (consoleText.length > parseInt(document.getElementById("maxCharacters").value)) consoleText = consoleText.substring(consoleText.length - Math.floor(parseInt(document.getElementById("maxCharacters").value) * 9 / 10));
     if (progressMove) {
@@ -581,7 +584,7 @@ document.getElementById("vidOutput").addEventListener("input", () => { // If vid
 
     }
 });
-let showItem = [["vidOutput", "audOutput", "checkFps", "checkOrientation", "checkPixelSpace"], ["videoElementsDisplay,videoOpt", "audioElementsDisplay,audioOpt", "fpsDiv", "orientationDiv", "pixelSpaceDiv"], [false, false, true, false, false]] // Array with values: [Checkbox ID, a comma-separated array of divs to show/hide, a boolean that indicates if the items must be hidden if the checkbox is ticked]
+let showItem = [["vidOutput", "audOutput", "checkFps", "checkOrientation", "checkPixelSpace", "smartMetadata"], ["videoElementsDisplay,videoOpt", "audioElementsDisplay,audioOpt", "fpsDiv", "orientationDiv", "pixelSpaceDiv", "smartTrackId"], [false, false, true, false, false, false]] // Array with values: [Checkbox ID, a comma-separated array of divs to show/hide, a boolean that indicates if the items must be hidden if the checkbox is ticked]
 for (let i = 0; i < showItem[0].length; i++) checkShow(showItem[0][i], showItem[1][i], showItem[2][i])
 let fetchImg = null; // fetchImg will be a JSON file contianing all of the SVG assets
 for (let item of document.querySelectorAll("[data-fetch]")) fetchData(item, item.getAttribute("data-fetch")); // Fetch all the images from the DOM to add a source
@@ -994,7 +997,7 @@ function loadFfmpeg(skipInfo) {
     return new Promise((resolve) => {
 if (!skipInfo) createAlert(currentTranslation.js.ffmpegLoad, "ffmpegLoading"); // Wait until ffmpeg-web loads the ffmpeg.wasm core component.
 document.getElementById("btnSelect").classList.add("disabled"); // Disable the "Select file" button until it has loaded
-if (!ffmpeg.isLoaded() || skipInfo) ffmpeg.load().then(() => {
+if (!ffmpeg.isLoaded()) ffmpeg.load().then(() => {
     // ffmpeg is loaded, so the "File select" button can now be clicked
     if (!skipInfo) createAlert(currentTranslation.js.successful, "ffmpegSuccessful");
     document.getElementById("btnSelect").classList.remove("disabled");
@@ -1007,6 +1010,8 @@ if (!ffmpeg.isLoaded() || skipInfo) ffmpeg.load().then(() => {
 }
 loadFfmpeg();
 async function resetFfmpeg() {
+    for (let file of tempOptions.deleteFile) try { await ffmpeg.FS('unlink', file); } catch (ex) { console.warn(ex) }; // Delete the files from the ffmpeg file system
+    ffmpeg.exit();
     await loadFfmpeg(true);
 }
 // Set up PWA installation prompt: catch the popup and display it when the user clicks the "Install as PWA" button

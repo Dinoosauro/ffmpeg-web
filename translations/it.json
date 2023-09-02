@@ -160,7 +160,9 @@
         "quitOperation": "Esci alla fine di ogni singola operazione",
         "quitTimestamp": "Esci ad ogni taglio del contenuto",
         "quitNow": "Esci ora dal processo ffmpeg",
-        "quitNowDesc": "Esci solamente se hai ricevuto un errore Out of memory."
+        "quitNowDesc": "Esci solamente se hai ricevuto un errore Out of memory.",
+        "trackStart": "Inizia numerazione da:",
+        "oom": "Il processo ffmpeg ha avuto un errore Out of memory. Aggiornare la pagina e ricominciare la conversione. Se si sta usando l'opzione \"Timestamp multipli\" per tagliare il contenuto, inserire solamente gli elementi che non sono stati tagliati."
     },
     "js": {
         "added": "Aggiunto", 
