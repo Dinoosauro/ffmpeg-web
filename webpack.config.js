@@ -30,6 +30,7 @@ module.exports = {
       new HtmlWebpackPlugin({
         filename: 'index.html',
         template: 'index.html',
+        scriptLoading: "blocking",
         path: path.resolve(__dirname, 'dist')
       })
     ]

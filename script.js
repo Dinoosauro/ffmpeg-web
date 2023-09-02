@@ -534,7 +534,9 @@ let progressMove = true;
 let consoleText = "";
 ffmpeg.setLogger(({ type, message }) => { // Set an event every time there's an update from ffmpeg.wasm: add the message to the progress div
     consoleText += `<br>[${type}] ${message}`;
-    if (`[${type}] ${message}`.startsWith("[fferr] OOM") && confirm("The ffmpeg process has reported an Out of memory error. Do you want to close it? Remember that, if you are using multiple timestamp cut, you'll need to delete the timestamps ffmpeg-web has converted.")) resetFfmpeg();
+    if (`[${type}] ${message}`.startsWith("[fferr] OOM")) setTimeout(() => {
+        createAlert("The ffmpeg process has reported an Out of memory error, and it'll be closed. If you are using multiple timestamp cut, you need to delete the timestamps ffmpeg-web has converted.", "ffmpegWeb-OutOfMemory");
+    }, 400);
     if (consoleText.length > parseInt(document.getElementById("maxCharacters").value)) consoleText = consoleText.substring(consoleText.length - Math.floor(parseInt(document.getElementById("maxCharacters").value) * 9 / 10));
     if (progressMove) {
         document.getElementById("console").innerHTML = consoleText;
@@ -992,7 +994,7 @@ function loadFfmpeg(skipInfo) {
     return new Promise((resolve) => {
 if (!skipInfo) createAlert(currentTranslation.js.ffmpegLoad, "ffmpegLoading"); // Wait until ffmpeg-web loads the ffmpeg.wasm core component.
 document.getElementById("btnSelect").classList.add("disabled"); // Disable the "Select file" button until it has loaded
-if (!ffmpeg.isLoaded()) ffmpeg.load().then(() => {
+if (!ffmpeg.isLoaded() || skipInfo) ffmpeg.load().then(() => {
     // ffmpeg is loaded, so the "File select" button can now be clicked
     if (!skipInfo) createAlert(currentTranslation.js.successful, "ffmpegSuccessful");
     document.getElementById("btnSelect").classList.remove("disabled");
@@ -1005,7 +1007,6 @@ if (!ffmpeg.isLoaded()) ffmpeg.load().then(() => {
 }
 loadFfmpeg();
 async function resetFfmpeg() {
-    ffmpeg.exit();
     await loadFfmpeg(true);
 }
 // Set up PWA installation prompt: catch the popup and display it when the user clicks the "Install as PWA" button
