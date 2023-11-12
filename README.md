@@ -48,6 +48,16 @@ You can change some settings in ffmpeg-web:
 - Create and change themes
 - Change the length of alerts
 - See the open source licenses
+## Dockerfile
+You can run ffmpeg-web also in a Docker container. Clone the repository (or download the zip file) and then build the image:
+
+```docker build -t ffmpeg-web .```
+
+After this, you can start the container. Note that the exposed container port is 3000:
+
+```docker run 127.0.0.1:3000:3000 ffmpeg-web```
+
+
 ## Privacy
 Every video is elaborated locally, and nothing is sent to a server. ffmpeg-web connects to:
 - Google Fonts: fetch fonts (no other data sent)
