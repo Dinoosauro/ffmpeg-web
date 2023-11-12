@@ -5,4 +5,5 @@
     Cross-Origin-Opener-Policy = "same-origin"
 
 [build]
-  base = "dist"
+  command = "npx webpack"
+  publish = "dist"
