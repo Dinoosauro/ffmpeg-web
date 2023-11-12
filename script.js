@@ -1,3 +1,4 @@
+(async() => {
 // Register service worker for offline access
 if ('serviceWorker' in navigator) {
     let registration;
@@ -531,7 +532,17 @@ function addSimpleCut() { // Trim content  from a start time to an end time
     }
 }
 const { createFFmpeg, fetchFile } = FFmpeg;
-let ffmpeg = createFFmpeg({ log: false, corePath: 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js' }); // Currently ffmpeg.wasm will remain on version 0.11.0 until significant performance improvements will be made
+let localFfmpeg = {
+    isLocal: false,
+    out: ""
+}
+async function getFfmpegInBlob() {
+    let res = await fetch(".jsres/ffmpeg-core.js");
+    let blob = await res.blob();
+    localFfmpeg.out = blob;
+}
+if (!localFfmpeg.isLocal) await getFfmpegInBlob();
+let ffmpeg = createFFmpeg({ log: false, corePath: localFfmpeg.isLocal ? new URL('jsres/ffmpeg-core.js', document.location).href : 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'}); // Currently ffmpeg.wasm will remain on version 0.11.0 until significant performance improvements will be made
 let progressMove = true;
 let consoleText = "";
 ffmpeg.setLogger(({ type, message }) => { // Set an event every time there's an update from ffmpeg.wasm: add the message to the progress div
@@ -1206,3 +1217,4 @@ document.getElementById("quitFfmpegTimestamp").addEventListener("change", () => 
 if (localStorage.getItem("ffmpegWeb-GeneralQuit") === "a") document.getElementById("quitFfmpegGeneral").checked = false;
 if (localStorage.getItem("ffmpegWeb-TimestampQuit") === "a") document.getElementById("quitFfmpegTimestamp").checked = true;
 document.getElementById("quitProcess").addEventListener("click", () => resetFfmpeg());
+})();
