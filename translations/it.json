@@ -18,7 +18,7 @@
         "outputAudDesc": "Aggiungi un output audio",
         "copyaudio": "Copia audio",
         "customscript": "Script ffmpeg personalizzato",
-        "customscriptDesc": "Scrivi uno script ffmpeg personalizzato. Evita di scrivere ffmpeg all'inizio, e dividi ogni argument con uno spazio. Comandi utili:",
+        "customscriptDesc": "Scrivi uno script ffmpeg personalizzato. Evita di scrivere ffmpeg all'inizio. Puoi anche scrivere $input[numero] al posto del nome del file.",
         "inputInput": "- dove ffmpeg-web dovrebbe aggiungere il file di input",
         "spaceInput": "- aggiungi uno spazio nello stesso argument (es: utile per il file di destinazione)",
         "spaceInfo": "Dividi ogni argument con uno spazio",
@@ -49,7 +49,7 @@
         "fileSelect": "Selezione dei file",
         "selectFile": "Scegli i file",
         "keepfirst": "Mantieni solamente il primo file",
-        "addall": "Aggiungi tutti i file nel file di output",
+        "addall": "Aggiungi tutti i file negli argomenti dell'output",
         "addiffirst": "Aggiungi il video/audio al comando se ha lo stesso nome del primo file",
         "addif": "Aggiungi il video/audio al comando se ha lo stesso nome (per ogni contenuto)",
         "same": "Esegui lo stesso comando per ogni file",
@@ -111,7 +111,7 @@
         "audioFilter": "Filtri audio:",
         "deleteCurrent": "Per eliminare la selezione corrente, inserisci nulla (oppure 0)",
         "volume": "Volume dell'audio:",
-        "db": "Sceggli decibel:",
+        "db": "Aumenta/diminuisci decibel:",
         "denoise": "Rimuovi rumore:",
         "denoiseDesc": "Riduci il rumore (in decibel):",
         "customFilter": "Filtro personalizzato",
@@ -162,10 +162,18 @@
         "quitNow": "Esci ora dal processo ffmpeg",
         "quitNowDesc": "Esci solamente se hai ricevuto un errore Out of memory.",
         "trackStart": "Inizia numerazione da:",
-        "oom": "Il processo ffmpeg ha avuto un errore Out of memory. Aggiornare la pagina e ricominciare la conversione. Se si sta usando l'opzione \"Timestamp multipli\" per tagliare il contenuto, inserire solamente gli elementi che non sono stati tagliati."
+        "hwAccel": "Accelerazione hardware",
+        "hwAccelDesc": "Cambia gli argument che saranno inseriti prima al resto al comando ffmpeg in modo da eseguirlo con accelerazione hardware",
+        "template": "Template:",
+        "nohw": "Nessuna accelerazione hardware",
+        "custom": "Valore personalizzato",
+        "changeArg": "Cambia arguments",
+        "fileSafe": "Permetti nome dei file non sicuri",
+        "addArgument": "Aggiungi argument"
     },
     "js": {
-        "added": "Aggiunto", 
+        "oom": "Il processo ffmpeg ha avuto un errore Out of memory. Aggiornare la pagina e ricominciare la conversione. Se si sta usando l'opzione \"Timestamp multipli\" per tagliare il contenuto, inserire solamente gli elementi che non sono stati tagliati.",
+        "added": "Aggiunto",
         "toZip": "al file zip",
         "downloadHere": "Scarica qui",
         "troubleDownload": "Problemi nel download? Clicca qui",
@@ -182,6 +190,7 @@
         "visibleAlerts": "Tutti gli avvisi ora sono visibili",
         "ffmpegWait": "Aspetta che ffmpeg si sia caricato",
         "allAlbum": "Tutte le copertine dell'album sono state esportate",
-        "conversionEnded": "Conversione eseguita di tutti i file."
+        "conversionEnded": "Conversione eseguita di tutti i file.",
+        "addArgument": "Aggiungi argument"
     }
 }

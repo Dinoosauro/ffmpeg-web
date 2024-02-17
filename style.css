@@ -20,6 +20,7 @@ h3,
 h4 {
   font-family: 'Josefin Sans', 'Work Sans', sans-serif;
 }
+
 .fill {
   width: -webkit-fill-available !important;
   width: -moz-available !important;
@@ -77,6 +78,7 @@ h4 {
   filter: brightness(130%);
   -webkit-filter: brightness(130%);
 }
+
 .isHovered {
   transition: filter 0.3s ease-in-out
 }
@@ -98,7 +100,8 @@ h4 {
 
 select,
 input[type=text],
-input[type=number], textarea {
+input[type=number],
+textarea {
   padding: 5px;
   background-color: var(--row);
   border-radius: 8px;
@@ -109,19 +112,23 @@ input[type=number], textarea {
   width: 35%;
 }
 
-input[type=text]::-webkit-input-placeholder, textarea::-webkit-input-placeholder {
+input[type=text]::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
   color: var(--text);
 }
 
-input[type=text]::-moz-placeholder, textarea::-moz-placeholder {
+input[type=text]::-moz-placeholder,
+textarea::-moz-placeholder {
   color: var(--text);
 }
 
-input[type=text]:-moz-placeholder, textarea:-moz-placeholder {
+input[type=text]:-moz-placeholder,
+textarea:-moz-placeholder {
   color: var(--text);
 }
 
-input[type=text]:-ms-input-placeholder, textarea:-ms-input-placeholder {
+input[type=text]:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
   color: var(--text);
 }
 
@@ -144,21 +151,36 @@ select {
   overflow-y: scroll;
 }
 
+.dialogContainer {
+  width: 100vw;
+  height: 100vh;
+  backdrop-filter: brightness(50%) blur(8px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
 .small {
   width: 8vw !important;
   margin-right: 8px !important;
   margin-left: 8px !important;
 }
+
 .switchContainer {
   display: flex;
   align-items: center;
 }
+
 .hcenter {
   justify-content: center;
 }
-.switchContainer > l{
+
+.switchContainer>l {
   flex-shrink: 999;
 }
+
 /* Borrowed from W3Schools /*
 /* The switch - the box around the slider */
 .switch {
@@ -288,7 +310,7 @@ progress::-webkit-progress-value {
 .flexAdaptive {
   display: flex;
   flex-wrap: wrap;
-  justify-content:center
+  justify-content: center
 }
 
 .width100 {
@@ -364,7 +386,7 @@ input[type=color] {
 }
 
 .close {
-  position: fixed;
+  position: absolute;
   right: 20px;
   top: 18px;
   width: 25px;
@@ -415,14 +437,17 @@ input[type=color] {
 .limitWidth {
   width: 40vw;
 }
+
 .btnLicense {
   background-color: var(--row)
 }
+
 @-moz-document url-prefix() {
   div {
     scrollbar-width: none;
   }
 }
+
 .spinner {
   width: 72px;
   height: 72px;
@@ -435,6 +460,29 @@ input[type=color] {
 
 @keyframes spinner-d3wgkg {
   to {
-     transform: rotate(1turn);
+    transform: rotate(1turn);
   }
+}
+
+.argContainer {
+  display: flex;
+  overflow: auto;
+  width: max-content;
+}
+
+.argument {
+  background-color: var(--select);
+  border-radius: 16px;
+  padding: 5px 15px;
+  margin-right: 10px;
+  white-space: nowrap;
+}
+
+img {
+  user-drag: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }

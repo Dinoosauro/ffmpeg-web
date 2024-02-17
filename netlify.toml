@@ -5,5 +5,5 @@
     Cross-Origin-Opener-Policy = "same-origin"
 
 [build]
-  command = "npx webpack"
+  command = "node webHost.js"
   publish = "dist"
