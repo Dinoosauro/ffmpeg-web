@@ -1,7 +1,9 @@
 # ffmpeg-web
-A Web UI for ffmpeg-wasm: convert video, audio and images using the power of ffmpeg, directly from your browser
+A Web and Native UI for ffmpeg-wasm: convert video, audio and images using the power of ffmpeg, directly from your web browser or from your computer. 
 
 Try it: https://ffmpeg-web.netlify.app/ 
+
+#### Want something faster than your browser? Run ffmpeg-web with the full power on your device using native ffmpeg and Electron only as a renderer. Read more in the "Electron" section below.
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/54deaa95-e730-4007-8037-0d878109e6da/deploy-status)](https://app.netlify.com/sites/ffmpeg-web/deploys)
 
@@ -45,9 +47,24 @@ ffmpeg-web permits you to trim content in lots of cases. You can choose to trim 
 You can change some settings in ffmpeg-web:
 - Show less popular encoders 
 - Save the output files in a ZIP file (you'll be able to download it by pressing the "Download zip" button at the end of the page)
+- Enable hardware acceleration (only on Electron)
 - Create and change themes
 - Change the length of alerts
 - See the open source licenses
+## Electron
+You can run ffmpeg-web with native performance using Electron:
+
+1. Clone this repository (you can [download it as a zip](https://github.com/Dinoosauro/ffmpeg-web/archive/refs/heads/main.zip) if you don't have git installed)
+2.  Make sure to have Node.JS installed. The last LTS is recommended, but other versions might work.
+3. Build the dist folder, so that you'll need to download the resources only once, by writing `node webHost.js local electron` in the command line
+4. Finally, write `npm run start` to open the Electron build. From now on, you'll need to write only this to run ffmpeg-web.
+
+### Differences between Electron and Web/Docker version:
+
+- The Electron version is way faster, since it relies on native ffmpeg and not on a WebAssembly version
+- The Electron version offers hardware acceleration features. Note that only Apple and Intel hardware acceleration has been tested
+- You need to manually install ffmpeg on your device to run the Electron version, while the Web/Docker has the WebAssembly version built-in
+- You cannot create zip files from the Electron version
 ## Dockerfile
 You can run ffmpeg-web also in a Docker container. Clone the repository (or download the zip file) and then build the image:
 

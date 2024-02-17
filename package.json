@@ -1,9 +1,26 @@
 {
+  "name": "ffmpeg-web",
+  "version": "1.0.0",
+  "description": "A Web UI for ffmpeg, powered by ffmpeg.wasm",
+  "main": "main.js",
+  "author": "Dinoosauro",
+  "productName": "ffmpeg-web",
+  "license": "MIT",
   "devDependencies": {
-    "clean-css": "^5.3.2",
+    "clean-css": "^5.3.3",
     "glob": "^10.3.3",
     "html-webpack-plugin": "^5.5.3",
     "terser-webpack-plugin": "^5.3.9",
     "webpack-cli": "^5.1.4"
+  },
+  "scripts": {
+    "start": "electron dist",
+    "startDev": "electron ."
+  },
+  "dependencies": {
+    "electron": "^28.2.3",
+    "express": "^4.18.2",
+    "html-minifier": "^4.0.0",
+    "uglify-js": "^3.17.4"
   }
 }
