@@ -679,6 +679,15 @@
                         </label>
                         <l data-translate="fileSafe">Permit unsafe name for files</l>
                     </div><br> <br>
+                    <div id="filePathInBarContainer" style="display: none;">
+                        <div class="switchContainer hcenter">
+                            <label class="switch">
+                                <input type="checkbox" autocomplete="off" id="showPathInBar">
+                                <span class="slider"></span>
+                            </label>
+                            <l data-translate="showFilePathDesc">Show full file path in the title bar</l>
+                        </div><br> <br>
+                    </div>
 
                 </div><br>
                 <div class="rowDisplay" style="display: block;">
@@ -760,7 +769,7 @@
                         <i data-translate="ramDesc">Manage when ffmpeg-web should exit the current process</i><br><br>
                         <div class="switchContainer hcenter">
                             <label class="switch">
-                                <input type="checkbox" autocomplete="off" id="quitFfmpegGeneral" checked>
+                                <input type="checkbox" autocomplete="off" id="quitFfmpegGeneral">
                                 <span class="slider"></span>
                             </label>
                             <l data-translate="quitOperation">Quit after each operation</l>

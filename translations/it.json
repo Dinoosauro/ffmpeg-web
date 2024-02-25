@@ -169,7 +169,8 @@
         "custom": "Valore personalizzato",
         "changeArg": "Cambia arguments",
         "fileSafe": "Permetti nome dei file non sicuri",
-        "addArgument": "Aggiungi argument"
+        "addArgument": "Aggiungi argument",
+        "showFilePathDesc": "Mostra il percorso completo nella barra del titolo"
     },
     "js": {
         "oom": "Il processo ffmpeg ha avuto un errore Out of memory. Aggiornare la pagina e ricominciare la conversione. Se si sta usando l'opzione \"Timestamp multipli\" per tagliare il contenuto, inserire solamente gli elementi che non sono stati tagliati.",

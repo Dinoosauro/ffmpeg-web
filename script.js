@@ -66,6 +66,7 @@
         document.getElementById("hwAcceleration").style.display = "block";
         document.querySelector("[data-fetch=arrowleft]").style.display = "none";
         document.getElementById("fsPart").style.display = "block";
+        document.getElementById("filePathInBarContainer").style.display = "block";
         scrollItem(); // Go to the process tab, since showing the PWA banner is useless.
         for (let item of document.querySelectorAll("a")) item.addEventListener("click", (e) => {
             e.preventDefault();
@@ -167,8 +168,14 @@
     }
     // The first function that uses ffmpeg: extract an album art from an audio file and convert it to the selected image format.
     async function extractAlbumArt() {
-        for (let item of document.getElementById("fileInput").files) {
+        for (let i = 0; i < document.getElementById("fileInput").files.length; i++) {
+            let item = document.getElementById("fileInput").files[i];
             item._path = ((item.path ?? "") === "") ? item.name : getFilePath(item.path); // Create a ._path property that, if available, it'll have the formatted path of the file.
+            try {
+                document.title = `ffmpeg-web | [${i}/${document.getElementById("fileInput").files.length}] Converting ${localStorage.getItem("ffmpegWeb-ShowFullPathInTitle") === "a" ? item.path ?? item.name : item.name}`;
+            } catch (ex) {
+                console.warn(ex);
+            }
             ffmpeg.FS("writeFile", item._path, await fetchFile(item));
             let prepareScript = ["-i", item._path];
             if (document.querySelector(".imgSelect").getAttribute("data-imgval") !== "no") prepareScript.push("-vcodec", document.querySelector(".imgSelect").getAttribute("data-imgval")); // data-imgval = encoder; data-extension = file extension;
@@ -176,6 +183,7 @@
             await ffmpeg.run(...prepareScript, outName);
             downloadItem(await intelliFetch(outName), outName);
         }
+        document.title = "ffmpeg-web";
         createAlert(englishTranslations.js.allAlbum, "albumArtExported");
     }
 
@@ -260,7 +268,7 @@
             ipcRenderer.send("WriteArrayFile", conversionFile);
         }) : ffmpeg.FS("writeFile", "array.txt", new TextEncoder().encode(conversionFile)); // Create a binary file from the list, so that it can be handled by ffmpeg.
         deleteFiles.push("array.txt"); // Delete the array when finished.
-        if (document.getElementById("mergeName").value === "") document.getElementById("mergeName").value = `merged-${file[0]._path}`; // Create a fallback name if the user hasn't written anything in the "Output file name" textbox
+        if (document.getElementById("mergeName").value === "") document.getElementById("mergeName").value = `${file[0]._path.substring(0, file[0]._path.lastIndexOf("."))}-merged${file[0]._path.substring(file[0]._path.lastIndexOf("."))}`; // Create a fallback name if the user hasn't written anything in the "Output file name" textbox
         if (document.getElementById("mergeName").value.endsWith(".m4a")) await ffmpeg.run("-f", "concat", "-safe", "0", "-i", "array.txt", "-c", "copy", "-map_metadata", "0", "-vn", `${document.getElementById("mergeName").value}.tempa.${document.getElementById("mergeName").value.substring(document.getElementById("mergeName").value.lastIndexOf(".") + 1)}`); else await ffmpeg.run("-f", "concat", "-safe", "0", "-i", "array.txt", "-c", "copy", "-map_metadata", "0", `${document.getElementById("mergeName").value}.tempa.${document.getElementById("mergeName").value.substring(document.getElementById("mergeName").value.lastIndexOf(".") + 1)}`); // If the file ends with ".m4a", the video (99% it's an album art) must be discarded, since ffmpeg won't be able to handled that correctly.
         let data = await ffmpeg.FS("readFile", `${document.getElementById("mergeName").value}.tempa.${document.getElementById("mergeName").value.substring(document.getElementById("mergeName").value.lastIndexOf(".") + 1)}`); // get the result
         deleteFiles.push(`${document.getElementById("mergeName").value}.tempa.${document.getElementById("mergeName").value.substring(document.getElementById("mergeName").value.lastIndexOf(".") + 1)}`);
@@ -340,6 +348,11 @@
         return timeArray;
     }
     async function ffmpegStart(skipImport) { // The function that manages most of the ffmpeg conversions
+        try {
+            document.title = `ffmpeg-web | [${isMultiCheck[1] === 0 ? "1" : isMultiCheck[1]}/${document.getElementById("fileInput").files.length}] Converting "${localStorage.getItem("ffmpegWeb-ShowFullPathInTitle") === "a" ? document.getElementById("fileInput").files[isMultiCheck[1] !== 0 ? isMultiCheck[1] - 1 : 0].path ?? document.getElementById("fileInput").files[isMultiCheck[1] !== 0 ? isMultiCheck[1] - 1 : 0].name : document.getElementById("fileInput").files[isMultiCheck[1] !== 0 ? isMultiCheck[1] - 1 : 0].name}"`;
+        } catch (ex) {
+            console.warn(ex);
+        }
         let finalScript = [...JSON.parse(localStorage.getItem("ffmpegWeb-Argshwaccel") ?? "[]")]; // Add the items for hardware acceleration initialization, if available
         if (!skipImport) {
             if (conversionOptions.output.custom) readFfmpegScript(); else if (document.querySelector(".sectionSelect").getAttribute("section") === "metadata") await ffmpegReadyMetadata(); else buildFfmpegScript();
@@ -381,6 +394,7 @@
             }
         }
         downloadItem(isElectron ? intelliFetch(data) : data);
+        document.title = "ffmpeg-web";
         document.getElementById("console").innerHTML = consoleText; // Add output text to the console
         document.getElementById("console").parentElement.scrollTo({ top: document.getElementById("console").parentElement.scrollHeight, behavior: 'smooth' }); // Scroll to the end of the console text
         let textCutSplit = document.getElementById("timestampArea").value.split("\n");
@@ -1359,9 +1373,9 @@
         }
     }
     for (let item of document.querySelectorAll("[data-text]")) item.type = "text"; // Since Webpack delets the "type=text" attribute, it'll be added again from JavaScript
-    document.getElementById("quitFfmpegGeneral").addEventListener("change", () => { document.getElementById("quitFfmpegGeneral").checked ? localStorage.removeItem("ffmpegWeb-GeneralQuit") : localStorage.setItem("ffmpegWeb-GeneralQuit", "a") });
+    document.getElementById("quitFfmpegGeneral").addEventListener("change", () => { !document.getElementById("quitFfmpegGeneral").checked ? localStorage.removeItem("ffmpegWeb-GeneralQuit") : localStorage.setItem("ffmpegWeb-GeneralQuit", "a") });
     document.getElementById("quitFfmpegTimestamp").addEventListener("change", () => { document.getElementById("quitFfmpegTimestamp").checked ? localStorage.setItem("ffmpegWeb-TimestampQuit", "a") : localStorage.setItem("ffmpegWeb-TimestampQuit", "a") });
-    if (localStorage.getItem("ffmpegWeb-GeneralQuit") === "a") document.getElementById("quitFfmpegGeneral").checked = false;
+    if (localStorage.getItem("ffmpegWeb-GeneralQuit") === "a") document.getElementById("quitFfmpegGeneral").checked = true;
     if (localStorage.getItem("ffmpegWeb-TimestampQuit") === "a") document.getElementById("quitFfmpegTimestamp").checked = true;
     document.getElementById("quitProcess").addEventListener("click", () => resetFfmpeg());
     function customCommandManager({ type }) { // Create a div where the user can add custom arguments
@@ -1435,5 +1449,8 @@
     });
     document.addEventListener("keyup", (e) => {
         if (e.key === "Shift") isShiftPressed = false;
+    })
+    document.getElementById("showPathInBar").addEventListener("change", () => {
+        document.getElementById("showPathInBar").checked ? localStorage.setItem("ffmpegWeb-ShowFullPathInTitle", "a") : localStorage.removeItem("ffmpegWeb-ShowFullPathInTitle");
     })
 })();
