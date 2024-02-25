@@ -308,7 +308,14 @@
             <i data-translate="selectNote">Note: the conversion will automatically start after you selected the files.
                 Before doing that, change the
                 parameters below.</i><br><br>
-            <div class="button" role="button" id="btnSelect" data-translate="selectFile">Select files</div><br>
+            <div style="display: flex;">
+                <div class="button" role="button" id="btnSelect" data-translate="selectFile"
+                    style="width: 100%; margin-right: 5px;">Select
+                    files</div>
+                <div class="button" role="button" id="folderSelect" data-translate="selectFolder"
+                    style="width: 100%; margin-left: 5px;">Select folder</div>
+            </div>
+            <br>
             <h3 data-translate="privacy">Privacy:</h3>
             <div style="align-items: center;" class="rowDisplay">
                 <img height="35px" width="35px" data-fetch="shield" style="margin-right: 10px;">
@@ -489,8 +496,16 @@
                     <h2 data-translate="pwaInstall">Install as an app:</h2>
                 </div>
                 <img class="centerImg isHovered" data-fetch="install" width="50%" style="max-width: 200px;"><br><br>
-                <l data-translate="pwaInstallDesc">Install ffmpeg-web as an app to use it offline.</l><br><br>
-                <div class="button" role="button" id="pwaInstall" data-translate="pwaInstallBtn">Install as a PWA</div>
+                <l data-translate="pwaInstallDesc">Install ffmpeg-web as an app to use it offline. Want additional
+                    performances? Download the Electron version to use ffmpeg with hardware acceleration</l><br><br>
+                <div style="display: flex;">
+                    <div class="button" role="button" id="pwaInstall" data-translate="pwaInstallBtn"
+                        style="width: 100%; margin-right: 5px;">Install as a PWA (easier)
+                    </div>
+                    <div class="button" role="button" id="electronInstructions" data-translate="electronInstall"
+                        style="margin-left: 5px; width: 100%;">Install
+                        Electorn package (better performance)</div>
+                </div>
                 <br><br>
                 <img data-fetch="arrowright" width="40px" height="40px" class="centerImg isHovered">
             </div>
@@ -867,7 +882,13 @@
                 <img class="close" data-fetch="minimize" id="hideDialog">
                 <h2>What's new in ffmpeg-web</h2>
                 <img class="centerImg isHovered" data-fetch="install" width="50%" style="max-width: 200px;">
-                <h3 style="text-align: center;">ffmpeg-web has reached version 2.0.0!</h3>
+                <h3 style="text-align: center;">ffmpeg-web has reached version 2.0.1!</h3>
+                <h4>Update log [2.0.1]</h4>
+                <ul>
+                    <li>Added folder picker support</li>
+                    <li>The page title is updated with the current conversion</li>
+                </ul>
+                <h4>Update log [2.0.0]:</h4>
                 <ul>
                     <li>Run ffmpeg-web with native performances (also with hardware acceleration*) using Electron!</li>
                     <li style="margin-left: 40px;">If you want to run the Electron version, you'll need to have a binary
@@ -890,8 +911,21 @@
             </div>
         </div>
     </div>
+    <div class="totalCenter fill opacity">
+        <div class="alert" id="keepFilesThatEndsAlert">
+            <span style="display: flex; align-items: center;">
+                <img height="24" width="24" data-fetch="search" style="margin-right: 10px">
+                <l data-text="keepOnlyExplain">Keep only files that ends with:
+                </l>
+            </span>
+            <input type="text" data-text id="keepFilesThatEnds">
+            <div class="button" role="button" style="background-color: var(--card); margin-left: 10px;"
+                id="confirmKeepFiles" data-translate="confirm">Confirm</div>
+        </div>
+    </div>
+
     <span data-translate="addArgument" style="display: none;">Add argument</span>
-    <!--Leave this so that tbere's a valid translation in the DOM to fetch-->
+    <!--Leave this so that there's a valid translation in the DOM to fetch-->
     <img class="close" style="width: 30px; height: 30px; position: absolute;" data-fetch="setting" id="showSettings">
     <form id="reset"><input type="file" id="fileInput" multiple style="display: none;"></form>
     <script src="./script.js"></script>

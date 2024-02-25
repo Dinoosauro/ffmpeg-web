@@ -96,8 +96,8 @@
         "keepArt": "Mantieni la copertina dell'album",
         "audFilters": "Filtri audio",
         "pwaInstall": "Installa come applicazione",
-        "pwaInstallDesc": "Installa ffmpeg-web come applicazione per usarla offline",
-        "pwaInstallBtn": "Installa come PWA",
+        "pwaInstallDesc": "Installa ffmpeg-web come applicazione per usarla offline. Per prestazioni migliori, scarica la versione Electron con accelerazione hardware.",
+        "pwaInstallBtn": "Installa come PWA (più semplice)",
         "progression": "Status di conversione:",
         "redownload": "Riscarica file",
         "keepOutput": "Mantieni il file di destinazione salvato nella memoria",
@@ -170,7 +170,11 @@
         "changeArg": "Cambia arguments",
         "fileSafe": "Permetti nome dei file non sicuri",
         "addArgument": "Aggiungi argument",
-        "showFilePathDesc": "Mostra il percorso completo nella barra del titolo"
+        "showFilePathDesc": "Mostra il percorso completo nella barra del titolo",
+        "selectFolder": "Seleziona cartella",
+        "keepOnlyExplain": "Mantieni solamente i file che terminano con:",
+        "confirm": "Conferma",
+        "electronInstall": "Installa versione Electron (prestazioni migliori)"
     },
     "js": {
         "oom": "Il processo ffmpeg ha avuto un errore Out of memory. Aggiornare la pagina e ricominciare la conversione. Se si sta usando l'opzione \"Timestamp multipli\" per tagliare il contenuto, inserire solamente gli elementi che non sono stati tagliati.",
