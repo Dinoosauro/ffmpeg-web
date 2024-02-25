@@ -62,7 +62,7 @@ You can run ffmpeg-web with native performance using Electron:
 ### Differences between Electron and Web/Docker version:
 
 - The Electron version is way faster, since it relies on native ffmpeg and not on a WebAssembly version
-- The Electron version offers hardware acceleration features. Note that only Apple and Intel hardware acceleration has been tested
+- The Electron version offers hardware acceleration features. Note that only Apple and Intel hardware acceleration have been tested
 - You need to manually install ffmpeg on your device to run the Electron version, while the Web/Docker has the WebAssembly version built-in
 - You cannot create zip files from the Electron version
 ## Dockerfile

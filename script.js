@@ -8,7 +8,7 @@
         registerServiceWorker();
     } else console.error(":/")
     // Check if there's a new version fetching updatecode.txt with no cache. If the result isn't the same as the current app version, a confirm dialog will be shown so that the user can update.
-    let appVersion = "2.0.0";
+    let appVersion = "2.0.1";
     let isElectron = typeof window.comunication !== "undefined"; // window.comunication is the type used by the script to comunicate with the Electron main script (used for calling native ffmpeg & doing FS operations)
     let ipcRenderer = isElectron ? window.comunication : null; // Get the ipcRenderer that'll permit to comunicate with the main Electron script, only if the website is running on Electron
     let resolveElectronPromise = null; // Placeholder for a promise for async Electron activities. This promise will be resolved when ffmpeg process is quitted.
@@ -72,6 +72,9 @@
             e.preventDefault();
             ipcRenderer.send("ExternalOpen", item.href);
         })
+        document.getElementById("electronInstructions").addEventListener("click", () => { // Show instructions to install Electron app
+            ipcRenderer.send("ExternalOpen", "https://github.com/Dinoosauro/ffmpeg-web#electron");
+        })
     } else {
         let jsScript = document.createElement("script");
         jsScript.src = localFfmpeg.isLocal ? "./jsres/jszip.js" : "https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js";
@@ -79,6 +82,9 @@
             zip = new JSZip(); // Create new .zip file so that, if the user enables it from settings, it can be used
         }
         document.body.append(jsScript);
+        document.getElementById("electronInstructions").addEventListener("click", () => {  // Show instructions to install Electron app
+            window.open("https://github.com/Dinoosauro/ffmpeg-web#electron", "_blank");
+        })
     }
     fetch(isElectron ? "https://raw.githubusercontent.com/Dinoosauro/ffmpeg-web/main/updatecode.txt" : "./updatecode.txt", { cache: "no-store" }).then((res) => res.text().then((text) => { if (text.replace("\n", "") !== appVersion) if (confirm(`There's a new version of ffmpeg-web. Do you want to update? [${appVersion} --> ${text.replace("\n", "")}]`)) { if (!isElectron) { caches.delete("ffmpegweb-cache"); location.reload(true); } else ipcRenderer.send("ExternalOpen", "https://github.com/Dinoosauro/ffmpeg-web/") } }).catch((e) => { console.error(e) })).catch((e) => console.error(e));
     document.getElementById("version").textContent = appVersion; // Write current text version to the info tab in settings
@@ -146,13 +152,14 @@
         if (!isElectron) return path;
         return path.replaceAll("$", "$Dollar").replaceAll("/", "$Slash").replaceAll("\\", "$BackwardsSlash").replaceAll(":", "$Dot");
     }
-
-    document.getElementById("btnSelect").addEventListener("click", () => { // The "Select file" button.
+    let pickerButtons = [document.getElementById("btnSelect"), document.getElementById("folderSelect")]; // The buttons that trigger a file picker event
+    for (let item of pickerButtons) item.addEventListener("click", (e) => { // The "Select file" button.
         // If ffmpeg.wasm is not loaded, don't do anything.
-        if (document.getElementById("btnSelect").classList.contains("disabled")) { createAlert(englishTranslations.js.ffmpegWait, "ffmpegLoadRemind"); return; };
+        if (e.target.classList.contains("disabled")) { createAlert(englishTranslations.js.ffmpegWait, "ffmpegLoadRemind"); return; };
         // Reset the inputs so that, even if there's an error in the ffmpeg conversion, it'll be possible to continue using the website.
         document.getElementById("reset").reset();
         tempOptions = optionGet();
+        e.target.id === "folderSelect" ? document.getElementById("fileInput").setAttribute("webkitdirectory", "") : document.getElementById("fileInput").removeAttribute("webkitdirectory"); // Depending on the clicked button, add the "webkitdirectory" attribute to read directory files
         // Start file selection progress
         document.getElementById("fileInput").click();
     });
@@ -168,11 +175,11 @@
     }
     // The first function that uses ffmpeg: extract an album art from an audio file and convert it to the selected image format.
     async function extractAlbumArt() {
-        for (let i = 0; i < document.getElementById("fileInput").files.length; i++) {
-            let item = document.getElementById("fileInput").files[i];
+        for (let i = 0; i < document.getElementById("fileInput")._filesToConvert.length; i++) {
+            let item = document.getElementById("fileInput")._filesToConvert[i];
             item._path = ((item.path ?? "") === "") ? item.name : getFilePath(item.path); // Create a ._path property that, if available, it'll have the formatted path of the file.
             try {
-                document.title = `ffmpeg-web | [${i}/${document.getElementById("fileInput").files.length}] Converting ${localStorage.getItem("ffmpegWeb-ShowFullPathInTitle") === "a" ? item.path ?? item.name : item.name}`;
+                document.title = `ffmpeg-web | [${i}/${document.getElementById("fileInput")._filesToConvert.length}] Converting ${localStorage.getItem("ffmpegWeb-ShowFullPathInTitle") === "a" ? item.path ?? item.name : item.name}`; // Update title with the current conversion
             } catch (ex) {
                 console.warn(ex);
             }
@@ -181,15 +188,29 @@
             if (document.querySelector(".imgSelect").getAttribute("data-imgval") !== "no") prepareScript.push("-vcodec", document.querySelector(".imgSelect").getAttribute("data-imgval")); // data-imgval = encoder; data-extension = file extension;
             let outName = `${item._path.substring(0, item._path.lastIndexOf("."))}.${document.querySelector(".imgSelect").getAttribute("data-extension")}`;
             await ffmpeg.run(...prepareScript, outName);
-            downloadItem(await intelliFetch(outName), outName);
+            downloadItem(await intelliFetch(outName), outName, item.webkitRelativePath);
         }
         document.title = "ffmpeg-web";
         createAlert(englishTranslations.js.allAlbum, "albumArtExported");
     }
-
-    document.getElementById("fileInput").addEventListener("input", () => { // After a file has been selected, the website will start to look into the selected files and start the conversion
+    function customPrompt() { // A Promise that'll show the prompt to filter the files depending on how their name ends. It'll return the value of the textbox
+        return new Promise((resolve) => {
+            document.getElementById("keepFilesThatEndsAlert").style = "top: 5vh; opacity: 1; display: flex; border: 3px solid var(--text); z-index: 4";
+            document.getElementById("keepFilesThatEndsAlert").parentElement.style.opacity = "1";
+            document.getElementById("confirmKeepFiles").onclick = () => {
+                document.getElementById("keepFilesThatEndsAlert").parentElement.style.opacity = "0";
+                setTimeout(() => {
+                    document.getElementById("keepFilesThatEndsAlert").style = "";
+                }, 500);
+                resolve(document.getElementById("keepFilesThatEnds").value);
+            }
+        })
+    }
+    document.getElementById("fileInput").addEventListener("input", async () => { // After a file has been selected, the website will start to look into the selected files and start the conversion
         window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }); // Go to the bottom of the page, where the conversion stats will be displayed.
-        let files = document.getElementById("fileInput").files;
+        let outputFilter = document.getElementById("fileInput").getAttribute("webkitDirectory") !== null ? await customPrompt() : ""; // If the user has selected a folder, ask which files should be converted by filtering the final part of the name
+        document.getElementById("fileInput")._filesToConvert = Array.from(document.getElementById("fileInput").files).filter(e => e.name.toLowerCase() !== ".ds_store" && e.name.toLowerCase() !== "desktop.ini" && e.name.endsWith(outputFilter)); // Keep only the files that should be converted 
+        let files = document.getElementById("fileInput")._filesToConvert;
         for (let i = 0; i < files.length; i++) { // For each file, update it. If there's no path, use the default name. Otherwise, get the path with the replaced "divider" charaters
             files[i]._path = ((files[i].path ?? "") === "") ? files[i].name : getFilePath(files[i].path);
         }
@@ -227,7 +248,7 @@
         ffmpegStart(); // Start the conversion
     });
     function ffmpegMultiCheck() { // Manages multiple outputs
-        let files = document.getElementById("fileInput").files;
+        let files = document.getElementById("fileInput")._filesToConvert;
         if (document.getElementById("cutVideoSelect").value === "2") tempOptions.isSecondCut = true; // If the value is "2", the user wants that the content divided in some parts (with timestamps)
         if (isMultiCheck[1] >= files.length) { document.getElementById("reset").reset(); createAlert(currentTranslation.js.conversionEnded, "convertAll"); isMultiCheck = [false, 0]; return } // All the files are converted, so nothing else will be done
         if (parseInt(document.getElementById("multiVideoHandle").value) === 3) { // Add input to the command if they have the same name (for each content selected)
@@ -293,7 +314,7 @@
         }
         document.getElementById("console").innerHTML = consoleText; // Add information text
         document.getElementById("console").parentElement.scrollTo({ top: document.getElementById("console").parentElement.scrollHeight, behavior: 'smooth' }); // Scroll to the bottom of information text
-        downloadItem(isElectron ? intelliFetch(data) : data, document.getElementById("mergeName").value);
+        downloadItem(isElectron ? intelliFetch(data) : data, document.getElementById("mergeName").value, file[0].webkitRelativePath);
         for (let fileItem of deleteFiles) await ffmpeg.FS("unlink", fileItem);
         tempOptions = optionGet(); // Prepare for another conversion, deleting conversion-specific informations
     }
@@ -349,7 +370,7 @@
     }
     async function ffmpegStart(skipImport) { // The function that manages most of the ffmpeg conversions
         try {
-            document.title = `ffmpeg-web | [${isMultiCheck[1] === 0 ? "1" : isMultiCheck[1]}/${document.getElementById("fileInput").files.length}] Converting "${localStorage.getItem("ffmpegWeb-ShowFullPathInTitle") === "a" ? document.getElementById("fileInput").files[isMultiCheck[1] !== 0 ? isMultiCheck[1] - 1 : 0].path ?? document.getElementById("fileInput").files[isMultiCheck[1] !== 0 ? isMultiCheck[1] - 1 : 0].name : document.getElementById("fileInput").files[isMultiCheck[1] !== 0 ? isMultiCheck[1] - 1 : 0].name}"`;
+            document.title = `ffmpeg-web | [${isMultiCheck[1] === 0 ? "1" : isMultiCheck[1]}/${document.getElementById("fileInput")._filesToConvert.length}] Converting "${localStorage.getItem("ffmpegWeb-ShowFullPathInTitle") === "a" ? document.getElementById("fileInput")._filesToConvert[isMultiCheck[1] !== 0 ? isMultiCheck[1] - 1 : 0].path ?? document.getElementById("fileInput")._filesToConvert[isMultiCheck[1] !== 0 ? isMultiCheck[1] - 1 : 0].name : document.getElementById("fileInput")._filesToConvert[isMultiCheck[1] !== 0 ? isMultiCheck[1] - 1 : 0].name}"`; // Update title with the current conversion
         } catch (ex) {
             console.warn(ex);
         }
@@ -393,7 +414,7 @@
                 console.error(ex);
             }
         }
-        downloadItem(isElectron ? intelliFetch(data) : data);
+        downloadItem(isElectron ? intelliFetch(data) : data, undefined, tempOptions.ffmpegBuffer[0]?.webkitRelativePath);
         document.title = "ffmpeg-web";
         document.getElementById("console").innerHTML = consoleText; // Add output text to the console
         document.getElementById("console").parentElement.scrollTo({ top: document.getElementById("console").parentElement.scrollHeight, behavior: 'smooth' }); // Scroll to the end of the console text
@@ -421,11 +442,18 @@
             if (document.getElementById("quitFfmpegGeneral").checked) await resetFfmpeg()
         }
     }
-    function downloadItem(data, name) { // Function to download a file
+    function downloadItem(data, name, webkitRelativePath) { // Function to download a file
         if ((data ?? "undefined") === "undefined" || typeof data === "object" && typeof data.then === "function") return; // This will automatically block all file downloads in the Electron page.
         downloadName = name !== undefined ? name : `${safeCharacters(conversionOptions.output.name)}.${tempOptions.fileExtension}`; // If no name is provided, fetch the result of the conversion
         if (document.getElementById("zipSave").checked) { // If the user wants a zip file, add it to JSZIP, and notify the user
-            zip.file(downloadName, new File([data.buffer], downloadName));
+            let newZip = zip; // Save the zip object as a new variable
+            if ((webkitRelativePath ?? "") !== "") { // The user has selected a folder, and therefore it's possible to create a folder hierarchy 
+                let path = webkitRelativePath.split("/");
+                path.shift();
+                path.pop();
+                for (let remainingPath of path) newZip = newZip.folder(remainingPath); // Create folders 
+            }
+            newZip.file(downloadName, new File([data.buffer], downloadName));
             createAlert(`${currentTranslation.js.added} ${downloadName} ${currentTranslation.js.toZip}`, "zipFileAdd");
             return;
         }
@@ -1166,11 +1194,11 @@
     function loadFfmpeg(skipInfo) {
         return new Promise((resolve) => {
             if (!skipInfo) createAlert(currentTranslation.js.ffmpegLoad, "ffmpegLoading"); // Wait until ffmpeg-web loads the ffmpeg.wasm core component.
-            document.getElementById("btnSelect").classList.add("disabled"); // Disable the "Select file" button until it has loaded
+            for (let item of pickerButtons) item.classList.add("disabled"); // Disable the "Select file" button until it has loaded
             if (!ffmpeg.isLoaded()) ffmpeg.load().then(() => {
                 // ffmpeg is loaded, so the "File select" button can now be clicked
                 if (!skipInfo) createAlert(currentTranslation.js.successful, "ffmpegSuccessful");
-                document.getElementById("btnSelect").classList.remove("disabled");
+                for (let item of pickerButtons) item.classList.remove("disabled");
                 resolve();
             }).catch((ex) => {
                 createAlert(`${englishTranslations.js.error} ${ex}`, "ffmpegFail");
@@ -1433,10 +1461,10 @@
     }
     document.getElementById("safeFile").addEventListener("change", () => { localStorage.setItem("ffmpegWeb-safeFile", document.getElementById("safeFile").checked ? "a" : "b") });
     document.getElementById("safeFile").checked = localStorage.getItem("ffmpegWeb-safeFile") === "a";
-    if (localStorage.getItem("ffmpegWeb-LastVersion") !== appVersion) generalHelloAnimation(document.getElementById("updateDialog"), "block"); // Show updated version dialog
-    document.getElementById("hideDialog").addEventListener("click", () => { // Remember that the user has seen that dialog. It'll be hidden from another event, added before.
-        localStorage.setItem("ffmpegWeb-LastVersion", appVersion);
-    });
+    if (localStorage.getItem("ffmpegWeb-LastVersion") !== appVersion) {
+        generalHelloAnimation(document.getElementById("updateDialog"), "block"); // Show updated version dialog
+        localStorage.setItem("ffmpegWeb-LastVersion", appVersion); // Automatically dismiss the dialog if the user refreshes the page
+    }
     document.getElementById("showUpdate").addEventListener("click", () => { // Show the update dialog after the user has requested it
         generalByeAnimation(document.getElementById("settings")); // Before doing that, close the settings dialog
         setTimeout(() => { // And then show the update dialog
