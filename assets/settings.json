@@ -1,0 +1,178 @@
+{
+    "version": "2.0.2",
+    "isProductionReady": false,
+    "options": {
+        "checked": [
+            {
+                "ref": "#vidOutput",
+                "comment": "Add a video output to the file"
+            },
+            {
+                "ref": "#audOutput",
+                "comment": "Add an audio output to the file"
+            },
+            {
+                "ref": "#keepAlbumArt",
+                "comment": "Merge content section –> Keep the album art (or thumbnail) of the first file"
+            },
+            {
+                "ref": "#metadataKeep",
+                "comment": "Metadata section –> Keep current metadata"
+            },
+            {
+                "ref": "#mp4Keep",
+                "comment": "Metadata section –> Keep album art in a MP4 files, disabling custom metadata"
+            },
+            {
+                "ref": "#smartMetadata",
+                "comment": "Main picker –> Automatically add title and track number when using multiple timestamps"
+            },
+            {
+                "ref": "#removeOlderArt",
+                "comment": "Metadata tab –> Remove old values"
+            },
+            {
+                "ref": "#checkFps",
+                "comment": "Video tab –> Keep the same FPS"
+            },
+            {
+                "ref": "#checkOrientation",
+                "comment": "Video tab –> Keep the same orientation and aspect ratio"
+            },
+            {
+                "ref": "#checkPixelSpace",
+                "comment": "Video tab –> Change the pixel space of the video"
+            },
+            {
+                "ref": "#albumArtCheck",
+                "comment": "Audio tab –> Save the album art in the output file"
+            },
+            {
+                "ref": "#saveFiles",
+                "comment": "File picker tab –> Keep the output files saved in memory"
+            },
+            {
+                "ref": "#deinterlaceCheck",
+                "comment": "Video filters dialog –> Deinterlace video"
+            },
+            {
+                "ref": "#zipSave",
+                "comment": "Settings dialog –> Save the output files in a zip file (Web only)"
+            },
+            {
+                "ref": "#advancedFormat",
+                "comment": "Settings dialog –> Permit to choose also less-used encoders"
+            },
+            {
+                "ref": "#safeFile",
+                "comment": "Settings dialog –> Use only safe file names (due to filesystem limitations)"
+            },
+            {
+                "ref": "#showPathInBar",
+                "comment": "Settings dialog –> Show the full file path in the Electron application bar"
+            },
+            {
+                "ref": "#quitFfmpegGeneral",
+                "comment": "Settings dialog –> Exit from ffmpeg.wasm after each conversion"
+            },
+            {
+                "ref": "#quitFfmpegTimestamp",
+                "comment": "Settings dialog –> Exit from ffmpeg.wasm after each timestamp division"
+            }
+        ],
+        "value": [
+            {
+                "ref": "#cutVideoSelect",
+                "comment": "Main picker –> Choose the trim mode content"
+            },
+            {
+                "ref": "#trackStart",
+                "comment": "Main picker –> Start from a specific track number when using multiple timestamps"
+            },
+            {
+                "ref": "#multiVideoHandle",
+                "comment": "File picker –> Choose how multiple files should be handled"
+            },
+            {
+                "ref": "[data-select=bitrate][data-child=vid]",
+                "comment": "Video tab –> Select how bitrate should be determined"
+            },
+            {
+                "ref": "[data-update=vidBitLength]:not([type=range])",
+                "comment": "Video tab –> The number of bits/second for the bitrate [input]"
+            },
+            {
+                "ref": "[data-update=vidBitLength][type=range]",
+                "comment": "Video tab –> The number of bits/second for the bitrate [slider]"
+            },
+            {
+                "ref": "#orientationChoose",
+                "comment": "Video tab –> Choose the rotation of the video, in degrees"
+            },
+            {
+                "ref": "#pixelSpace",
+                "comment": "Video tab –> The name of the new pixel space"
+            },
+            {
+                "ref": "[data-select=bitrate][data-child=aud]",
+                "comment": "Audio tab –> Select how the bitrate should be determined"
+            },
+            {
+                "ref": "[data-update=audBitLength]:not([type=range])",
+                "comment": "Audio tab –> The number of bits/second for the bitrate [input]"
+            },
+            {
+                "ref": "[data-update=audBitLength][type=range]",
+                "comment": "Audio tab –> The number of bits/second for the bitrate [slider]"
+            },
+            {
+                "ref": "#audioChannelSelect",
+                "comment": "Audio tab –> The number of audio channels"
+            },
+            {
+                "ref": "#volumeRange",
+                "comment": "Audio filters dialog –> Increase (or decrease) the decibels of the audio"
+            },
+            {
+                "ref": "#noiseFloorReduction",
+                "comment": "Audio filters dialog –> Noise floor reduction"
+            },
+            {
+                "ref": "#customAudio",
+                "comment": "Audio filters dialog –> A custom audio filter using ffmpeg syntax"
+            },
+            {
+                "ref": "#cropWidth",
+                "comment": "Video filters dialog –> Width of the output video"
+            },
+            {
+                "ref": "#cropHeight",
+                "comment": "Video filters dialog –> Height of the output video"
+            },
+            {
+                "ref": "#positionItemX",
+                "comment": "Video filters dialog –> Start position on the X axis of the output video"
+            },
+            {
+                "ref": "#positionItemY",
+                "comment": "Video filters dialog –> Start position on the Y axis of the output video"
+            },
+            {
+                "ref": "#curveSelect",
+                "comment": "Video filters dialog –> The output video filter"
+            },
+            {
+                "ref": "#customVideo",
+                "comment": "Video filters dialog –> A custom video filter using ffmpeg syntax"
+            },
+            {
+                "ref": "#maxCharacters",
+                "comment": "Settings dialog –> The maxinum of characters that'll be shown in the console"
+            },
+            {
+                "ref": "#hwAccelSelect",
+                "comment": "Settings dialog –> The hardware acceleration that should be used (Electron only)"
+            }
+        ]
+    }
+}

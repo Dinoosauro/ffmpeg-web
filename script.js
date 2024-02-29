@@ -8,7 +8,7 @@
         registerServiceWorker();
     } else console.error(":/")
     // Check if there's a new version fetching updatecode.txt with no cache. If the result isn't the same as the current app version, a confirm dialog will be shown so that the user can update.
-    let appVersion = "2.0.1";
+    let appVersion = "2.0.2";
     let isElectron = typeof window.comunication !== "undefined"; // window.comunication is the type used by the script to comunicate with the Electron main script (used for calling native ffmpeg & doing FS operations)
     let ipcRenderer = isElectron ? window.comunication : null; // Get the ipcRenderer that'll permit to comunicate with the main Electron script, only if the website is running on Electron
     let resolveElectronPromise = null; // Placeholder for a promise for async Electron activities. This promise will be resolved when ffmpeg process is quitted.
@@ -179,7 +179,7 @@
             let item = document.getElementById("fileInput")._filesToConvert[i];
             item._path = ((item.path ?? "") === "") ? item.name : getFilePath(item.path); // Create a ._path property that, if available, it'll have the formatted path of the file.
             try {
-                document.title = `ffmpeg-web | [${i}/${document.getElementById("fileInput")._filesToConvert.length}] Converting ${localStorage.getItem("ffmpegWeb-ShowFullPathInTitle") === "a" ? item.path ?? item.name : item.name}`; // Update title with the current conversion
+                document.title = `ffmpeg-web | [${i}/${document.getElementById("fileInput")._filesToConvert.length}] Converting ${document.getElementById("showPathInBar").checked ? item.path ?? item.name : item.name}`; // Update title with the current conversion
             } catch (ex) {
                 console.warn(ex);
             }
@@ -370,7 +370,7 @@
     }
     async function ffmpegStart(skipImport) { // The function that manages most of the ffmpeg conversions
         try {
-            document.title = `ffmpeg-web | [${isMultiCheck[1] === 0 ? "1" : isMultiCheck[1]}/${document.getElementById("fileInput")._filesToConvert.length}] Converting "${localStorage.getItem("ffmpegWeb-ShowFullPathInTitle") === "a" ? document.getElementById("fileInput")._filesToConvert[isMultiCheck[1] !== 0 ? isMultiCheck[1] - 1 : 0].path ?? document.getElementById("fileInput")._filesToConvert[isMultiCheck[1] !== 0 ? isMultiCheck[1] - 1 : 0].name : document.getElementById("fileInput")._filesToConvert[isMultiCheck[1] !== 0 ? isMultiCheck[1] - 1 : 0].name}"`; // Update title with the current conversion
+            document.title = `ffmpeg-web | [${isMultiCheck[1] === 0 ? "1" : isMultiCheck[1]}/${document.getElementById("fileInput")._filesToConvert.length}] Converting "${document.getElementById("showPathInBar").checked ? document.getElementById("fileInput")._filesToConvert[isMultiCheck[1] !== 0 ? isMultiCheck[1] - 1 : 0].path ?? document.getElementById("fileInput")._filesToConvert[isMultiCheck[1] !== 0 ? isMultiCheck[1] - 1 : 0].name : document.getElementById("fileInput")._filesToConvert[isMultiCheck[1] !== 0 ? isMultiCheck[1] - 1 : 0].name}"`; // Update title with the current conversion
         } catch (ex) {
             console.warn(ex);
         }
@@ -931,16 +931,8 @@
         item.classList.add("isHovered");
     }
     for (let item of document.querySelectorAll("input,.button,select,.optionBtn,.slider,img,.circular")) addHoverEvents(item); // A list of elements from the DOM that should have the hover effect
-    if (localStorage.getItem("ffmpegWeb-advanced") === "a") document.getElementById("advancedFormat").checked = true; // Show advanced formats
-    if (!document.getElementById("advancedFormat").checked) for (let item of document.querySelectorAll("[advanced]")) item.style.display = "none"; // If the user doesn't want to see "advanced" encoders (that basically no one uses nowdays), hide them
     document.getElementById("advancedFormat").addEventListener("input", () => { // Show or hide advanced codecs setting
-        if (!document.getElementById("advancedFormat").checked) {
-            for (let item of document.querySelectorAll("[advanced]")) item.style.display = "none";
-            localStorage.setItem("ffmpegWeb-advanced", "b");
-        } else {
-            for (let item of document.querySelectorAll("[advanced]")) item.style.display = "flex";
-            localStorage.setItem("ffmpegWeb-advanced", "a");
-        }
+        for (let item of document.querySelectorAll("[advanced]")) item.style.display = document.getElementById("advancedFormat").checked ? "flex" : "none";
     });
     function checkPosition(force) { // Logic that handles a great part of the card resizing between left and right cards
         if (force || document.getElementById("vidOutput").checked && document.getElementById("audOutput").checked || !document.getElementById("vidOutput").checked && !document.getElementById("audOutput").checked) { // If it's forced, or if both/none the audio or the video tab are visible, show the last card (the progress/PWA one) with full width
@@ -1348,8 +1340,6 @@
     }
     window.addEventListener("resize", () => resizeTab());
     if (currentState === 1) verticalTabPrefer(); // Add it now so that, if the website has a vertical layout, the tabs will be moved
-    document.getElementById("zipSave").addEventListener("change", () => { localStorage.setItem("ffmpegWeb-zipSave", document.getElementById("zipSave").checked ? "a" : "b"); }) // Save the choiche the user has made to save or not the content to a zip file
-    if (localStorage.getItem("ffmpegWeb-zipSave") === "a") { document.getElementById("zipSave").checked = true; document.getElementById("zipSave").dispatchEvent(new Event("input")) }; // If checked, trigger the "input" event of the checkbox, that shows/hide the zip manager section
     function hexToRgbNew(hex) { // Borrowed from https://stackoverflow.com/a/11508164. Gets a RGB value from a hex color
         var arrBuff = new ArrayBuffer(4);
         var vw = new DataView(arrBuff);
@@ -1362,10 +1352,6 @@
         let rgbOption = hexToRgbNew(getComputedStyle(document.body).getPropertyValue("--text").replace("#", "")).split(",");
         document.getElementById("safariFix").innerHTML = `select {-webkit-appearance: none; background-image: url("data:image/svg+xml;utf8,<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='24' height='24' viewBox='0 0 24 24'><path fill='rgb(${rgbOption[0]},${rgbOption[1]},${rgbOption[2]}' d='M7.406 7.828l4.594 4.594 4.594-4.594 1.406 1.406-6 6-6-6z'></path></svg>"); background-position: 100% 50%; background-repeat: no-repeat; font-size: 10pt}`;
     }
-    document.getElementById("maxCharacters").addEventListener("input", () => {
-        if (parseInt(document.getElementById("maxCharacters").value) > 9) localStorage.setItem("ffmpegWeb-maxConsole", document.getElementById("maxCharacters").value);
-    })
-    if (localStorage.getItem("ffmpegWeb-maxConsole") !== null) document.getElementById("maxCharacters").value = localStorage.getItem("ffmpegWeb-maxConsole");
     for (let item of document.querySelectorAll("[data-translate]")) englishTranslations.html[item.getAttribute("data-translate")] = item.textContent; // Fetch the translation of the HTML elements, so that if the user changes language, they'll be able to restore English without refreshing.
     function applyTranslation(jsonItem) { // The function that applies the translations to the HTML document
         currentTranslation = jsonItem; // Save the new translation in the object
@@ -1401,10 +1387,6 @@
         }
     }
     for (let item of document.querySelectorAll("[data-text]")) item.type = "text"; // Since Webpack delets the "type=text" attribute, it'll be added again from JavaScript
-    document.getElementById("quitFfmpegGeneral").addEventListener("change", () => { !document.getElementById("quitFfmpegGeneral").checked ? localStorage.removeItem("ffmpegWeb-GeneralQuit") : localStorage.setItem("ffmpegWeb-GeneralQuit", "a") });
-    document.getElementById("quitFfmpegTimestamp").addEventListener("change", () => { document.getElementById("quitFfmpegTimestamp").checked ? localStorage.setItem("ffmpegWeb-TimestampQuit", "a") : localStorage.setItem("ffmpegWeb-TimestampQuit", "a") });
-    if (localStorage.getItem("ffmpegWeb-GeneralQuit") === "a") document.getElementById("quitFfmpegGeneral").checked = true;
-    if (localStorage.getItem("ffmpegWeb-TimestampQuit") === "a") document.getElementById("quitFfmpegTimestamp").checked = true;
     document.getElementById("quitProcess").addEventListener("click", () => resetFfmpeg());
     function customCommandManager({ type }) { // Create a div where the user can add custom arguments
         let container = document.createElement("div");
@@ -1437,7 +1419,6 @@
         return container;
     }
     document.getElementById("hwAccelSelect").addEventListener("change", () => { // The user has selected a new template
-        localStorage.setItem("ffmpegWeb-HwAccel", document.getElementById("hwAccelSelect").value); // Store the user selection
         let addValues = { // The custom arguments to add at the beginning
             intel: ["-init_hw_device", "qsv=hw"],
             nvidia: ["-vsync", "0", "-hwaccel", "cuda", "-hwaccel_output_format", "cuda"],
@@ -1456,11 +1437,6 @@
     document.getElementById("showExtraAcceleration").addEventListener("change", () => { // The checkbox that shows the custom hw acceleration initializer div
         document.getElementById("showExtraAcceleration").checked ? generalHelloAnimation(document.getElementById("customHardwareId"), "block") : generalByeAnimation(document.getElementById("customHardwareId"));
     })
-    if ((localStorage.getItem("ffmpegWeb-HwAccel") ?? "") !== "") { // Change the value of the hardware acceleration option to the one selected before
-        document.getElementById("hwAccelSelect").value = localStorage.getItem("ffmpegWeb-HwAccel");
-    }
-    document.getElementById("safeFile").addEventListener("change", () => { localStorage.setItem("ffmpegWeb-safeFile", document.getElementById("safeFile").checked ? "a" : "b") });
-    document.getElementById("safeFile").checked = localStorage.getItem("ffmpegWeb-safeFile") === "a";
     if (localStorage.getItem("ffmpegWeb-LastVersion") !== appVersion) {
         generalHelloAnimation(document.getElementById("updateDialog"), "block"); // Show updated version dialog
         localStorage.setItem("ffmpegWeb-LastVersion", appVersion); // Automatically dismiss the dialog if the user refreshes the page
@@ -1478,7 +1454,37 @@
     document.addEventListener("keyup", (e) => {
         if (e.key === "Shift") isShiftPressed = false;
     })
-    document.getElementById("showPathInBar").addEventListener("change", () => {
-        document.getElementById("showPathInBar").checked ? localStorage.setItem("ffmpegWeb-ShowFullPathInTitle", "a") : localStorage.removeItem("ffmpegWeb-ShowFullPathInTitle");
+    let getLastSelection = JSON.parse(localStorage.getItem("ffmpegWeb-LastSelection") ?? "[]"); // The value of inputs the last time the user has used ffmpeg-web
+    fetch("./assets/settings.json").then((res) => res.json().then((json) => { // Get the JSON file that contains the CSS selectors of the inputs
+        if (!json.isProductionReady) { // If the JSON file isn't adapted (probably dev server), quickly adapt it by deleting the comments and keeping only the CSS selectors
+            for (let item in json.options) json.options[item] = json.options[item].map(e => e.ref);
+        }
+        for (let update in json.options) { // The "update" keys in the "Options" main key will contain all the properties to change in the HTML object
+            for (let value of json.options[update]) { // The "value" string will contain the CSS selector for the item to update
+                let dom = document.querySelector(value);
+                if (dom === null) continue;
+                dom.addEventListener(dom.type === "checkbox" || dom.tagName.toLowerCase() === "select" ? "change" : "input", () => { // Differentiate the event depending on the type of the input
+                    let storageParse = JSON.parse(localStorage.getItem("ffmpegWeb-LastSelection") ?? "[]"); // Get again the selection, since it might be different from when the user opened ffmpeg-web (ex: if they have changed more than a property)
+                    storageParse.findIndex(e => e.ref === value) !== -1 ? storageParse.find(e => e.ref === value).value = dom[update] : storageParse.push({ ref: value, value: dom[update], update: update }); // Update the property and, if it's not in the array, add it.
+                    localStorage.setItem("ffmpegWeb-LastSelection", JSON.stringify(storageParse));
+                })
+            }
+        }
+    }))
+    for (let type of ["video", "audio"]) { // Update the "Video codec" and "Audio codec" selectors so that, every time they're clicked, the preference will be stored
+        let prevSelection = localStorage.getItem(`ffmpegWeb-Last${type}Used`);
+        document.getElementById(`${type.substring(0, 3)}Output`).addEventListener("change", () => { // The switch to add a {type} track is checked
+            if (document.querySelector(`[data-${type}val='${prevSelection}']`) !== null && localStorage.getItem("ffmpegWeb-StoreOnlySettings") === "a" && document.getElementById(`${type.substring(0, 3)}Output`).checked) document.querySelector(`[data-${type}val='${prevSelection}']`).click(); // If the selector exists, the user wants to remember the choice and it's enabled, click on the {type} codec button
+        })
+        for (let item of document.querySelectorAll(`[data-${type}val]`)) item.addEventListener("click", () => { localStorage.setItem(`ffmpegWeb-Last${type}Used`, item.getAttribute(`data-${type}val`)) }); // For each {type} codec button, update the LocalStorage with the current selection
+    }
+    for (let item of getLastSelection) if ((item.ref ?? "") !== "" && (item.value ?? "") !== "" && (item.update ?? "") !== "" && document.querySelector(item.ref) !== null && (localStorage.getItem("ffmpegWeb-StoreOnlySettings") === "a" || document.querySelector(item.ref).closest("#settings"))) { // If the three main properties in the array exist, the item exists in the DOM and a) the user wants to remember all the settings OR b) it's a setting, update the value
+        let dom = document.querySelector(item.ref);
+        dom[item.update] = item.value;
+        for (let a of ["input", "change"]) dom.dispatchEvent(new Event(a));
+    }
+    document.getElementById("restorePrevious").addEventListener("change", () => { // The switch that permits to enable or disable the option to restore the previous conversion parameters
+        document.getElementById("restorePrevious").checked ? localStorage.setItem("ffmpegWeb-StoreOnlySettings", "a") : localStorage.removeItem("ffmpegWeb-StoreOnlySettings");
     })
+    document.getElementById("restorePrevious").checked = localStorage.getItem("ffmpegWeb-StoreOnlySettings") === "a";
 })();

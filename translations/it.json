@@ -174,7 +174,11 @@
         "selectFolder": "Seleziona cartella",
         "keepOnlyExplain": "Mantieni solamente i file che terminano con:",
         "confirm": "Conferma",
-        "electronInstall": "Installa versione Electron (prestazioni migliori)"
+        "electronInstall": "Installa versione Electron (prestazioni migliori)",
+        "restoreSelection": "Ripristina parametri di codifica precedenti",
+        "updateDialogShow": "Mostra dialogo di aggiornamento",
+        "saveConversionParameters": "Salva i parametri di conversione",
+        "saveConversionParametersDesc": "Ripristina i parametri dell'ultima conversione fatta utilizzando ffmpeg-web"
     },
     "js": {
         "oom": "Il processo ffmpeg ha avuto un errore Out of memory. Aggiornare la pagina e ricominciare la conversione. Se si sta usando l'opzione \"Timestamp multipli\" per tagliare il contenuto, inserire solamente gli elementi che non sono stati tagliati.",
