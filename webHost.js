@@ -27,6 +27,11 @@ JSPath.forEach(e => {
     checkDist(e);
     fs.writeFileSync(`dist/${e}`, uglify.minify(fs.readFileSync(e, "utf-8"), { mangle: { toplevel: false } }).code);
 });
+// Update the JSON file with the settings with only the necessary fields
+let settingsJson = JSON.parse(fs.readFileSync(`assets${path.sep}settings.json`, "utf-8"));
+for (let item in settingsJson.options) settingsJson.options[item] = settingsJson.options[item].map(e => e.ref);
+settingsJson.isProductionReady = true;
+fs.writeFileSync(`dist${path.sep}assets${path.sep}settings.json`, JSON.stringify(settingsJson));
 // Download fonts from Google Fonts
 let usefulCss = ``;
 if (process.argv[2] === "local") {

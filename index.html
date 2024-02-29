@@ -11,6 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar" content="#191919" />
     <meta name="theme-color" content="#e2b54c" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <meta charset="UTF-8">
     <link rel="icon" href="./assets/logo.png">
     <title>ffmpeg-web</title>
     <style id="safariFix"></style>
@@ -159,7 +160,7 @@
                 <l data-translate="mediamergeDesc">The media files will be merged without re-encoding. Plase write the
                     output file name (with its
                     extension) below.</l><br><br>
-                <input data-text id="mergeName" placeholder="example.mp4" class="fill"><br><br>
+                <input data-text autocomplete="off" id="mergeName" placeholder="example.mp4" class="fill"><br><br>
                 <div class="switchContainer">
                     <label class="switch">
                         <input type="checkbox" autocomplete="off" id="keepAlbumArt" checked>
@@ -253,14 +254,15 @@
                         </select>
                     </div>
                     <div id="singleCrop" class="rowDisplay" style="display: none">
-                        <l data-translate="start">Start (hh:mm:ss):</l><input data-text id="startCut"><br>
-                        <l data-translate="end">End (hh:mm:ss):</l><input data-text id="endCut">
+                        <l data-translate="start">Start (hh:mm:ss):</l><input data-text autocomplete="off"
+                            id="startCut"><br>
+                        <l data-translate="end">End (hh:mm:ss):</l><input data-text autocomplete="off" id="endCut">
                     </div>
                     <div class="rowDisplay" style="display: none;" id="multiCrop">
                         <i data-translate="fileTitle">Write the file title, then add a divider and put the
                             timestamp.</i><br><br>
-                        <l data-translate="divider">Divider:</l><input data-text style="width: 25%; margin-right: 10px;"
-                            id="dividerInput">
+                        <l data-translate="divider">Divider:</l><input data-text autocomplete="off"
+                            style="width: 25%; margin-right: 10px;" id="dividerInput">
                         <l data-translate="timestampPosition">Timestamp position:</l><select autocomplete="off"
                             id="timestampPosition">
                             <option value="0" data-translate="left">Left</option>
@@ -277,7 +279,7 @@
                         </div><br>
                         <div id="smartTrackId">
                             <l data-translate="trackStart">Start numeration with:</l><input id="trackStart"
-                                type="number" min="0" value="1">
+                                autocomplete="off" type="number" min="0" value="1">
                         </div>
                     </div>
                 </div>
@@ -356,9 +358,9 @@
             </div><br>
             <div>
                 <div id="onlyCustom">
-                    <l data-translate="key">Key:</l><input data-text id="metadataKey">
+                    <l data-translate="key">Key:</l><input data-text autocomplete="off" id="metadataKey">
                 </div><br>
-                <l data-translate="value">Value:</l><input data-text id="metadataValue">
+                <l data-translate="value">Value:</l><input data-text autocomplete="off" id="metadataValue">
             </div><br>
             <div class="button" role="button" id="itemAdd" data-translate="additem">Add item</div><br>
             <div id="metadataAdded" class="maxHeight" style="max-height: 0px; display: grid;"></div><br>
@@ -392,11 +394,11 @@
                 <br><br>
                 <div class="rowDisplay" id="vidQuantization">
                     <l data-translate="qualityChoose">Choose the quality (values near 0 ensure more quality)</l><input
-                        type="range" data-update="vidBitLength" max="51" min="0" step="1" value="22">
+                        type="range" data-update="vidBitLength" autocomplete="off" max="51" min="0" step="1" value="22">
                 </div>
                 <div class="rowDisplay" id="vidManual" style="display: none;">
                     <l data-translate="writeBitrate">Write the specified bitrate (you can add "k" for kbit/s):</l>
-                    <input data-update="vidBitLength" data-text style="float: right;">
+                    <input data-update="vidBitLength" data-text autocomplete="off" style="float: right;">
                 </div><br>
                 <div id="fpsContainerDiv">
                     <div class="switchContainer">
@@ -408,9 +410,9 @@
                     </div><br>
                     <div class="rowDisplay maxHeight" id="fpsDiv" style="display: none;">
                         <l id="copyComplicated" data-translate="writeFps">Write the current number of FPS:</l> <input
-                            type="number" id="fpsInput" step="1" min="1">
+                            type="number" id="fpsInput" autocomplete="off" step="1" min="1">
                         <l id="copyReallyComplicated" data-translate="targetFps">Target FPS:</l><input type="number"
-                            id="fpsTarget" step="1" min="1">
+                            autocomplete="off" id="fpsTarget" step="1" min="1">
                     </div>
                     <br>
                 </div>
@@ -425,8 +427,8 @@
             <div id="orientationDiv" class="rowDisplay maxHeight" block="a" style="display: none;">
                 <h3>Aspect ratio</h3>
                 <i data-translate="leaveBlank">Leave it to zero to not change this.</i>
-                <l data-translate="width">Width:</l><input type="number" id="inputWidth">
-                <l data-translate="height"> / Height:</l> <input type="number" id="inputHeight">
+                <l data-translate="width">Width:</l><input type="number" autocomplete="off" id="inputWidth">
+                <l data-translate="height"> / Height:</l> <input type="number" autocomplete="off" id="inputHeight">
                 <h3 data-translate="orientation">Orientation:</h3>
                 <select autocomplete="off" id="orientationChoose">
                     <option value="-1" data-translate="default">Default</option>
@@ -446,7 +448,7 @@
             </div>
             <div id="pixelSpaceDiv" class="rowDisplay maxHeight" style="display: none;">
                 <l data-translate="pixelSpaceDesc">Write the pixel space name. Leave blank for default.</l><input
-                    data-text id="pixelSpace">
+                    data-text autocomplete="off" id="pixelSpace">
             </div>
             <br><br>
             <div class="button" role="button" data-translate="vidFilter" id="showFilter2">Video filters</div><br>
@@ -465,11 +467,11 @@
                 <br><br>
                 <div class="rowDisplay" id="audQuantization">
                     <l data-translate="qualityChoose">Choose the quality (values near 0 ensure more quality)</l><input
-                        data-update="audBitLength" type="range" max="9" min="0" step="1" value="5">
+                        data-update="audBitLength" autocomplete="off" type="range" max="9" min="0" step="1" value="5">
                 </div>
                 <div class="rowDisplay" id="audManual" style="display: none;">
                     <l data-translate="writeBitrate">Write the specified bitrate (you can add "k" for kbit/s):</l>
-                    <input data-update="audBitLength" data-text style="float: right;">
+                    <input data-update="audBitLength" data-text autocomplete="off" style="float: right;">
                 </div><br>
             </div>
             <l>Audio channels:</l><select autocomplete="off" id="audioChannelSelect">
@@ -586,20 +588,20 @@
                 <div class="rowDisplay textcenter" style="display: block;">
                     <h3 data-translate="volume">Audio volume</h3>
                     <l id="audioVolume" data-translate="db">Increase/decrease dB:</l>
-                    <input type="number" step="1" value="0" max="100" min="-100" id="volumeRange">
+                    <input type="number" autocomplete="off" step="1" value="0" max="100" min="-100" id="volumeRange">
                 </div>
                 <div class="rowDisplay textcenter" style="display: block;">
                     <h3 data-translate="denoise">Denoise audio:</h3>
-                    <l data-translate="denoiseDesc">Reduce noise (in dB):</l> <input type="number"
+                    <l data-translate="denoiseDesc">Reduce noise (in dB):</l> <input type="number" autocomplete="off"
                         id="noiseLevelReduction" min="0.01" max="97" rangeImportant><br><br>
-                    <l>Noise floor:</l><input type="number" id="noiseFloorReduction">
+                    <l>Noise floor:</l><input type="number" autocomplete="off" id="noiseFloorReduction">
                     <l> Hz.</l>
                 </div>
                 <div class="rowDisplay textcenter" style="display: block;">
 
                     <h3 data-translate="customFilter">Custom filter:</h3>
                     <i data-translate="customFilterDesc">Write here a custom audio filter that works with the ffmpeg
-                        syntax.</i><br><br><input data-text id="customAudio">
+                        syntax.</i><br><br><input data-text autocomplete="off" id="customAudio">
                 </div>
             </div>
         </div>
@@ -615,13 +617,14 @@
                 <i class="textcenter" data-translate="deleteCurrent">To delete the current selection, put nothing.</i>
                 <div class="rowDisplay textcenter" style="display: block;">
                     <h3 data-translate="cropVideo">Crop video:</h3>
-                    <l data-translate="width">Width:</l><input type="number" id="cropWidth" class="small">
+                    <l data-translate="width">Width:</l><input type="number" autocomplete="off" id="cropWidth"
+                        class="small">
                     <l data-translate="pxHeight">px; Height:</l><input type="number" id="cropHeight" class="small">
                     <l>px</l><br><br>
-                    <l><span data-translate="position">Position</span> (x):</l><input data-text value="center-w"
-                        id="positionItemX" class="small">
-                    <l><span data-translate="position">Position</span> (y):</l><input data-text value="center-h"
-                        id="positionItemY" class="small">
+                    <l><span data-translate="position">Position</span> (x):</l><input data-text autocomplete="off"
+                        value="center-w" id="positionItemX" class="small">
+                    <l><span data-translate="position">Position</span> (y):</l><input data-text autocomplete="off"
+                        value="center-h" id="positionItemY" class="small">
                 </div>
                 <div class="rowDisplay textcenter" style="display: block;">
 
@@ -655,7 +658,7 @@
 
                     <h3 data-translate="customFilter">Custom filter</h3>
                     <i data-translate="customFilterDesc">Write here a custom video filter that works with the ffmpeg
-                        syntax.</i><br><br><input data-text id="customVideo">
+                        syntax.</i><br><br><input data-text autocomplete="off" id="customVideo">
                 </div>
             </div>
         </div>
@@ -761,27 +764,44 @@
                     <div class="rowDisplay maxHeight" id="alertOptions"
                         style="background-color: var(--card); display: block; margin-top: 10px; padding-top: 25px; padding-bottom: 25px;">
                         <l data-translate="alertDuration">Write the duration of the alert (in ms):</l><input
-                            type="number" id="alertDuration" value="5000"><br><br>
-                        <div class="button" role="button" id="resetBtn" data-translate="resetDismissed">Reset all the
-                            dismissed alerts
+                            type="number" autocomplete="off" id="alertDuration" value="5000"><br><br>
+                        <div class="button" role="button" id="resetBtn" data-translate="resetDismissed">Reset all
+                            the dismissed alerts
                         </div>
                     </div>
                     <br><br>
                 </div><br>
                 <div class="rowDisplay textcenter" style="display: block;">
+                    <h3 data-translate="saveConversionParameters">Save previous conversion parameters</h3>
+                    <i data-translate="saveConversionParametersDesc">Restore the parameters of the last conversion done
+                        using
+                        ffmpeg-web</i><br><br>
+
+                    <div class="switchContainer hcenter">
+                        <label class="switch">
+                            <input type="checkbox" autocomplete="off" id="restorePrevious">
+                            <span class="slider"></span>
+                        </label>
+                        <l data-translate="restoreSelection">Restore previous conversion parameters</l>
+                    </div><br><br>
+
+                </div><br>
+                <div class="rowDisplay textcenter" style="display: block;">
                     <h3 data-translate="outputClear">Output clearing</h3>
-                    <i data-translate="outputClearDesc">Choose the maxinum of characters the file progression console
+                    <i data-translate="outputClearDesc">Choose the maxinum of characters the file progression
+                        console
                         will
                         display</i><br><br>
                     <div class="center">
                         <l data-translate="maxChar">Maxinum characters:</l><input type="number" min="10"
-                            id="maxCharacters" value="150000">
+                            autocomplete="off" id="maxCharacters" value="150000">
                     </div>
                 </div><br>
                 <div id="ramManagement">
                     <div class="rowDisplay textcenter" style="display: block;">
                         <h3 data-translate="ram">RAM management</h3>
-                        <i data-translate="ramDesc">Manage when ffmpeg-web should exit the current process</i><br><br>
+                        <i data-translate="ramDesc">Manage when ffmpeg-web should exit the current
+                            process</i><br><br>
                         <div class="switchContainer hcenter">
                             <label class="switch">
                                 <input type="checkbox" autocomplete="off" id="quitFfmpegGeneral">
@@ -805,7 +825,8 @@
                 <div id="hwAcceleration" style="display: none;">
                     <div class="rowDisplay textcenter" style="display: block;">
                         <h3 data-translate="hwAccel">Hardware acceleration</h3>
-                        <i data-translate="hwAccelDesc">Change the arguments that'll be added before everything to make
+                        <i data-translate="hwAccelDesc">Change the arguments that'll be added before everything to
+                            make
                             ffmpeg run with hardware
                             acceleration.</i><br><br>
                         <div class="center" style="display: flex; align-items: center; justify-content: center;">
@@ -842,9 +863,12 @@
                 <div class="rowDisplay textcenter" style="display: block;">
                     <h3 data-translate="licenses">Licenses:</h3>
                     <i>ffmpeg-web <span id="version">1.0.0</span></i><br><br>
-                    <div class="button" role="button" id="showUpdate" style="background-color: var(--card);">Show update
+                    <div class="button" role="button" id="showUpdate" style="background-color: var(--card);"
+                        data-translate="updateDialogShow">Show
+                        update
                         dialog</div><br>
-                    <i data-translate="licensesDesc">Show a license from below (you might need to scroll)</i><br><br>
+                    <i data-translate="licensesDesc">Show a license from below (you might need to
+                        scroll)</i><br><br>
                     <div class="rowDisplay" style="background-color: var(--card);">
                         <div class="optionBtn btnLicense" data-license="mit" data-author="2023 Dinoosauro">
                             <l class="totalCenter">ffmpeg-web</l>
@@ -869,7 +893,8 @@
                         </div>
                     </div><br><br>
                     <div class="rowDisplay" style="background-color: var(--card); margin-top: 10px;">
-                        <l id="selectedLicense" style="text-align: left;">The selected license will be shwon here.</l>
+                        <l id="selectedLicense" style="text-align: left;">The selected license will be shwon here.
+                        </l>
                     </div>
                 </div>
             </div>
@@ -882,7 +907,11 @@
                 <img class="close" data-fetch="minimize" id="hideDialog">
                 <h2>What's new in ffmpeg-web</h2>
                 <img class="centerImg isHovered" data-fetch="install" width="50%" style="max-width: 200px;">
-                <h3 style="text-align: center;">ffmpeg-web has reached version 2.0.1!</h3>
+                <h3 style="text-align: center;">ffmpeg-web has reached version 2.0.2!</h3>
+                <h4>Update log [2.0.2]</h4>
+                <ul>
+                    <li>It's now possible to store the last conversion parameters used. Enable it from Settings.</li>
+                </ul>
                 <h4>Update log [2.0.1]</h4>
                 <ul>
                     <li>Added folder picker support</li>
@@ -890,15 +919,19 @@
                 </ul>
                 <h4>Update log [2.0.0]:</h4>
                 <ul>
-                    <li>Run ffmpeg-web with native performances (also with hardware acceleration*) using Electron!</li>
-                    <li style="margin-left: 40px;">If you want to run the Electron version, you'll need to have a binary
+                    <li>Run ffmpeg-web with native performances (also with hardware acceleration*) using Electron!
+                    </li>
+                    <li style="margin-left: 40px;">If you want to run the Electron version, you'll need to have a
+                        binary
                         of ffmpeg installed on your device. Otherwise, just continue using the web version.
                     </li>
-                    <li style="margin-left: 40px;">You can find a guide on how to use ffmpeg-web with Electron in the
+                    <li style="margin-left: 40px;">You can find a guide on how to use ffmpeg-web with Electron in
+                        the
                         README.</li><br>
                     <li>New UI for custom arguments</li>
                     <li style="margin-left: 40px;">You no longer need to write a space to divide each argument</li>
-                    <li style="margin-left: 40px;">Click on the "Add argument" button to add the written argument</li>
+                    <li style="margin-left: 40px;">Click on the "Add argument" button to add the written argument
+                    </li>
                     <li style="margin-left: 40px;">Click on each argument to delete it</li><br>
                     <li>Technical improvements</li>
                     <li style="margin-left: 40px;">Improved temp file names</li>
@@ -915,10 +948,10 @@
         <div class="alert" id="keepFilesThatEndsAlert">
             <span style="display: flex; align-items: center;">
                 <img height="24" width="24" data-fetch="search" style="margin-right: 10px">
-                <l data-text="keepOnlyExplain">Keep only files that ends with:
+                <l data-text autocomplete="off" data-translate="keepOnlyExplain">Keep only files that ends with:
                 </l>
             </span>
-            <input type="text" data-text id="keepFilesThatEnds">
+            <input type="text" data-text autocomplete="off" id="keepFilesThatEnds">
             <div class="button" role="button" style="background-color: var(--card); margin-left: 10px;"
                 id="confirmKeepFiles" data-translate="confirm">Confirm</div>
         </div>
