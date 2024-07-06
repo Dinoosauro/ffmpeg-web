@@ -3,9 +3,10 @@
     import Card from "./UIElements/Card/Card.svelte";
     import Dialog from "./UIElements/Dialog.svelte";
     localStorage.setItem("ffmpegWeb-LastVersion", window.ffmpegWebVersion);
+    export let closeFunction = () => {};
 </script>
 
-<Dialog>
+<Dialog {closeFunction}>
     <h2>What's new in ffmpeg-web</h2>
     <div class="flex hcenter wcenter">
         <AdaptiveAsset asset="icon" width={128}></AdaptiveAsset>

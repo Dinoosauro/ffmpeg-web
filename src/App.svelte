@@ -56,6 +56,7 @@
     let mainDiv: HTMLDivElement;
     let showSettings = false;
     let overwriteDialog: HTMLDivElement;
+    let dialogShown = false;
     showScreensaver.subscribe((val) => {
         for (const item of document.querySelectorAll("video"))
             item[val ? "pause" : "play"]();
@@ -128,6 +129,6 @@
     </div>
 {/if}
 
-{#if (localStorage.getItem("ffmpegWeb-LastVersion") || window.ffmpegWebVersion) !== window.ffmpegWebVersion}
-    <UpdateDialog></UpdateDialog>
+{#if (localStorage.getItem("ffmpegWeb-LastVersion") || window.ffmpegWebVersion) !== window.ffmpegWebVersion && !dialogShown}
+    <UpdateDialog closeFunction={() => (dialogShown = true)}></UpdateDialog>
 {/if}
