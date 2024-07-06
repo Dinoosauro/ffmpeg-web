@@ -40,6 +40,7 @@
     import { get } from "svelte/store";
     import UpdateDialog from "./lib/UpdateDialog.svelte";
     import { getLang } from "./ts/LanguageAdapt";
+    import { MenuItem } from "electron";
     onMount(() => {
         // @ts-ignore | Fallback for randomUUID in non-secure contexts. This isn't ideal, since crypto.randomUUID is way better than Math.random(), but, since it's only used for keeping track of Chip IDs, it's fine.
         if (crypto.randomUUID === undefined)
@@ -56,6 +57,7 @@
     showScreensaver.subscribe((val) => {
         for (const item of document.querySelectorAll("video"))
             item[val ? "pause" : "play"](); // Pause the previous videos if the screensaver is enabled
+        document.body.style.overflow = val ? "hidden" : "auto";
         !val && FullscreenManager.remove();
     });
 </script>
