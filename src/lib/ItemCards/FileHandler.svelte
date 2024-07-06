@@ -16,6 +16,12 @@
     import Settings from "../../ts/TabOptions/Settings";
     import { GetImage } from "../../ts/ImageHandler";
     import AdaptiveAsset from "../UIElements/AdaptiveAsset.svelte";
+
+    /**
+     * Process files that ends with this string
+     */
+    let fileFilter = "";
+
     /**
      * The function that picks the files, and start the conversion
      */
@@ -26,15 +32,20 @@
         input.webkitdirectory = ConversionOptions.folderSelect;
         input.onchange = async () => {
             if (!input.files) return;
+            const arr = Array.from(input.files).filter((e) =>
+                e.name.endsWith(
+                    ConversionOptions.folderSelect ? fileFilter : "",
+                ),
+            );
             $applicationSection === "Custom"
-                ? InputLogic(Array.from(input.files), directoryHandle)
+                ? InputLogic(arr, directoryHandle)
                 : $applicationSection === "Merge"
-                  ? MergeLogic(Array.from(input.files), directoryHandle)
+                  ? MergeLogic(arr, directoryHandle)
                   : $applicationSection === "Image"
-                    ? ImageLogic(Array.from(input.files), directoryHandle)
+                    ? ImageLogic(arr, directoryHandle)
                     : $applicationSection === "Metadata"
-                      ? MetadataLogic(Array.from(input.files), directoryHandle)
-                      : FileLogic(Array.from(input.files), directoryHandle);
+                      ? MetadataLogic(arr, directoryHandle)
+                      : FileLogic(arr, directoryHandle);
             directoryHandle = undefined;
         };
         input.click();
@@ -103,6 +114,20 @@
             on:change={({ detail }) =>
                 (ConversionOptions.folderSelect = detail)}
         ></Switch><br />
+        {#if ConversionOptions.folderSelect}
+            <Card>
+                <label class="flex hcenter" style="gap: 10px">
+                    {getLang("Convert only files that ends with:")}
+                    <input
+                        style="background-color: var(--row);"
+                        type="text"
+                        bind:value={fileFilter}
+                    />
+                </label>
+            </Card>
+            <br />
+        {/if}
+
         {#if $currentStorageMethod === "handle" && !directoryHandle}
             <button on:click={askHandle}
                 >{getLang("Choose output directory")}</button

@@ -37,7 +37,7 @@ export default async function MetadataLogic(files: File[], handle?: FileSystemDi
             val[obj.operationId][2] = file.name;
             return [...val];
         })
-        const handler = new FfmpegHandler(obj, { addedFromInput: true, albumArtName: MetadataOptions.customAlbumArt ? FFmpegFileNameHandler(MetadataOptions.customAlbumArt) : undefined });
+        const handler = new FfmpegHandler(obj, { addedFromInput: true, albumArtName: MetadataOptions.customAlbumArt ? FFmpegFileNameHandler(MetadataOptions.customAlbumArt) : undefined, getNameWithFfmpegHandler: true });
         handler.addFiles([file, ...(MetadataOptions.customAlbumArt ? [MetadataOptions.customAlbumArt] : [])]);
         const extension = file.name.substring(file.name.lastIndexOf(".") + 1);
         try {

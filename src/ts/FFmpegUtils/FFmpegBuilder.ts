@@ -16,7 +16,8 @@ interface CustomOptions {
     albumArtReEncode?: boolean,
     addedFromInput?: boolean,
     suggestedFileExtension?: string,
-    albumArtName?: string
+    albumArtName?: string,
+    getNameWithFfmpegHandler?: boolean
 }
 interface FilterElaboration {
     props: (string | number | boolean)[],
@@ -92,7 +93,7 @@ export default class FfmpegHandler {
      * @param suggestedFileName if provided, the `suggestedFileName` property of the return object will be this string. Otherwise, the script will provide its file name.
      * @returns an `OperationProps` object, with the `File` string path (if native) or Uint8Array (if WebAssembly), its `extension` and the `suggestedFileName`
      */
-    start = async (command: string[], suggestedFileName = this.flags.addedFromInput ? command[command.length - 1] : FFmpegFileNameHandler(this.#files[0])) => {
+    start = async (command: string[], suggestedFileName = this.flags.addedFromInput && !this.flags.getNameWithFfmpegHandler ? command[command.length - 1] : FFmpegFileNameHandler(this.#files[0])) => {
         if (this.#files.length === 0) throw new Error("Please set up files using the addFiles function");
         /**
          * An UUID will be used for this conversion to make the output file string unique.

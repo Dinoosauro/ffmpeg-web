@@ -76,7 +76,12 @@ export default class ffmpeg {
                         !obj.isLoaded() && await obj.load();
                     }
                     this.writeFile = async (file) => {
-                        obj.FS("writeFile", file.name, new Uint8Array(await file.arrayBuffer()));
+                        // Create, one path at a time, the directories necessary for the file
+                        const namePath = FFmpegFileNameHandler(file).split("/");
+                        const name = namePath.pop();
+                        if (!name) throw new Error("Undefined name array!");
+                        for (let i = 0; i < namePath.length; i++) obj.FS("mkdir", namePath.slice(0, i + 1).join("/"));
+                        obj.FS("writeFile", FFmpegFileNameHandler(file), new Uint8Array(await file.arrayBuffer()));
                     };
                     this.readFile = async (name) => {
                         return obj.FS("readFile", name);
@@ -90,7 +95,7 @@ export default class ffmpeg {
                         document.getElementById("addContent")?.scrollTo({ top: document.getElementById("addContent")?.scrollHeight, behavior: "smooth" })
                     });
                     this.removeFile = async (file) => {
-                        obj.FS("unlink", typeof file === "string" ? file : file.name);
+                        obj.FS("unlink", typeof file === "string" ? file : FFmpegFileNameHandler(file));
                     }
                     this.exit = () => obj.exit();
                     obj.setProgress(({ ratio }) => conversionProgress[this.operationId] = ratio);
@@ -108,7 +113,12 @@ export default class ffmpeg {
                         });
                     }
                     this.writeFile = async (file) => {
-                        await obj.writeFile(file.name, new Uint8Array(await file.arrayBuffer()));
+                        // Create, one path at a time, the directories necessary for the file
+                        const namePath = FFmpegFileNameHandler(file).split("/");
+                        const name = namePath.pop();
+                        if (!name) throw new Error("Undefined name array!");
+                        for (let i = 0; i < namePath.length; i++) await obj.createDir(namePath.slice(0, i + 1).join("/"));
+                        await obj.writeFile(FFmpegFileNameHandler(file), new Uint8Array(await file.arrayBuffer()));
                     }
                     this.readFile = async (name) => {
                         return await obj.readFile(name) as Uint8Array;
@@ -124,7 +134,7 @@ export default class ffmpeg {
                         document.getElementById("addContent")?.scrollTo({ top: document.getElementById("addContent")?.scrollHeight, behavior: "smooth" })
                     });
                     this.removeFile = async (file) => {
-                        await obj.deleteFile(typeof file === "string" ? file : file.name);
+                        await obj.deleteFile(typeof file === "string" ? file : FFmpegFileNameHandler(file));
                     }
                     this.exit = () => obj.terminate();
                     obj.on("progress", ({ progress }) => conversionProgress[this.operationId] = progress);

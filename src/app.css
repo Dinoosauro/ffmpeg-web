@@ -432,3 +432,11 @@ button:active {
 a {
   color: var(--text);
 }
+
+.topMovement {
+  top: 15px;
+}
+
+.bottomMovement {
+  bottom: 15px;
+}

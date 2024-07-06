@@ -5,6 +5,7 @@
         changedFileSave,
         currentStorageMethod,
         ffmpegVersionUsed,
+        screensaverActivationTime,
         showScreensaver,
     } from "../../ts/Writables";
     import Card from "../UIElements/Card/Card.svelte";
@@ -144,7 +145,7 @@
                 checked={Settings.useMultiThreaded}
             ></Switch>
         </span>
-    {/if}<br /><br />
+    {/if}<br />
     <Switch
         text={getLang("Exit after each timestamp conversion")}
         on:change={({ detail }) => (Settings.exit.afterTimestamp = detail)}
@@ -397,10 +398,18 @@
                     (Settings.screenSaver.options.fullscreen = detail)}
             ></Switch>
         </Card><br />
+        <label class="flex hcenter" style="gap: tpx">
+            {getLang("Move content from top to bottom (and viceversa) every")}
+            <input
+                type="number"
+                bind:value={Settings.screenSaver.options.moveContent}
+            /> ms
+        </label><br />
         <button
             in:slide={{ duration: 600 }}
             out:slide={{ duration: 600 }}
             on:click={() => {
+                screensaverActivationTime.set(Date.now());
                 showScreensaver.set(true);
                 dispatch("close");
             }}>{getLang("Enable screensaver now")}</button

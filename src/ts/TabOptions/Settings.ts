@@ -24,8 +24,9 @@ let Settings = {
         options: {
             showConversionName: true,
             showConversionStatus: true,
-            fullscreen: true
-        }
+            fullscreen: true,
+            moveContent: 30000
+        },
     },
     fileSaver: {
         keepInMemory: true,

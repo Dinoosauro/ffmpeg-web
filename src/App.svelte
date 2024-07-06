@@ -40,7 +40,6 @@
     import { get } from "svelte/store";
     import UpdateDialog from "./lib/UpdateDialog.svelte";
     import { getLang } from "./ts/LanguageAdapt";
-    import { MenuItem } from "electron";
     onMount(() => {
         // @ts-ignore | Fallback for randomUUID in non-secure contexts. This isn't ideal, since crypto.randomUUID is way better than Math.random(), but, since it's only used for keeping track of Chip IDs, it's fine.
         if (crypto.randomUUID === undefined)

@@ -1,6 +1,7 @@
 import CreateTopDialog from "../CreateTopDialog";
 import FfmpegHandler from "../FFmpegUtils/FFmpegBuilder";
 import ffmpeg from "../FFmpegUtils/FFmpegClass";
+import FFmpegFileNameHandler from "../FFmpegUtils/FFmpegHandleFileName";
 import { getLang } from "../LanguageAdapt";
 import FileSaver from "../SaveFile";
 import Settings from "../TabOptions/Settings";
@@ -32,7 +33,7 @@ export default async function ImageLogic(files: File[], handle?: FileSystemDirec
          * If the output file is a Uint8Array, the result is from FFmpeg WebAssembly, and it'll be written using standard JavaScript APIs. Otherwise, it's a path for the native FFmpeg process, and it'll be moved using Node's FS API.
         */
         try {
-            for (const { file, extension } of await ffmpegOperation.start(build)) file instanceof Uint8Array ? await fileSave.write(file, `${oldFile.name.substring(0, oldFile.name.lastIndexOf("."))}.${extension}`) : await fileSave.native(file, `${oldFile.name.substring(0, oldFile.name.lastIndexOf("."))}.${extension}`, oldFile.path);
+            for (const { file, extension } of await ffmpegOperation.start(build)) file instanceof Uint8Array ? await fileSave.write(file, `${FFmpegFileNameHandler(oldFile).substring(0, FFmpegFileNameHandler(oldFile).lastIndexOf("."))}.${extension}`) : await fileSave.native(file, `${oldFile.name.substring(0, oldFile.name.lastIndexOf("."))}.${extension}`, oldFile.path);
         } catch (ex) {
             console.warn(ex);
             break;

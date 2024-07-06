@@ -6,5 +6,6 @@ import Settings from "../TabOptions/Settings";
  */
 export default function FFmpegFileNameHandler(file: File) {
     const suggestedVersion = Settings.version as "0.11.x" | "native";
+    if (!(file instanceof File)) return file;
     return (suggestedVersion === "native" ? file.path : undefined) || file.webkitRelativePath || file.name;
 }

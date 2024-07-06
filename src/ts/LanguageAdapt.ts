@@ -193,7 +193,9 @@ let translations = new Map<string, TranslationRequirements>([
     ["Overwrite", { it: "Sovrascrivi" }],
     ["Found existent file", { it: "Trovate un file già esistente" }],
     ["Exit after each timestamp conversion", { it: "Esci dopo ogni conversione del timestamp" }],
-    ["Exit after each file conversion", { it: "Esci dopo ogni conversione del file" }]
+    ["Exit after each file conversion", { it: "Esci dopo ogni conversione del file" }],
+    ["Move content from top to bottom (and viceversa) every", { it: "Sposta il contenuto dall'alto verso il basso (e viceversa) ogni" }],
+    ["Convert only files that ends with:", { it: "Converti solamente i file che finiscono con:" }]
 ])
 /**
  * Translate a string

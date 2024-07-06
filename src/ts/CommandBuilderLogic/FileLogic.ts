@@ -7,6 +7,7 @@ import Settings from "../TabOptions/Settings";
 import TopDialog from "../../lib/UIElements/TopDialog.svelte";
 import CreateTopDialog from "../CreateTopDialog";
 import { getLang } from "../LanguageAdapt";
+import FFmpegFileNameHandler from "../FFmpegUtils/FFmpegHandleFileName";
 
 /**
  * Convert media to a video or an audio
@@ -73,7 +74,7 @@ export default async function FileLogic(pickedFiles: File[], handle?: FileSystem
             /**
              * If the output file is a Uint8Array, the result is from FFmpeg WebAssembly, and it'll be written using standard JavaScript APIs. Otherwise, it's a path for the native FFmpeg process, and it'll be moved using Node's FS API.
              */
-            for (const { file, extension, suggestedFileName } of start) file instanceof Uint8Array ? await fileSave.write(file, multipleTimestamps ? suggestedFileName : `${singleOperation[0].name.substring(0, singleOperation[0].name.lastIndexOf("."))}.${extension}`) : await fileSave.native(file, multipleTimestamps ? suggestedFileName : `${singleOperation[0].name.substring(0, singleOperation[0].name.lastIndexOf("."))}.${extension}`, singleOperation[0].path);
+            for (const { file, extension, suggestedFileName } of start) file instanceof Uint8Array ? await fileSave.write(file, multipleTimestamps ? suggestedFileName : `${FFmpegFileNameHandler(singleOperation[0]).substring(0, FFmpegFileNameHandler(singleOperation[0]).lastIndexOf("."))}.${extension}`) : await fileSave.native(file, multipleTimestamps ? suggestedFileName : `${singleOperation[0].name.substring(0, singleOperation[0].name.lastIndexOf("."))}.${extension}`, singleOperation[0].path);
         } catch (ex) {
             console.error(ex);
             break;

@@ -36,6 +36,13 @@
                     ] || getLang("Conversion text will appear here");
             }, 250);
         }
+        setInterval(async () => {
+            optionContainer.style.opacity = "0";
+            await new Promise((resolve) => setTimeout(resolve, 390));
+            for (const option of ["topMovement", "bottomMovement"])
+                optionContainer.classList.toggle(option); // Switch from top to bottom and viceversa
+            optionContainer.style.opacity = "1";
+        }, Settings.screenSaver.options.moveContent);
         Settings.screenSaver.options.fullscreen &&
             FullscreenManager.apply(backgroundContainer);
     });
@@ -48,6 +55,7 @@
      * The paragraph in which the last console string will be copied.
      */
     let text: HTMLParagraphElement;
+    let optionContainer: HTMLDivElement;
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -59,7 +67,11 @@
     out:fade={{ duration: 400, easing: cubicInOut }}
     class="screenSaver"
 >
-    <div style="padding: 25px; margin-top: 10px;">
+    <div
+        style="padding: 25px; margin-top: 10px; position: absolute; transition: opacity 0.4s ease-in-out"
+        class="topMovement"
+        bind:this={optionContainer}
+    >
         {#if Settings.screenSaver.options.showConversionName}
             <div class="screenContainer floatLeft">
                 {#if $conversionFileDone[currentConversion][0] === 0}

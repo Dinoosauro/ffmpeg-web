@@ -63,4 +63,11 @@ export let fileUrls = writable<FileUrls[]>([]);
  * If files should be saved in memory or not
  */
 export let changedFileSave = writable<boolean>(Settings.fileSaver.keepInMemory);
+/**
+ * The version of FFmpeg that is being used, so that more options can be shown depending on it
+ */
 export let ffmpegVersionUsed = writable<string>("");
+/**
+ * The Date.now() of when the screensaver was enabled, so that it cannot be dismissed before 1s
+ */
+export let screensaverActivationTime = writable<number>(Date.now())
