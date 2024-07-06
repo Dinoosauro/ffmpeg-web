@@ -28,7 +28,7 @@ function updateConsole({ operation, str }: { str: string, operation: number }) {
         let [hour, minute, second] = getDuration.split(":");
         return (+hour * 3600) + (+minute * 60) + +second;
     }
-    if (!totalSecondsFetched[operation] && str.indexOf("Duration: ") !== -1) { // Update the total length of the file
+    if (str.indexOf("Duration: ") !== -1) { // Update the total length of the file
         totalSecondsFetched[operation] = getSecondsFromFfmpeg(str.substring(str.indexOf("Duration: ") + "Duration: ".length));
     } else if (totalSecondsFetched[operation] && str.indexOf("time=") !== -1) { // Found the time ffmpeg has encoded. Calculate the ratio, and then trigger the "setProcess" event. 
         conversionProgress[operation] = getSecondsFromFfmpeg(str.substring(str.indexOf("time=") + "time=".length)) / totalSecondsFetched[operation];

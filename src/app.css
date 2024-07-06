@@ -448,3 +448,7 @@ a {
 .bottomMovement {
   bottom: 15px;
 }
+
+li {
+  margin-bottom: 8px;
+}

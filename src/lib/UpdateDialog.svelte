@@ -1,18 +1,44 @@
 <script>
+    import { updateDialogShown } from "../ts/Writables";
     import AdaptiveAsset from "./UIElements/AdaptiveAsset.svelte";
     import Card from "./UIElements/Card/Card.svelte";
     import Dialog from "./UIElements/Dialog.svelte";
-    localStorage.setItem("ffmpegWeb-LastVersion", window.ffmpegWebVersion);
-    export let closeFunction = () => {};
 </script>
 
-<Dialog {closeFunction}>
+<Dialog closeFunction={() => updateDialogShown.set(false)}>
     <h2>What's new in ffmpeg-web</h2>
     <div class="flex hcenter wcenter">
         <AdaptiveAsset asset="icon" width={128}></AdaptiveAsset>
     </div>
-    <h3 style="text-align: center;">Version 3.0.0:</h3>
     <Card type={1} forceColor={true}>
+        <h3 style="text-align: center;">Version 3.0.3</h3>
+        <i
+            >Versions 3.0.1 was only bug fixes, while 3.0.2 only introduced
+            moving screensaver</i
+        ><br /><br />
+        <Card forceColor={true}>
+            <ul>
+                <li>
+                    Fixed lots of bugs (you can find the complete list on
+                    GitHub)
+                </li>
+                <li>
+                    You can now use one of the criterias for file picking also
+                    for custom input files
+                </li>
+                <li>
+                    Filter multiple file extensions by dividing them with "|" in
+                    the textbox
+                </li>
+                <li>
+                    Added an "Installation" tab, where the user can see how to
+                    install ffmpeg-web
+                </li>
+            </ul>
+        </Card>
+    </Card><br />
+    <Card type={1} forceColor={true}>
+        <h3 style="text-align: center;">Version 3.0.0:</h3>
         <Card forceColor={true}>
             <h4>Introduction:</h4>
             <p>
@@ -97,9 +123,3 @@
         </Card>
     </Card>
 </Dialog>
-
-<style>
-    li {
-        margin-bottom: 8px;
-    }
-</style>

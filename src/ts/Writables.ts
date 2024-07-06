@@ -66,8 +66,17 @@ export let changedFileSave = writable<boolean>(Settings.fileSaver.keepInMemory);
 /**
  * The version of FFmpeg that is being used, so that more options can be shown depending on it
  */
-export let ffmpegVersionUsed = writable<string>("");
+export let ffmpegVersionUsed = writable<string>(Settings.version);
 /**
  * The Date.now() of when the screensaver was enabled, so that it cannot be dismissed before 1s
  */
-export let screensaverActivationTime = writable<number>(Date.now())
+export let screensaverActivationTime = writable<number>(Date.now());
+/**
+ * If the "Installation" card, that provides information on how to install ffmpeg-web on Electron or as a Progressive Web App, should be shown
+ */
+export let showInstallationCard = writable<boolean>(Settings.showInstallationPrompt);
+/**
+ * Show the "ffmpeg-web has been updated" dialog
+ */
+export let updateDialogShown = writable<boolean>((localStorage.getItem("ffmpegWeb-LastVersion") || window.ffmpegWebVersion) !== window.ffmpegWebVersion); // Set the current version
+localStorage.setItem("ffmpegWeb-LastVersion", window.ffmpegWebVersion);

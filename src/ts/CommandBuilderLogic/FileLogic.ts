@@ -8,6 +8,7 @@ import TopDialog from "../../lib/UIElements/TopDialog.svelte";
 import CreateTopDialog from "../CreateTopDialog";
 import { getLang } from "../LanguageAdapt";
 import FFmpegFileNameHandler from "../FFmpegUtils/FFmpegHandleFileName";
+import FileDivider from "./FileDivider";
 
 /**
  * Convert media to a video or an audio
@@ -15,41 +16,7 @@ import FFmpegFileNameHandler from "../FFmpegUtils/FFmpegHandleFileName";
  * @param handle if provided, the files will be saved using the File System API
  */
 export default async function FileLogic(pickedFiles: File[], handle?: FileSystemDirectoryHandle) {
-    let outputFiles: File[][] = [];
-    switch (ConversionOptions.conversionOption) {
-        case 0: // Keep only the first file
-            outputFiles = [[pickedFiles[0]]];
-            break;
-        case 1: // Add all files to the output one
-            outputFiles = [[...pickedFiles]];
-            break;
-        case 2: // Add all the files that have the same name as the first file
-            outputFiles = [pickedFiles.filter(file => file.name.substring(0, file.name.lastIndexOf(".")) === pickedFiles[0].name.substring(0, pickedFiles[0].name.lastIndexOf(".")))];
-            break;
-        case 3: { // Add all the files that have the same name (for every file)
-            let fileNameComparison = pickedFiles.map((item) => { return { file: item, name: item.name.substring(0, item.name.lastIndexOf(".")) } });
-            for (let i = 0; i < fileNameComparison.length; i++) {
-                /**
-                 * The array of files with the same name as fileNameComparison[i]
-                 */
-                let fileTemp = [];
-                if (fileNameComparison[i] === undefined)
-                    for (let x = i + 1; x < fileNameComparison.length; x++) {
-                        if (fileNameComparison[x] === undefined) break; // By splicing a value, the array will "move to the left". So, it's possible that the length changes
-                        if (fileNameComparison[i].name === fileNameComparison[x].name) {
-                            fileTemp.push(fileNameComparison[x].file);
-                            fileNameComparison.splice(x, 1);
-                            x--; // Since it's spliced, the next value will be in the same position as the one that has been spliced.
-                        }
-                    }
-                fileTemp.length !== 0 && outputFiles.push([fileNameComparison[i].file, ...fileTemp]);
-            }
-            break;
-        }
-        case 4: // Same command for every file
-            for (let item of pickedFiles) outputFiles.push([item]);
-            break;
-    }
+    const outputFiles = FileDivider(pickedFiles);
     const obj = new ffmpeg(Settings.version as "0.11.x");
     await obj.promise;
     CreateTopDialog(`${getLang("Started operation")} ${obj.operationId}! ${getLang(`Change the Operation ID from the "Conversion Status" tab to see the current progress.`)}`, "OperationStarted");

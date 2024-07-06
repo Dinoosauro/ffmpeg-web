@@ -36,7 +36,11 @@
                     ] || getLang("Conversion text will appear here");
             }, 250);
         }
-        setInterval(async () => {
+        const interval = setInterval(async () => {
+            if (!optionContainer) {
+                clearInterval(interval);
+                return;
+            }
             optionContainer.style.opacity = "0";
             await new Promise((resolve) => setTimeout(resolve, 390));
             for (const option of ["topMovement", "bottomMovement"])
@@ -123,6 +127,7 @@
         top: 0;
         left: 0;
         background-color: var(--background);
+        cursor: none;
     }
     h1 {
         font-size: clamp(28px, 7vw, 3em);

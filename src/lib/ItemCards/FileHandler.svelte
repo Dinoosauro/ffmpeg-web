@@ -32,11 +32,17 @@
         input.webkitdirectory = ConversionOptions.folderSelect;
         input.onchange = async () => {
             if (!input.files) return;
-            const arr = Array.from(input.files).filter((e) =>
-                e.name.endsWith(
-                    ConversionOptions.folderSelect ? fileFilter : "",
-                ),
-            );
+            const arr: File[] = [];
+            for (const filter of ConversionOptions.folderSelect
+                ? fileFilter.split("|")
+                : [""])
+                arr.push(
+                    ...Array.from(input.files).filter((e) =>
+                        e.name.endsWith(
+                            ConversionOptions.folderSelect ? filter : "",
+                        ),
+                    ),
+                );
             $applicationSection === "Custom"
                 ? InputLogic(arr, directoryHandle)
                 : $applicationSection === "Merge"
@@ -80,7 +86,8 @@
         <p>{getLang("Choose how multiple files should be managed:")}</p>
         <select
             bind:value={ConversionOptions.conversionOption}
-            disabled={$applicationSection === "Custom"}
+            disabled={$applicationSection !== "MediaEnc" &&
+                $applicationSection !== "Custom"}
         >
             <option value={0}>{getLang("Use only the first file")}</option>
             <option value={1}
@@ -117,7 +124,9 @@
         {#if ConversionOptions.folderSelect}
             <Card>
                 <label class="flex hcenter" style="gap: 10px">
-                    {getLang("Convert only files that ends with:")}
+                    {getLang(
+                        "Convert only files that ends with (separate multiple extension with |):",
+                    )}
                     <input
                         style="background-color: var(--row);"
                         type="text"

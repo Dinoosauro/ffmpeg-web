@@ -6,7 +6,9 @@
         currentStorageMethod,
         ffmpegVersionUsed,
         screensaverActivationTime,
+        showInstallationCard,
         showScreensaver,
+        updateDialogShown,
     } from "../../ts/Writables";
     import Card from "../UIElements/Card/Card.svelte";
     import Chip from "../UIElements/ChipElements/Chip.svelte";
@@ -461,7 +463,6 @@
 <Card type={1} forceColor={true}>
     <div class="flex hcenter" style="gap: 8px">
         <AdaptiveAsset asset="documentsave" width={26}></AdaptiveAsset>
-
         <h3>{getLang("Advanced file save preferences:")}</h3>
     </div>
     <Switch
@@ -495,7 +496,10 @@
     ></Switch>
 </Card><br />
 <Card type={1} forceColor={true}>
-    <h3>{getLang("Licenses")}:</h3>
+    <div class="flex hcenter" style="gap: 8px">
+        <AdaptiveAsset asset="handshake" width={26}></AdaptiveAsset>
+        <h3>{getLang("Licenses")}:</h3>
+    </div>
     <p>
         {getLang(
             "You can find here both the license of ffmpeg-web and the licenses of the open source libraries used for this project. Click on the switch to see them.",
@@ -545,5 +549,27 @@
             ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
             OTHER DEALINGS IN THE SOFTWARE.
         </p>
+    </Card><br />
+    <Card forceColor={true}>
+        <h4>{getLang("About this website")}:</h4>
+        <div class="flex hcenter" style="gap: 5px">
+            <AdaptiveAsset asset="icon" width={24}></AdaptiveAsset>
+            <strong>ffmpeg-web {window.ffmpegWebVersion}</strong>
+        </div>
+        <br />
+        <a target="_blank" href="https://github.com/Dinoosauro/ffmpeg-web"
+            >{getLang("View on GitHub")}</a
+        ><br /><br />
+        <Switch
+            text={getLang("Show installation instructions")}
+            on:change={({ detail }) => {
+                Settings.showInstallationPrompt = detail;
+                showInstallationCard.set(detail);
+            }}
+            checked={Settings.showInstallationPrompt}
+        ></Switch><br />
+        <button on:click={() => updateDialogShown.set(true)}
+            >{getLang("Show update changelog")}</button
+        >
     </Card>
 </Card>

@@ -46,7 +46,8 @@ let Settings = {
     exit: {
         afterFile: true,
         afterTimestamp: false
-    }
+    },
+    showInstallationPrompt: true
 }
 const json = JSON.parse(localStorage.getItem("ffmpegWeb-LastGeneralSettings") ?? "{}");
 Settings = UpdateJsonProperties(json, Settings);

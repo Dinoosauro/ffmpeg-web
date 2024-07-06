@@ -12,8 +12,10 @@
         applicationSection,
         changedFileSave,
         currentStorageMethod,
+        showInstallationCard,
         showOverwriteDialog,
         showScreensaver,
+        updateDialogShown,
     } from "./ts/Writables";
     import { onMount } from "svelte";
     import { scale, slide } from "svelte/transition";
@@ -40,6 +42,7 @@
     import { get } from "svelte/store";
     import UpdateDialog from "./lib/UpdateDialog.svelte";
     import { getLang } from "./ts/LanguageAdapt";
+    import Installation from "./lib/ItemCards/Installation.svelte";
     onMount(() => {
         // @ts-ignore | Fallback for randomUUID in non-secure contexts. This isn't ideal, since crypto.randomUUID is way better than Math.random(), but, since it's only used for keeping track of Chip IDs, it's fine.
         if (crypto.randomUUID === undefined)
@@ -52,7 +55,6 @@
             new BackgroundManager(document.body).apply();
     });
     let showSettings = false;
-    let updateDialogShown = false;
     showScreensaver.subscribe((val) => {
         for (const item of document.querySelectorAll("video"))
             item[val ? "pause" : "play"](); // Pause the previous videos if the screensaver is enabled
@@ -84,6 +86,9 @@
         <ConversionStatus></ConversionStatus>
         {#if $changedFileSave}
             <RedownloadFiles></RedownloadFiles>
+        {/if}
+        {#if $showInstallationCard}
+            <Installation></Installation>
         {/if}
     </CardAdapt>
 </div>
@@ -126,7 +131,6 @@
     </div>
 {/if}
 
-{#if (localStorage.getItem("ffmpegWeb-LastVersion") || window.ffmpegWebVersion) !== window.ffmpegWebVersion && !updateDialogShown}
-    <UpdateDialog closeFunction={() => (updateDialogShown = true)}
-    ></UpdateDialog>
+{#if $updateDialogShown}
+    <UpdateDialog></UpdateDialog>
 {/if}

@@ -195,7 +195,23 @@ let translations = new Map<string, TranslationRequirements>([
     ["Exit after each timestamp conversion", { it: "Esci dopo ogni conversione del timestamp" }],
     ["Exit after each file conversion", { it: "Esci dopo ogni conversione del file" }],
     ["Move content from top to bottom (and viceversa) every", { it: "Sposta il contenuto dall'alto verso il basso (e viceversa) ogni" }],
-    ["Convert only files that ends with:", { it: "Converti solamente i file che finiscono con:" }]
+    ["Convert only files that ends with (separate multiple extension with |):", { it: "Converti solamente i file che finiscono con (separa più estensioni con |):" }],
+    ["Installation", { it: "Installazione" }],
+    ["You can install ffmpeg-web as a Progressive Web App, or you can get way higher performances by installing the Electron application. You can find the instructions from the Select below", { it: "Puoi installare ffmpeg-web come una Progressive Web App, o puoi ottenere prestazioni molto più elevate installando l'applicazione Electron. Puoi trovare le istruzioni dal selettore in basso" }],
+    ["Download the zip file of the repository:", { it: "Scarica il file zip della repository:" }],
+    ["click here", { it: "clicca qui" }],
+    ["Extract the files, and make sure to have Node.JS 20 and a native version of FFmpeg installed", { it: "Estrai i file, ed assicurati di aver installato Node.JS 20 e una versione nativa di FFmpeg" }],
+    ["Run the following command to install the app:", { it: "Esegui il seguente comando per installare l'app:" }],
+    ["And that's done! You can now run the app by writing", { it: "Ed hai finito! Puoi ora eseguire l'app scrivendo" }],
+    ["from the command line in that folder", { it: "dalla linea di comando in quella cartella" }],
+    [`click on the three dots near the URL bar, and then on "Install as an app"`, { it: `Clicca sui tre puntini vicino alla barra degli URL, e clicca su "Installa come app"` }],
+    [`click on the "Install app" icon at the right of the URL address`, { it: `clicca sull'icona "Installa applicazione" a destra dell'URL` }],
+    [`share the webpage, and then click on "Add to the home"`, { it: `condividi la pagina, e poi clicca su "Aggiungi alla schermata home"` }],
+    ["About this website", { it: "Su questo sito" }],
+    ["View on GitHub", { it: "Visualizza su GitHub" }],
+    ["Show installation instructions", { it: "Mostra istruzioni di installazione" }],
+    ["Hide this card", { it: "Nascondi questa card" }],
+    ["Show update changelog", { it: "Mostra il changelog degli aggiornamenti" }]
 ])
 /**
  * Translate a string
