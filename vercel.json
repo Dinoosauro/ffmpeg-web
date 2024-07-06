@@ -16,6 +16,6 @@
     }
   ],
   "build": {
-    "command": "node webHost.js"
+    "command": "npx vite build"
   }
 }

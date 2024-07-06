@@ -5,5 +5,5 @@
     Cross-Origin-Opener-Policy = "same-origin"
 
 [build]
-  command = "node webHost.js"
+  command = "npx vite build"
   publish = "dist"
