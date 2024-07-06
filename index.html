@@ -19,12 +19,12 @@
 <body>
   <div id="app"></div>
   <script>
-    window.ffmpegWebVersion = "3.0.0";
+    window.ffmpegWebVersion = "3.0.1";
     (async () => {
       const result = await navigator.serviceWorker.register('./service-worker.js');
       console.log(result);
     })()
-    fetch("./ffmpegweb-updatecode", { cache: "no-store" }).then((res) => res.text().then((text) => { if (text.replace("\n", "") !== window.ffmpegWebVersion) if (confirm(`There's a new version of pdf-pointer. Do you want to update? [${window.ffmpegWebVersion} --> ${text.replace("\n", "")}]`)) { caches.delete("pdfpointer-cache"); location.reload(true); } }).catch((e) => { console.error(e) })).catch((e) => console.error(e)); // Check if the application code is the same as the current application version and, if not, ask the user to update
+    fetch(typeof window.nativeOperations === "undefined" ? "./ffmpegweb-updatecode" : "https://raw.githubusercontent.com/Dinoosauro/ffmpeg-web/main/public/ffmpegweb-updatecode", { cache: "no-store" }).then((res) => res.text().then((text) => { if (text.replace("\n", "") !== window.ffmpegWebVersion) if (confirm(`There's a new version of ffmpeg-web. Do you want to update? [${window.ffmpegWebVersion} --> ${text.replace("\n", "")}]`)) { caches.delete("ffmpegweb-cache"); location.reload(true); } }).catch((e) => { console.error(e) })).catch((e) => console.error(e)); // Check if the application code is the same as the current application version and, if not, ask the user to update
   </script>
 
   <script type="module" src="/src/main.ts"></script>
