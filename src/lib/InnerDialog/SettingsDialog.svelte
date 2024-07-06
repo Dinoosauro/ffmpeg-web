@@ -52,6 +52,10 @@
             };
         }
     }
+    /**
+     * The name the user wants to give to their new theme
+     */
+    let themeName = "";
     updateCurrentProperties();
     /**
      * From a input[type=color] event, update the custom color property
@@ -271,7 +275,7 @@
                 selectionItems={themeProps}
             ></Chip>
         </ChipContainer><br />
-        <div class="flex hcenter">
+        <div class="flex hcenter" style="gap: 10px">
             <input
                 type="color"
                 style="padding: 10px; background-color: var(--row)"
@@ -294,20 +298,26 @@
             </label>
         </div>
         <br />
-        <button
-            on:click={() => {
-                let obj = { ...currentProperties };
-                for (const property in obj)
-                    obj[property] =
-                        `${obj[property].str}${obj[property].opacity}`;
-                CustomizationHandler.saveTheme(
-                    prompt("Choose a name for your new theme") ??
-                        crypto.randomUUID(),
-                    obj,
-                );
-                getNewTheme();
-            }}>{getLang("Save theme")}</button
-        >
+        <Card type={1} forceColor={true}>
+            <label class="flex hcenter" style="gap: 10px">
+                Theme name:
+                <input type="text" bind:value={themeName} />
+                <button
+                    style="width: fit-content"
+                    on:click={() => {
+                        let obj = { ...currentProperties };
+                        for (const property in obj)
+                            obj[property] =
+                                `${obj[property].str}${obj[property].opacity}`;
+                        CustomizationHandler.saveTheme(
+                            themeName || crypto.randomUUID(),
+                            obj,
+                        );
+                        getNewTheme();
+                    }}>{getLang("Save theme")}</button
+                >
+            </label>
+        </Card>
     </Card><br />
     <Card forceColor={true}>
         <h4>{getLang("Manage current themes")}:</h4>
