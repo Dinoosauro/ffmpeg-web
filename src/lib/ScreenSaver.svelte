@@ -69,7 +69,7 @@
 >
     <div
         style="padding: 25px; margin-top: 10px; position: absolute; transition: opacity 0.4s ease-in-out"
-        class="topMovement"
+        class="topMovement fullWidth"
         bind:this={optionContainer}
     >
         {#if Settings.screenSaver.options.showConversionName}

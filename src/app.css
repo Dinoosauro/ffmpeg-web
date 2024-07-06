@@ -66,10 +66,18 @@ input:not([type=checkbox]),
 select,
 button,
 progress,
-textarea {
+textarea,
+.fullWidth {
   width: 100%;
   width: -webkit-fill-available;
   width: -moz-available;
+}
+
+input:not([type=checkbox]),
+select,
+button,
+progress,
+textarea {
   height: 35px;
   font-size: 13px;
 }
