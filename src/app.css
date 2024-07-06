@@ -113,6 +113,7 @@ button {
 progress {
   height: 20px;
   padding: 0px;
+  border-radius: 8px;
 }
 
 .smallHeight {
