@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+  <link rel="manifest" href="./manifest.json" />
+  <title>ffmpeg-web</title>
+  <style id="customSelectColor">
+    select {
+      background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'><path fill='%23fafafa' d='M4.957 5a1 1 0 0 0-.821 1.571l2.633 3.784a1.5 1.5 0 0 0 2.462 0l2.633-3.784A1 1 0 0 0 11.043 5H4.957Z' /></svg>") no-repeat;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script>
+    window.ffmpegWebVersion = "3.0.0";
+    (async () => {
+      const result = await navigator.serviceWorker.register('./service-worker.js');
+      console.log(result);
+    })()
+    fetch("./ffmpegweb-updatecode", { cache: "no-store" }).then((res) => res.text().then((text) => { if (text.replace("\n", "") !== window.ffmpegWebVersion) if (confirm(`There's a new version of pdf-pointer. Do you want to update? [${window.ffmpegWebVersion} --> ${text.replace("\n", "")}]`)) { caches.delete("pdfpointer-cache"); location.reload(true); } }).catch((e) => { console.error(e) })).catch((e) => console.error(e)); // Check if the application code is the same as the current application version and, if not, ask the user to update
+  </script>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>

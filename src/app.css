@@ -1,0 +1,416 @@
+:root {
+  --text: #fcf7f2;
+  --background: #191919;
+  --card: #393939;
+  --row: #6b6b6b;
+  --select: #e2b54c;
+  --font: 'Work Sans', sans-serif;
+  --positionX: 0px;
+  --positionY: 0px;
+  --cardBackdropShow: none;
+  --card0Color: var(--card);
+  --card1Color: var(--row);
+  --cardUnset: transparent;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--text);
+  background-color: var(--background);
+  padding: 10px;
+}
+
+.flex {
+  display: flex;
+}
+
+.hcenter {
+  align-items: center;
+}
+
+.wcenter {
+  justify-content: center;
+}
+
+.selected {
+  background-color: var(--select) !important;
+}
+
+.cardContainer {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cardContainer>* {
+  flex: 1 0 400px;
+}
+
+input:not([type=checkbox]),
+select,
+button,
+progress,
+textarea {
+  width: 100%;
+  width: -webkit-fill-available;
+  width: -moz-available;
+  height: 35px;
+  font-size: 13px;
+}
+
+input:not([type=checkbox]):not([type=range]),
+select,
+button,
+progress,
+textarea {
+  border-radius: 8px;
+  border: 1px solid var(--text);
+  font-family: var(--font);
+  background-color: var(--card);
+  color: var(--text);
+  padding: 0px 10px;
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 5px;
+  accent-color: var(--select);
+  background-color: var(--select);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+input[type='range']::-webkit-slider-thumb,
+input[type='range']::-moz-range-thumb {
+  -webkit-appearance: none !important;
+  background: var(--text);
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--card);
+}
+
+select {
+  background-position: calc(100% - 7px) center !important;
+  background-size: 20px 20px;
+  background-color: var(--card);
+  -moz-appearance: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  padding-right: 2rem !important;
+}
+
+
+textarea {
+  height: 20vh;
+}
+
+button {
+  background-color: var(--select);
+  transition: filter 0.2s ease-in-out;
+}
+
+progress {
+  height: 20px;
+  padding: 0px;
+}
+
+.smallHeight {
+  margin: 5px;
+}
+
+progress[value='1']::-webkit-progress-bar,
+progress[value='1']::-webkit-progress-value,
+progress[value='1']::-moz-progress-bar {
+  border-top-right-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
+}
+
+progress::-webkit-progress-bar {
+  border-radius: 8px;
+}
+
+progress::-webkit-progress-value {
+  border-radius: 8px;
+  z-index: -1;
+}
+
+progress::-moz-progress-bar {
+  border-radius: 8px;
+}
+
+progress::-moz-progress-bar {
+  background: var(--select);
+}
+
+progress::-webkit-progress-value {
+  background: var(--select);
+}
+
+.chipInput {
+  line-height: 20px !important;
+  height: 20px !important;
+}
+
+*:disabled {
+  opacity: 0.6;
+}
+
+select {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  backdrop-filter: blur(16px) brightness(30%);
+  -webkit-backdrop-filter: blur(16px) brightness(30%);
+  transition: opacity 0.6s ease-in-out;
+  z-index: 3;
+  transform-origin: "top left";
+}
+
+/*
+NOTE: For dialog animations, the length is marked as 1.2 since after 600ms the Svelte animation is triggered. By doubling the time, the animation will continue while Svelte does the fade in / fade out animation.
+*/
+.dialog.simpleAnimate {
+  animation: dialogOpacityAnimation 1.2s ease-in-out;
+}
+
+.dialog>div {
+  position: fixed;
+  top: 5vh;
+  left: 15vw;
+  width: 70vw;
+  max-height: 75vh;
+  background-color: var(--card);
+  border-radius: 8px;
+  transform-origin: "top left";
+}
+
+.dialog>div>div {
+  /*
+  Padding needs to be put in an inner div to keep the div centered
+  */
+  padding: 5px 15px;
+}
+
+.dialog.animateReverse {
+  animation: dialogOpacityAnimationReverse 1.2s ease-in-out;
+}
+
+.dialog.simpleAnimate>div {
+  animation: dialogAnimation 1.2s ease-in-out;
+}
+
+.dialog.animateReverse>div {
+  animation: dialogAnimationReverse 1.2s ease-in-out;
+}
+
+.dialog>div {
+  overflow: auto;
+}
+
+/*
+NOTE: For dialog animations, the length is marked as 1.2 since after 600ms the Svelte animation is triggered. By doubling the time, the animation will continue while Svelte does the fade in / fade out animation.
+      In this part, all animations ends up at 50% since they must be done in the first 600ms. In the other 600ms Svelte will do its transition.
+*/
+
+@keyframes dialogOpacityAnimation {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/*
+For the same reason above, the "reverse" property wouldn't work here. So, we need to create a new animation for the reverse
+*/
+@keyframes dialogOpacityAnimationReverse {
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes dialogAnimation {
+  0% {
+    width: 350px;
+    height: 50px;
+    left: var(--positionX);
+    top: var(--positionY);
+    transform: scale(0.1);
+  }
+
+  40% {
+    width: 70vw;
+    height: 75vh;
+    left: 15vw;
+    top: 5vh;
+    transform: scale(0.85);
+  }
+
+  50% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes dialogAnimationReverse {
+  0% {
+    transform: scale(1);
+  }
+
+  10% {
+    width: 70vw;
+    height: 75vh;
+    left: 15vw;
+    top: 5vh;
+    transform: scale(0.85);
+  }
+
+  50% {
+    width: 350px;
+    height: 50px;
+    left: var(--positionX);
+    top: var(--positionY);
+    transform: scale(0.1);
+  }
+
+
+  100% {
+    width: 350px;
+    height: 50px;
+    left: var(--positionX);
+    top: var(--positionY);
+    transform: scale(0.1);
+  }
+
+}
+
+.backgroundContent {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  object-fit: cover;
+}
+
+.card {
+  padding: 10px;
+  border-radius: 8px;
+  overflow: auto;
+  position: relative;
+}
+
+.card0 {
+  background-color: var(--card0Color, unset);
+}
+
+.card0Force {
+  background-color: var(--card);
+}
+
+.card1 {
+  background-color: var(--card1Color, unset);
+}
+
+.card1Force {
+  background-color: var(--row);
+}
+
+.card * {
+  z-index: 1;
+  /*
+  Position relative is put so that z-index is applied to everything, since otherwise it won't work with "position: static". This allows us to get transparent card background
+  */
+  position: relative;
+}
+
+.backdropCard::before {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  backdrop-filter: blur(8px) brightness(50%);
+  -webkit-backdrop-filter: blur(8px) brightness(50%);
+  z-index: 0;
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: var(--cardBackdropShow);
+}
+
+button:hover,
+input:hover,
+select:hover,
+.pointer:hover {
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(130%);
+}
+
+button:active {
+  filter: brightness(95%);
+}
+
+.video-background {
+  position: fixed;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+}
+
+.video-background iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 100vh;
+  transform: translate(-50%, -50%);
+}
+
+@media (min-aspect-ratio: 16/9) {
+  .video-background iframe {
+    /* height = 100 * (9 / 16) = 56.25 */
+    height: 56.25vw;
+  }
+}
+
+@media (max-aspect-ratio: 16/9) {
+  .video-background iframe {
+    /* width = 100 / (9 / 16) = 177.777777 */
+    width: 177.78vh;
+  }
+}
+
+a {
+  color: var(--text);
+}
