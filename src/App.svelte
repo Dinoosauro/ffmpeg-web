@@ -39,13 +39,11 @@
     import AdaptiveAsset from "./lib/UIElements/AdaptiveAsset.svelte";
     import { get } from "svelte/store";
     import UpdateDialog from "./lib/UpdateDialog.svelte";
+    import { getLang } from "./ts/LanguageAdapt";
     onMount(() => {
         // @ts-ignore | Fallback for randomUUID in non-secure contexts. This isn't ideal, since crypto.randomUUID is way better than Math.random(), but, since it's only used for keeping track of Chip IDs, it's fine.
         if (crypto.randomUUID === undefined)
             crypto.randomUUID = () => Math.random().toString() as any;
-        const container = mainDiv.querySelector(
-            ".cardContainer",
-        ) as HTMLElement;
         const item = JSON.parse(
             localStorage.getItem("ffmpegWeb-CurrentTheme") ?? "{}",
         );
@@ -53,19 +51,17 @@
         if (Settings.backgroundContent.type !== "color")
             new BackgroundManager(document.body).apply();
     });
-    let mainDiv: HTMLDivElement;
     let showSettings = false;
-    let overwriteDialog: HTMLDivElement;
-    let dialogShown = false;
+    let updateDialogShown = false;
     showScreensaver.subscribe((val) => {
         for (const item of document.querySelectorAll("video"))
-            item[val ? "pause" : "play"]();
+            item[val ? "pause" : "play"](); // Pause the previous videos if the screensaver is enabled
         !val && FullscreenManager.remove();
     });
 </script>
 
 <Header></Header><br />
-<div bind:this={mainDiv}>
+<div>
     <CardAdapt>
         <MainPicker
             on:changedMainTab={({ detail }) => ($applicationSection = detail)}
@@ -109,13 +105,13 @@
 {/if}
 
 {#if $showOverwriteDialog && typeof window.nativeOperations !== "undefined"}
-    <div bind:this={overwriteDialog}>
+    <div>
         <TopDialog
             closeDialog={() => ($showOverwriteDialog = undefined)}
             indefinite={true}
             dialogId="OverwriteFile"
         >
-            <p>Found existent file: {$showOverwriteDialog}</p>
+            <p>{getLang("Found existent file")}: {$showOverwriteDialog}</p>
             <button
                 style="text-decoration: underline; width: fit-content"
                 on:click={() => {
@@ -123,12 +119,13 @@
                     $showOverwriteDialog = undefined;
                 }}
             >
-                Overwrite
+                {getLang("Overwrite")}
             </button>
         </TopDialog>
     </div>
 {/if}
 
-{#if (localStorage.getItem("ffmpegWeb-LastVersion") || window.ffmpegWebVersion) !== window.ffmpegWebVersion && !dialogShown}
-    <UpdateDialog closeFunction={() => (dialogShown = true)}></UpdateDialog>
+{#if (localStorage.getItem("ffmpegWeb-LastVersion") || window.ffmpegWebVersion) !== window.ffmpegWebVersion && !updateDialogShown}
+    <UpdateDialog closeFunction={() => (updateDialogShown = true)}
+    ></UpdateDialog>
 {/if}

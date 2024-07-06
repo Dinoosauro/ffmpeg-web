@@ -189,8 +189,17 @@ let translations = new Map<string, TranslationRequirements>([
     ["and you can find (and, if you want, analyze) the", { it: "e puoi trovare (e, se vuoi, analizzare) il" }],
     ["source code on GitHub", { it: "codice sorgente su GitHub" }],
     ["Won't replace duplicate (no access to your device's file system)", { it: "Non sostituirà i duplicati (nessun accesso al file system del dispositivo)" }],
-    ["Will replace duplicates (direct access to File System)", { it: "Sostituirà i duplicati (accesso diretto al file system)" }]
+    ["Will replace duplicates (direct access to File System)", { it: "Sostituirà i duplicati (accesso diretto al file system)" }],
+    ["Overwrite", { it: "Sovrascrivi" }],
+    ["Found existent file", { it: "Trovate un file già esistente" }],
+    ["Exit after each timestamp conversion", { it: "Esci dopo ogni conversione del timestamp" }],
+    ["Exit after each file conversion", { it: "Esci dopo ogni conversione del file" }]
 ])
+/**
+ * Translate a string
+ * @param str the string to translate
+ * @returns the translated string, if available
+ */
 export function getLang(str: string) {
     const translation = translations.get(str);
     return translation ? translation[(localStorage.getItem("ffmpegWeb-SelectedLanguage") as null | "it") ?? navigator.language?.substring(0, 2) as "it"] ?? str : str;

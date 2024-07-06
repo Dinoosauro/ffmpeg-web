@@ -198,7 +198,6 @@
         <select
             bind:value={Settings.hardwareAcceleration.type}
             on:change={() => {
-                console.log(Settings.hardwareAcceleration.type);
                 switch (Settings.hardwareAcceleration.type) {
                     case "no":
                     case "amd":

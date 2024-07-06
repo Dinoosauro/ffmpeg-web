@@ -68,10 +68,8 @@ export default async function FileLogic(pickedFiles: File[], handle?: FileSystem
         })
         ffmpegOperation.addFiles(singleOperation); // Add files in the FFmpeg WebAssembly's virtual FS.
         const build = ffmpegOperation.build(); // Get the output script
-        console.log("Starting", build);
         try {
             const start = await ffmpegOperation.start(build); // And start the FFmpeg process
-            console.log(start);
             /**
              * If the output file is a Uint8Array, the result is from FFmpeg WebAssembly, and it'll be written using standard JavaScript APIs. Otherwise, it's a path for the native FFmpeg process, and it'll be moved using Node's FS API.
              */

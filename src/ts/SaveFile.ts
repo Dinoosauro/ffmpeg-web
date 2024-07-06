@@ -29,15 +29,21 @@ declare global {
         ffmpegWebVersion: string
     }
 }
-
+/**
+ * Save, or move (if using native version), a file
+ */
 export default class FileSaver {
     #suggestedOutput: "handle" | "zip" | "link" = "link";
     #directoryHandle: FileSystemDirectoryHandle | undefined;
     #jsZip: JSZip | undefined;
     promise: Promise<void> | undefined;
+    /**
+     * Specify how the file should be saved. Note that you also need to await `this.promise` before starting using it.
+     * @param suggested the suggested download method (`handle`, `zip`, `link`)
+     * @param handle the FileSystemDirectoryHandle for FS operation
+     */
     constructor(suggested?: "handle" | "zip" | string, handle?: FileSystemDirectoryHandle) {
         this.promise = new Promise(async (resolve) => {
-            console.log(suggested);
             this.#directoryHandle = handle;
             switch (suggested) {
                 case "handle": {
@@ -57,9 +63,21 @@ export default class FileSaver {
             resolve();
         })
     }
+    /**
+     * Replace the unsafe characters of a string
+     * @param str the unsanitized string
+     * @param allowSlash if the / shouldn't be replaced
+     * @returns the sanitized string
+     */
     #sanitize = (str: string, allowSlash?: boolean) => {
         return str.replaceAll("<", "‹").replaceAll(">", "›").replaceAll(":", "∶").replaceAll("\"", "″").replaceAll("/", allowSlash ? "/" : "∕").replaceAll("\\", "∖").replaceAll("|", "¦").replaceAll("?", "¿").replaceAll("*", "")
     }
+    /**
+     * Write, or start downloading, a file
+     * @param file the Uint8Array of the file to write
+     * @param name the file name
+     * @param forceLink if a link must be downloaded, even if the default settings is `handle` or `zip`
+     */
     write = async (file: Uint8Array, name: string, forceLink?: boolean) => {
         function downloadLink() {
             const a = document.createElement("a");
@@ -68,7 +86,6 @@ export default class FileSaver {
                 val.push({ name, path: a.href });
                 return [...val];
             })
-            console.log(get(fileUrls));
             a.download = name;
             a.click();
             if (Settings.fileSaver.revokeObjectUrl) URL.revokeObjectURL(a.href);
@@ -98,6 +115,12 @@ export default class FileSaver {
             }
         }
     }
+    /**
+     * Move a file from a directory to another (native-only)
+     * @param copyFile the path of the file to copy
+     * @param suggestedName the suggested name to the file
+     * @param firstFilePath the path of the first file, that'll be used to get the directory where the file should be copied. If it's not provided, only the `copyFile` path will be used.
+     */
     native = async (copyFile: string, suggestedName: string, firstFilePath?: string) => {
         if (firstFilePath) {
             if (firstFilePath.indexOf("\\") !== -1) firstFilePath = firstFilePath.substring(0, firstFilePath.lastIndexOf("\\") + 1);
@@ -105,6 +128,9 @@ export default class FileSaver {
         }
         await window.nativeOperations.invoke("MoveFile", { from: copyFile, to: `${firstFilePath ?? ""}${suggestedName}` });
     }
+    /**
+     * Save the zip file
+     */
     release = async () => {
         if (this.#suggestedOutput === "zip" && this.#jsZip) {
             const zip = await this.#jsZip.generateAsync({ type: "uint8array" });

@@ -41,17 +41,37 @@ const assetsMap = {
     icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="#212121" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" viewBox="0 0 22 19.5"><path d="M12.75 2.25A3.25 3.25 0 0 1 16 5.5v.173l3.864-2.318A.75.75 0 0 1 21 3.998V15.5a.75.75 0 0 1-1.136.643L16 13.825V14a3.25 3.25 0 0 1-3.25 3.25h-8.5A3.25 3.25 0 0 1 1 14V5.5a3.25 3.25 0 0 1 3.25-3.25h8.5zm0 1.5h-8.5A1.75 1.75 0 0 0 2.5 5.5V14a1.75 1.75 0 0 0 1.75 1.75h8.5A1.75 1.75 0 0 0 14.5 14V5.5a1.75 1.75 0 0 0-1.75-1.75zm6.75 1.573L16 7.425v4.651l3.5 2.1V5.323zm-10.571.878a.223.223 0 0 0-.288.213v4.407a1.44 1.44 0 0 0-1.001-.403 1.445 1.445 0 1 0 1.446 1.446l-.002-.08.002-.031V8.494l2.604.801a.223.223 0 0 0 .288-.213V7.96a1.11 1.11 0 0 0-.785-1.063L8.929 6.2zm2.604 2.581-2.447-.753V6.714l1.976.608c.28.086.471.345.471.638v.821zm-4.894 3.082a1.001 1.001 0 1 1 2.002 0 1.001 1.001 0 1 1-2.002 0z"/></svg>`,
     locallanguage: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path fill="#212121" d="m9.34 6.372.05.105 5.56 14.5a.755.755 0 0 1-.418.971.73.73 0 0 1-.91-.333l-.043-.092-1.433-3.737H5.06l-.094-.006-1.546 3.76a.73.73 0 0 1-.963.401.754.754 0 0 1-.427-.885l.033-.096 5.964-14.5a.73.73 0 0 1 1.314-.088Zm9.406-4.37a.75.75 0 0 1 .743.65l.007.1V7.5h1.75a.75.75 0 0 1 .743.649l.007.102a.75.75 0 0 1-.648.743L21.245 9l-1.75-.001v7.25a.75.75 0 0 1-.648.744l-.102.007a.75.75 0 0 1-.743-.648l-.007-.102V2.753a.75.75 0 0 1 .75-.75ZM8.81 8.748 5.65 16.286h6.11L8.81 8.747Zm1.937-6.744h5.498a.75.75 0 0 1 .743.648l.006.102v3.004c0 2.344-1.9 4.245-4.245 4.245a.75.75 0 0 1 0-1.5c1.46 0 2.654-1.14 2.74-2.578l.005-.167V3.503h-4.747a.75.75 0 0 1-.102-1.493l.102-.007h5.498-5.498Z"/></svg>`
 }
+/**
+ * A list of string IDs for the available assets
+ */
 export type AvailableAssets = keyof typeof assetsMap;
+/**
+ * Store the HTMLImageElement with the asset ID, so that the image can be re-generated if the user changes the acent color
+ */
 const imageMap = new Map<HTMLImageElement, AvailableAssets>([]);
+/**
+ * Add an image to the imageMap, so that it can be re-render in case the accent color is changed
+ * @param image the image to add
+ * @param id the asset ID
+ */
 export function UpdateImageMap(image: HTMLImageElement, id: AvailableAssets) {
     imageMap.set(image, id);
 }
+/**
+ * Render again all the elements of the ImageMap
+ */
 export function RerenderImageMap() {
     for (const [image, id] of imageMap) if (image) {
         URL.revokeObjectURL(image.src);
         image.src = GetImage(id);
     }
 }
+/**
+ * Gets the URL of an icon
+ * @param id the icon to get
+ * @param customColor the color to apply. If not speicifed, the accent color will be used
+ * @returns the URL of the icon
+ */
 export function GetImage(id: AvailableAssets, customColor?: string) {
     return URL.createObjectURL(new Blob([assetsMap[id].replaceAll("#212121", customColor || getComputedStyle(document.body).getPropertyValue("--select"))], { type: "image/svg+xml" }));
 }

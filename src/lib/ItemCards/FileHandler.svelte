@@ -25,7 +25,6 @@
         input.multiple = true;
         input.webkitdirectory = ConversionOptions.folderSelect;
         input.onchange = async () => {
-            console.log($applicationSection);
             if (!input.files) return;
             $applicationSection === "Custom"
                 ? InputLogic(Array.from(input.files), directoryHandle)

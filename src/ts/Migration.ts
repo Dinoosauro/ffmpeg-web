@@ -131,7 +131,7 @@ if (localStorage.getItem("ffmpegWeb-MigrationV3Completed") !== "a") {
         }
     };
     const getHWArgs = JSON.parse(localStorage.getItem("ffmpegWeb-Argshwaccel") ?? "[]");
-    if (Array.isArray(getHWArgs)) Settings.hardwareAcceleration.additionalProps = getHWArgs.filter(e => typeof e === "string");
+    if (Array.isArray(getHWArgs)) Settings.hardwareAcceleration.additionalProps = getHWArgs.filter(e => typeof e === "string").map((e: any) => { return { id: crypto.randomUUID(), display: e } });
     const getCustomArgs = JSON.parse(localStorage.getItem("ffmpegWeb-Argscustom") ?? "[]");
     if (Array.isArray(getCustomArgs)) InputOptions.val = getCustomArgs.filter((e: any) => typeof e === "string").map((e: any) => { return { id: crypto.randomUUID(), display: e } });
     const prepareCustomTheme: any = {};
