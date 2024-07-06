@@ -55,7 +55,8 @@ export default class ffmpeg {
     readFile!: (name: string) => Promise<Uint8Array | undefined>;
     exec!: (command: string[]) => Promise<void>;
     removeFile!: (file: File | string) => Promise<void>;
-    exit!: () => void
+    exit!: () => void;
+    native = false;
     operationId = 0;
     constructor(type: FFmpegVersions, urls?: FfmpegUrls) {
         this.promise = new Promise<void>((resolve) => { this.#resolvePromise = resolve })
@@ -101,9 +102,9 @@ export default class ffmpeg {
                     const obj = new ffmpeg.FFmpeg();
                     this.load = async () => {
                         !obj.loaded && await obj.load({
-                            coreURL: typeof window.isLocal !== "undefined" ? URL.createObjectURL(await (await fetch("./assets/ffmpeg12/ffmpeg-core.js")).blob()) : "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm/ffmpeg-core.js",
-                            wasmURL: typeof window.isLocal !== "undefined" ? URL.createObjectURL(await (await fetch("./assets/ffmpeg12/ffmpeg-core.wasm")).blob()) : "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm/ffmpeg-core.wasm",
-                            workerURL: Settings.useMultiThreaded ? typeof window.isLocal !== "undefined" ? URL.createObjectURL(await (await fetch("./assets/ffmpeg12/ffmpeg-core.worker.js")).blob()) : "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm/ffmpeg-core.worker.js" : undefined
+                            coreURL: URL.createObjectURL(await (await fetch(typeof window.isLocal !== "undefined" ? `./assets/ffmpeg12/ffmpeg-core${Settings.useMultiThreaded ? "mt" : ""}.js` : `https://unpkg.com/@ffmpeg/core${Settings.useMultiThreaded ? "-mt" : ""}@0.12.6/dist/esm/ffmpeg-core.js`)).blob()),
+                            wasmURL: URL.createObjectURL(await (await fetch(typeof window.isLocal !== "undefined" ? `./assets/ffmpeg12/ffmpeg-core${Settings.useMultiThreaded ? "mt" : ""}.wasm` : `https://unpkg.com/@ffmpeg/core${Settings.useMultiThreaded ? "-mt" : ""}@0.12.6/dist/esm/ffmpeg-core.wasm`)).blob()),
+                            workerURL: URL.createObjectURL(await (await fetch(typeof window.isLocal !== "undefined" ? "./assets/ffmpeg12/ffmpeg-core.worker.js" : "https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm/ffmpeg-core.worker.js")).blob())
                         });
                     }
                     this.writeFile = async (file) => {
@@ -132,6 +133,7 @@ export default class ffmpeg {
                 break;
             case "native": {
                 const ipcRenderer = window.nativeOperations;
+                this.native = true;
                 this.load = async () => { };
                 this.writeFile = async (file) => {
                     if (!file.name.startsWith("__FfmpegWebExclusive__")) return;

@@ -5,7 +5,8 @@ interface EncoderInfo {
     nvidia?: string,
     apple?: string,
     amd?: string,
-    intel?: string
+    intel?: string,
+    NoHardwareAcceleration?: undefined // Note: this MUST NOT be added in the map. This is just a bad solution to tell the build script to not get the hardware accelerated codec if using WebAssembly
 }
 export default {
     video: new Map<string, EncoderInfo>([

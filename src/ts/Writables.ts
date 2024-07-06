@@ -63,3 +63,4 @@ export let fileUrls = writable<FileUrls[]>([]);
  * If files should be saved in memory or not
  */
 export let changedFileSave = writable<boolean>(Settings.fileSaver.keepInMemory);
+export let ffmpegVersionUsed = writable<string>("");

@@ -17,7 +17,7 @@ const filestoCache = [
     'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js',
     'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm/ffmpeg-core.js',
     'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm/ffmpeg-core.wasm',
-    'https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm/ffmpeg-core.worker.js'
+    'https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm/ffmpeg-core.worker.js',
 ];
 self.addEventListener('install', e => {
     e.waitUntil(

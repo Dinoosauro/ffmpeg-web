@@ -45,6 +45,23 @@ body {
   flex: 1 0 400px;
 }
 
+@media (max-width: 799px) {
+  .cardContainer {
+    display: block !important;
+  }
+
+  .cardContainer>* {
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  label.flex input:not([type=checkbox]):not([type=range]) {
+    width: 100% !important;
+    min-width: 50px;
+  }
+}
+
 input:not([type=checkbox]),
 select,
 button,
@@ -128,7 +145,7 @@ progress[value='1']::-moz-progress-bar {
 }
 
 progress::-webkit-progress-bar {
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 progress::-webkit-progress-value {

@@ -61,7 +61,7 @@
 >
     <div style="padding: 25px; margin-top: 10px;">
         {#if Settings.screenSaver.options.showConversionName}
-            <div class="screenContainer" style="float: left">
+            <div class="screenContainer floatLeft">
                 {#if $conversionFileDone[currentConversion][0] === 0}
                     <h1>{getLang("No conversion started")}</h1>
                 {:else if $conversionFileDone[currentConversion][0] === -1}
@@ -81,7 +81,10 @@
             </div>
         {/if}
         {#if Settings.screenSaver.options.showConversionStatus}
-            <div class="screenContainer" style="float: right; width: 45%">
+            <div
+                class="screenContainer floatRight"
+                style="float: right; width: 45%"
+            >
                 <Card>
                     <progress
                         style="background-color: var(--row);"
@@ -119,5 +122,25 @@
     }
     .screenContainer {
         max-width: calc(45% - 25px);
+    }
+    .floatLeft {
+        float: left;
+    }
+    .floatRight {
+        float: right;
+        width: 45%;
+    }
+    @media (max-width: 800px) {
+        .screenContainer {
+            max-width: 100%;
+        }
+        .floatLeft {
+            width: 100% !important;
+        }
+        .floatRight {
+            float: left;
+            width: 100% !important;
+            margin-top: 20px;
+        }
     }
 </style>

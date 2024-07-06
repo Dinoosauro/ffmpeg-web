@@ -4,6 +4,7 @@
     import {
         changedFileSave,
         currentStorageMethod,
+        ffmpegVersionUsed,
         showScreensaver,
     } from "../../ts/Writables";
     import Card from "../UIElements/Card/Card.svelte";
@@ -109,20 +110,22 @@
         <h3>{getLang("FFmpeg settings:")}</h3>
     </div>
     <p>{getLang("Use the following FFmpeg version:")}</p>
-    <select bind:value={Settings.version}>
+    <select
+        bind:value={Settings.version}
+        on:change={() => ffmpegVersionUsed.set(Settings.version)}
+    >
         <option value="0.11.x"
             >FFmpeg WebAssembly (0.11.x) {typeof window.nativeOperations !==
             "undefined"
                 ? ""
                 : `[${getLang("Suggested")}]`}</option
         >
-        {#if typeof window.nativeOperations === "undefined"}
-            <option value="0.12.x"
-                >FFmpeg WebAssembly (0.12.x) [{getLang(
-                    "Might not work on all codecs",
-                )}]</option
-            >
-        {:else}
+        <option value="0.12.x"
+            >FFmpeg WebAssembly (0.12.x) [{getLang(
+                "Might not work on all codecs",
+            )}]</option
+        >
+        {#if typeof window.nativeOperations !== "undefined"}
             <option value="native">Native [{getLang("Suggested")}]</option>
         {/if}
     </select>
@@ -183,7 +186,7 @@
         </select>
     </Card>
 {/if}<br />
-{#if typeof window.nativeOperations !== "undefined"}
+{#if $ffmpegVersionUsed === "native"}
     <Card forceColor={true} type={1}>
         <div class="flex hcenter" style="gap: 8px">
             <AdaptiveAsset asset="games" width={26}></AdaptiveAsset>

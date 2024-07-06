@@ -67,7 +67,8 @@
                 i++
             )
                 newText(conversionText[+optionSelect.value][i]); // So, we look for the last text that has been added to the paragraph, and then we add all the new items. "+optionSelect.value" is the conversion the user is watching
-            progress.value = conversionProgress[+optionSelect.value];
+            if (!isNaN(conversionProgress[+optionSelect.value]))
+                progress.value = conversionProgress[+optionSelect.value];
         }, 250);
         conversionFileDone.subscribe((update) => {
             document.title =

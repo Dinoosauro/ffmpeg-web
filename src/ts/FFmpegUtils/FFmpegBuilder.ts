@@ -208,9 +208,9 @@ export default class FfmpegHandler {
         if (this.#conversion.isVideoSelected || isImage) { // Video-specific arguments
             let customFilter = "";
             const encoderInfo = EncoderInfo.video.get(this.#conversion.videoTypeSelected);
-            const videoCodec = isImage ? this.#conversion.imageTypeSelected : encoderInfo ? encoderInfo[Settings.hardwareAcceleration.type as "nvidia"] ?? this.#conversion.videoTypeSelected : this.#conversion.videoTypeSelected; // Get library for hardware acceleration in case the user is encoding a video
+            const videoCodec = isImage ? this.#conversion.imageTypeSelected : encoderInfo ? encoderInfo[this.ffmpeg.native ? Settings.hardwareAcceleration.type as "nvidia" : "NoHardwareAcceleration"] ?? this.#conversion.videoTypeSelected : this.#conversion.videoTypeSelected; // Get library for hardware acceleration in case the user is encoding a video
             currentObject.push("-vcodec", videoCodec.startsWith("!") ? "copy" : videoCodec.replace("libxh264", "libx264"), this.#isImg ? "-q:v" : this.#conversion.videoOptions.useSlider ? "-crf" : "-b:v", this.#isImg ? this.#conversion.imageOptions.value : this.#conversion.videoOptions.useSlider ? Math.max(1, Math.min(+this.#conversion.videoOptions.value.replace(/\D/g, ""), 51)).toString() : this.#conversion.videoOptions.value); // Add video codec and quality. In case a quality slider value is added, the input is sanitized.
-            if (encoderInfo && encoderInfo[Settings.hardwareAcceleration.type as "nvidia"]) { // Hardware acceleration available: add extra arguments
+            if (this.ffmpeg.native && encoderInfo && encoderInfo[Settings.hardwareAcceleration.type as "nvidia"]) { // Hardware acceleration available: add extra arguments
                 switch (Settings.hardwareAcceleration.type) {
                     case "apple":
                         currentObject.push("-qmin", this.#conversion.videoOptions.useSlider ? this.#conversion.videoOptions.value : "28", "-qmax", this.#conversion.videoOptions.useSlider ? this.#conversion.videoOptions.value : "28");
