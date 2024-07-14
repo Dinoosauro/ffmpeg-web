@@ -27,7 +27,9 @@
     <option value="color">{getLang("The background color")}</option>
     <option value="image">{getLang("A background image")}</option>
     <option value="video">{getLang("A local video")}</option>
-    <option value="yt">{getLang("A YouTube embed")}</option>
+    {#if typeof window.nativeOperations !== "undefined" || "credentialless" in HTMLIFrameElement.prototype}
+        <option value="yt">{getLang("A YouTube embed")}</option>
+    {/if}
 </select><br />
 {#if Settings[type === "background" ? "backgroundContent" : "screenSaver"].type === "image" || Settings[type === "background" ? "backgroundContent" : "screenSaver"].type === "video"}
     <br />
@@ -37,11 +39,12 @@
                 on:click={() => {
                     const input = document.createElement("input");
                     input.type = "file";
+                    input.multiple = true;
                     input.accept = `${Settings[type === "background" ? "backgroundContent" : "screenSaver"].type}/*`;
                     input.onchange = () => {
                         input.files &&
                             backgroundChange.set(
-                                input.files[0],
+                                Array.from(input.files),
                                 type === "screenSaver",
                             );
                     };
@@ -58,6 +61,16 @@
                 }}>{getLang("Delete content")}</button
             >
         </div>
+        <br />
+        <label class="flex hcenter" style="gap: 10px">
+            {getLang("Change image after:")}
+            <input
+                type="number"
+                bind:value={Settings[
+                    type === "screenSaver" ? "screenSaver" : "backgroundContent"
+                ].refreshImage}
+            /> ms
+        </label>
     </Card>
 {/if}
 {#if Settings[type === "background" ? "backgroundContent" : "screenSaver"].type === "yt"}
@@ -78,7 +91,10 @@
                     YTUrl = `videoseries?list=${YTUrl.substring(YTUrl.indexOf("playlist?list=") + "playlist?list=".length)}`;
                 else if (YTUrl.indexOf("youtu.be") !== -1)
                     YTUrl = YTUrl.substring(YTUrl.lastIndexOf("/") + 1);
-                backgroundChange.set(new Blob([YTUrl]), type === "screenSaver");
+                backgroundChange.set(
+                    [new Blob([YTUrl], { type: "text/plain" })],
+                    type === "screenSaver",
+                );
             }}>{getLang("Apply URL")}</button
         >
     </Card>

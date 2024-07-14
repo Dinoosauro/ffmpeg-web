@@ -8,7 +8,7 @@ interface SetObj {
 }
 interface SetInnerObject {
     UserContent: string,
-    blob: Blob
+    blob: Blob | Blob[]
 }
 export default {
     /**

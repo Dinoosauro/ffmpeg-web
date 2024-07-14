@@ -7,6 +7,7 @@ let Settings = {
     useMultiThreaded: true,
     backgroundContent: {
         type: "color",
+        refreshImage: 5000,
         effects: {
             blur: 16,
             brightness: 100
@@ -17,6 +18,7 @@ let Settings = {
         enabled: false,
         timeout: 30000,
         type: "color",
+        refreshImage: 5000,
         effects: {
             blur: 16,
             brightness: 100

@@ -11,6 +11,25 @@
         <AdaptiveAsset asset="icon" width={128}></AdaptiveAsset>
     </div>
     <Card type={1} forceColor={true}>
+        <h3 style="text-align: center;">Version 3.0.4</h3>
+        <Card forceColor={true}>
+            <ul>
+                <li>
+                    It's now possible to add multiple images or video as
+                    background
+                </li>
+                <li>
+                    On supported browsers, a YouTube embed can be used as the
+                    background/screensaver content
+                </li>
+                <li>
+                    Added keyboard shortcuts: press <code>Esc</code> to close a
+                    dialog, and press <code>Ctrl/Cmd + P</code> to open Settings
+                </li>
+            </ul>
+        </Card>
+    </Card><br />
+    <Card type={1} forceColor={true}>
         <h3 style="text-align: center;">Version 3.0.3</h3>
         <i
             >Versions 3.0.1 was only bug fixes, while 3.0.2 only introduced

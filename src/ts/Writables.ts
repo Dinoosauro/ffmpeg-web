@@ -80,3 +80,17 @@ export let showInstallationCard = writable<boolean>(Settings.showInstallationPro
  */
 export let updateDialogShown = writable<boolean>((localStorage.getItem("ffmpegWeb-LastVersion") || window.ffmpegWebVersion) !== window.ffmpegWebVersion); // Set the current version
 localStorage.setItem("ffmpegWeb-LastVersion", window.ffmpegWebVersion);
+/**
+ * The keys that are being pressed in the document
+ */
+export let currentlyPressedKeys = writable<string[]>([]);
+window.addEventListener("keydown", (e) => currentlyPressedKeys.update(prev => {
+    const newPrev = [...prev, e.key.toLowerCase()];
+    newPrev.indexOf("meta") !== -1 && newPrev.indexOf("p") !== -1 && e.preventDefault(); // Disable printing (since it's useless on this website, and it would interfere with the "Show settings" shortcut)
+    return newPrev
+}));
+window.addEventListener("keyup", (e) => currentlyPressedKeys.update(prev => {
+    prev.splice(prev.indexOf(e.key.toLowerCase()), 1);
+    return [...prev];
+}));
+

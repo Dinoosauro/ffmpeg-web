@@ -11,6 +11,7 @@
     import {
         applicationSection,
         changedFileSave,
+        currentlyPressedKeys,
         currentStorageMethod,
         showInstallationCard,
         showOverwriteDialog,
@@ -53,6 +54,10 @@
         item.name && CustomizationHandler.applyTheme(item.name, item.isDefault);
         if (Settings.backgroundContent.type !== "color")
             new BackgroundManager(document.body).apply();
+        currentlyPressedKeys.subscribe((val) => {
+            if (val.indexOf("meta") !== -1 && val.indexOf("p") !== -1)
+                showSettings = true;
+        });
     });
     let showSettings = false;
     showScreensaver.subscribe((val) => {

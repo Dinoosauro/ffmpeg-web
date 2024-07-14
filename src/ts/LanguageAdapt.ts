@@ -211,7 +211,8 @@ let translations = new Map<string, TranslationRequirements>([
     ["View on GitHub", { it: "Visualizza su GitHub" }],
     ["Show installation instructions", { it: "Mostra istruzioni di installazione" }],
     ["Hide this card", { it: "Nascondi questa card" }],
-    ["Show update changelog", { it: "Mostra il changelog degli aggiornamenti" }]
+    ["Show update changelog", { it: "Mostra il changelog degli aggiornamenti" }],
+    ["Change image after:", { it: "Cambia immagine dopo:" }]
 ])
 /**
  * Translate a string
