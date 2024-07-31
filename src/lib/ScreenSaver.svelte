@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import BackgroundManager from "../ts/Customization/BackgroundType";
     import { fade } from "svelte/transition";
     import { cubicInOut } from "svelte/easing";
@@ -13,28 +13,29 @@
     import Settings from "../ts/TabOptions/Settings";
     import FullscreenManager from "../ts/FullscreenManager";
     import { getLang } from "../ts/LanguageAdapt";
+    import type { FFmpegEvent } from "../interfaces/ffmpeg";
     /**
      * The div where the Screensaver will be contained
      */
     let backgroundContainer: HTMLDivElement;
+    /**
+     * The function that will get the updates from the FFmpeg object
+     * @param value the FFmpegEvent
+     */
+    function updateProgressItems(value: FFmpegEvent) {
+        if (value.detail.operation === currentConversion) {
+            if (!isNaN(value.detail.progress))
+                progress.value = value.detail.progress;
+            text.textContent = value.detail.str;
+        }
+    }
     onMount(() => {
         const theme = new BackgroundManager(backgroundContainer); // Get the background content for the screensaver
         theme.apply(true);
         if (Settings.screenSaver.options.showConversionStatus) {
             // The user wants to see the conversion status
-            let interval = setInterval(() => {
-                // Just like in the "ConversionStatus" tab, Svelte's callbacks always broke in some way. So, even here an interval will be used.
-                if (!progress || !text) {
-                    // The Screensaver has been destroyed. Delete the interval.
-                    clearInterval(interval);
-                    return;
-                }
-                progress.value = conversionProgress[currentConversion];
-                text.textContent =
-                    conversionText[currentConversion][
-                        conversionText[currentConversion].length - 1
-                    ] || getLang("Conversion text will appear here");
-            }, 250);
+            // @ts-ignore
+            document.addEventListener("consoleUpdate", updateProgressItems);
         }
         const interval = setInterval(async () => {
             if (!optionContainer) {
@@ -49,6 +50,10 @@
         }, Settings.screenSaver.options.moveContent);
         Settings.screenSaver.options.fullscreen &&
             FullscreenManager.apply(backgroundContainer);
+    });
+    onDestroy(() => {
+        // @ts-ignore – Remove the event listener to avoid unnecessary calls (and errors)
+        document.removeEventListener("consoleUpdate", updateProgressItems);
     });
     export let currentConversion = 0;
     /**

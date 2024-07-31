@@ -13,6 +13,7 @@
     import { getLang } from "../../ts/LanguageAdapt";
     import { GetImage } from "../../ts/ImageHandler";
     import AdaptiveAsset from "../UIElements/AdaptiveAsset.svelte";
+    import type { FFmpegEvent } from "../../interfaces/ffmpeg";
     /**
      * The progress bar
      */
@@ -56,20 +57,14 @@
             2000 && document.getElementById("addContent")?.firstChild?.remove(); // Avoid keeping too many paragraphs
     }
     onMount(() => {
-        setInterval(() => {
-            // I tried to debug Svelte's writable callbacks for two hours. All the attempts broke in some way. Therefore, the (not-so-)good old way is used in this way. And I hate how Svelte formats code, it makes it more horrible than it is.
-            for (
-                let i =
-                    conversionText[+optionSelect.value].lastIndexOf(
-                        lastStringAdded,
-                    ) + 1;
-                i < conversionText[+optionSelect.value].length;
-                i++
-            )
-                newText(conversionText[+optionSelect.value][i]); // So, we look for the last text that has been added to the paragraph, and then we add all the new items. "+optionSelect.value" is the conversion the user is watching
-            if (!isNaN(conversionProgress[+optionSelect.value]))
-                progress.value = conversionProgress[+optionSelect.value];
-        }, 250);
+        // @ts-ignore – Update the UI when there's something new in the console
+        document.addEventListener("consoleUpdate", (value: FFmpegEvent) => {
+            if (+optionSelect.value === value.detail.operation) {
+                newText(value.detail.str);
+                if (!isNaN(value.detail.progress))
+                    progress.value = value.detail.progress;
+            }
+        });
         conversionFileDone.subscribe((update) => {
             document.title =
                 update[+optionSelect.value][0] > 0

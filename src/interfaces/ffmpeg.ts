@@ -3,3 +3,13 @@ export interface FfmpegUrls {
     coreURL: string,
     wasmURL: string
 }
+export interface FfmpegConsole {
+    operation: number,
+    str: string
+}
+interface FfmpegEventDetails extends FfmpegConsole {
+    progress: number
+}
+export interface FFmpegEvent extends CustomEvent {
+    detail: FfmpegEventDetails
+}

@@ -1,4 +1,4 @@
-import type { FFmpegVersions, FfmpegUrls } from "../../interfaces/ffmpeg";
+import type { FFmpegVersions, FfmpegConsole, FfmpegUrls } from "../../interfaces/ffmpeg";
 import { conversionFailedDate, conversionProgress, conversionText, currentConversionValue, showOverwriteDialog } from "../Writables";
 import type { IpcRendererEvent } from "electron";
 import FFmpegFileNameHandler from "./FFmpegHandleFileName";
@@ -13,7 +13,7 @@ const totalSecondsFetched: number[] = [];
  * @param operation the ID of the operation to update
  * @param str the string to add in the console
  */
-function updateConsole({ operation, str }: { str: string, operation: number }) {
+function updateConsole({ operation, str }: FfmpegConsole) {
     if (typeof str !== "string") return;
     if (!conversionText[operation]) conversionText[operation] = []; // Create a placeholder container
     if (conversionText[operation].length > 300) conversionText[operation].splice(0, 1);
@@ -33,6 +33,7 @@ function updateConsole({ operation, str }: { str: string, operation: number }) {
     } else if (totalSecondsFetched[operation] && str.indexOf("time=") !== -1) { // Found the time ffmpeg has encoded. Calculate the ratio, and then trigger the "setProcess" event. 
         conversionProgress[operation] = getSecondsFromFfmpeg(str.substring(str.indexOf("time=") + "time=".length)) / totalSecondsFetched[operation];
     }
+    document.dispatchEvent(new CustomEvent("consoleUpdate", { detail: { str, operation, progress: conversionProgress[operation] } }));
 }
 if (typeof window.nativeOperations !== "undefined") { // Setup Electron messages
     window.nativeOperations.on("ConsoleMsg", (event, { str, operation }) => {
