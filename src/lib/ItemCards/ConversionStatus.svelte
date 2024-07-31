@@ -19,11 +19,6 @@
      */
     let progress: HTMLProgressElement;
     /**
-     * The last string that has been printed in the Console.
-     * This is saved so that the same string isn't added twice in the console card
-     */
-    let lastStringAdded = "";
-    /**
      * The Select where the user can choose which conversion to follow
      */
     let optionSelect: HTMLSelectElement;
@@ -52,7 +47,6 @@
         p.textContent = add;
         p.classList.add("smallHeight");
         document.getElementById("addContent")?.append(p);
-        lastStringAdded = add;
         (document.getElementById("addContent") as HTMLElement).children.length >
             2000 && document.getElementById("addContent")?.firstChild?.remove(); // Avoid keeping too many paragraphs
     }
