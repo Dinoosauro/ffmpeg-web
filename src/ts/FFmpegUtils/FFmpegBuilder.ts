@@ -268,10 +268,10 @@ export default class FfmpegHandler {
                 custom: true
             }];
             for (let filter of customVideoFilters) customFilter += this.#elaborateFilter(filter); // Elaborate custom filter syntax, and add it to the string
-            if (customFilter.indexOf("format=") === -1 && Settings.hardwareAcceleration.type === "vaapi") customFilter += `,format=nv12`; // Required filter for VAAPI, since otherwise the conversion fails.
-            if (customFilter.indexOf("hwupload") === -1 && Settings.hardwareAcceleration.type === "vaapi") customFilter += `,hwupload`; // Required filter for VAAPI, since otherwise the conversion fails.
+            if (customFilter.indexOf("format=") === -1 && Settings.hardwareAcceleration.type === "vaapi") customFilter += `${customFilter.endsWith(",") ? "" : ","}format=nv12`; // Required filter for VAAPI, since otherwise the conversion fails.
+            if (customFilter.indexOf("hwupload") === -1 && Settings.hardwareAcceleration.type === "vaapi") customFilter += `${customFilter.endsWith(",") ? "" : ","}hwupload`; // Required filter for VAAPI, since otherwise the conversion fails.
             customFilter = this.#deleteCommaFromFilter(customFilter);
-            customFilter.length !== 0 && currentObject.push(`-filter:v`, this.#deleteCommaFromFilter(customFilter));
+            customFilter.length !== 0 && currentObject.push(`-filter:v`, customFilter);
         } else currentObject.push("-vn");
         if (this.#conversion.isAudioSelected && !isImage) {
             currentObject.push(`-acodec`, this.#conversion.audioTypeSelected.startsWith("!") ? "copy" : this.#conversion.audioTypeSelected);
