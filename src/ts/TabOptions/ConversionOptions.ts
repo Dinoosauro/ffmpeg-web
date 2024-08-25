@@ -10,6 +10,7 @@ let ConversionOptions = {
     videoOptions: {
         useSlider: true,
         value: "22",
+        maxRate: "1000k",
         fps: {
             keepFps: true,
             inputFps: 30,

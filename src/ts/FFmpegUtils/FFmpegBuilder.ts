@@ -194,6 +194,16 @@ export default class FfmpegHandler {
         return filter.syntax;
     }
     /**
+     * Delete the filter comma if it's at the start, or at the end, of a filter text
+     * @param str the string of the filter
+     * @returns a string without the comma at the beginning or at the ned
+     */
+    #deleteCommaFromFilter: (str: string) => string = (str) => {
+        if (str.startsWith(",")) str = str.substring(1);
+        if (str.endsWith(",")) str = str.substring(0, str.length - 1);
+        return (str.startsWith(",") || str.endsWith(",")) ? this.#deleteCommaFromFilter(str) : str;
+    }
+    /**
      * Get the script for FFmpeg conversion
      * @param isImage if the script needs to be built for image conversion
      * @returns a string[] with the command to run
@@ -203,7 +213,7 @@ export default class FfmpegHandler {
         /**
          * The arary of commands to run
          */
-        let currentObject: string[] = [];
+        let currentObject: string[] = [...Settings.hardwareAcceleration.additionalProps.map(text => text.display)];
         if (this.#files.length === 0) throw new Error("Please set up files using the addFiles function")
         for (let file of this.#files) currentObject.push("-i", FFmpegFileNameHandler(file));
         if (this.#conversion.isVideoSelected || isImage) { // Video-specific arguments
@@ -220,10 +230,13 @@ export default class FfmpegHandler {
                         currentObject.push(...(this.#conversion.videoOptions.useSlider ? ["-global_quality", this.#conversion.videoOptions.value] : ["-b:v", this.#conversion.videoOptions.value, "-maxrate", this.#conversion.videoOptions.value]));
                         break;
                     case "nvidia":
-                        currentObject.push(...(this.#conversion.videoOptions.useSlider ? ["-crf", this.#conversion.videoOptions.value] : ["-maxrate", this.#conversion.videoOptions.value, "-bufsize", "1000k"]));
+                        currentObject.push(...(this.#conversion.videoOptions.useSlider ? ["-crf", this.#conversion.videoOptions.value] : ["-maxrate", this.#conversion.videoOptions.value, "-bufsize", this.#conversion.videoOptions.maxRate]));
+                        break;
+                    case "vaapi":
+                        currentObject.push("-maxrate", this.#conversion.videoOptions.maxRate, "-bufsize", this.#conversion.videoOptions.maxRate, "-global_quality", this.#conversion.videoOptions.value, "-qp", this.#conversion.videoOptions.value);
                         break;
                     case "amd":
-                        currentObject.push(...(this.#conversion.videoOptions.useSlider ? ["-rc", "qvbr", "-qvbr_quality_level", this.#conversion.videoOptions.value, "-qmin", this.#conversion.videoOptions.value, "-qmax", this.#conversion.videoOptions.value] : ["-rc", "cbr", "-bufsize", "1000k"]));
+                        currentObject.push(...(this.#conversion.videoOptions.useSlider ? ["-rc", "qvbr", "-qvbr_quality_level", this.#conversion.videoOptions.value, "-qmin", this.#conversion.videoOptions.value, "-qmax", this.#conversion.videoOptions.value] : ["-rc", "cbr", "-bufsize", this.#conversion.videoOptions.maxRate]));
                         break;
                 }
             }
@@ -255,8 +268,10 @@ export default class FfmpegHandler {
                 custom: true
             }];
             for (let filter of customVideoFilters) customFilter += this.#elaborateFilter(filter); // Elaborate custom filter syntax, and add it to the string
-            if (customFilter.endsWith(",")) customFilter = customFilter.substring(0, customFilter.length - 1); // Remove the extra comma
-            customFilter.length !== 0 && currentObject.push(`-filter:v`, customFilter.substring(1));
+            if (customFilter.indexOf("format=") === -1 && Settings.hardwareAcceleration.type === "vaapi") customFilter += `,format=nv12`; // Required filter for VAAPI, since otherwise the conversion fails.
+            if (customFilter.indexOf("hwupload") === -1 && Settings.hardwareAcceleration.type === "vaapi") customFilter += `,hwupload`; // Required filter for VAAPI, since otherwise the conversion fails.
+            customFilter = this.#deleteCommaFromFilter(customFilter);
+            customFilter.length !== 0 && currentObject.push(`-filter:v`, this.#deleteCommaFromFilter(customFilter));
         } else currentObject.push("-vn");
         if (this.#conversion.isAudioSelected && !isImage) {
             currentObject.push(`-acodec`, this.#conversion.audioTypeSelected.startsWith("!") ? "copy" : this.#conversion.audioTypeSelected);
@@ -281,8 +296,8 @@ export default class FfmpegHandler {
                 custom: true
             }]
             for (let filter of customAudioFilters) customFilter += this.#elaborateFilter(filter);
-            if (customFilter.endsWith(",")) customFilter = customFilter.substring(0, customFilter.length - 1);
-            customFilter.length !== 0 && currentObject.push(`-filter:a`, customFilter.substring(1));
+            customFilter = this.#deleteCommaFromFilter(customFilter);
+            customFilter.length !== 0 && currentObject.push(`-filter:a`, customFilter);
             this.flags.albumArtReEncode = this.#conversion.audioOptions.keepAlbumArt;
         } else currentObject.push("-an");
         return currentObject;

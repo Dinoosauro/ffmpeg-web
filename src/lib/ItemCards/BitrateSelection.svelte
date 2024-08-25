@@ -5,9 +5,12 @@
     import {
         audioBitrateSettings,
         imageFormatSelected,
+        showBufSize,
     } from "../../ts/Writables";
     import { slide } from "svelte/transition";
     import AdaptiveAsset from "../UIElements/AdaptiveAsset.svelte";
+    import { onMount, onDestroy } from "svelte";
+    import Settings from "../../ts/TabOptions/Settings";
     /**
      * The bitrate of this _type_ needs to be changed
      */
@@ -21,13 +24,25 @@
             e.target as HTMLInputElement
         ).value;
     }
+    let showBufferSize = false;
+    if (type === "video") {
+        // Look if the buffer size input should be shown, and prefer using the slider in that case
+        onMount(() => {
+            const unsubscribe = showBufSize.subscribe((val) => {
+                showBufferSize = val;
+                if (Settings.hardwareAcceleration.type === "vaapi")
+                    ConversionOptions.videoOptions.useSlider = true;
+            });
+            onDestroy(unsubscribe);
+        });
+    }
 </script>
 
 <div class="flex hcenter" style="gap: 8px">
     <AdaptiveAsset width={26} asset="sparkle"></AdaptiveAsset>
     <h3>{getLang("Choose bitrate:")}</h3>
 </div>
-{#if type !== "image" && (type !== "audio" || !$audioBitrateSettings[0])}
+{#if type !== "image" && (type !== "audio" || !$audioBitrateSettings[0]) && (type !== "video" || Settings.hardwareAcceleration.type !== "vaapi")}
     <span in:slide={{ duration: 600 }} out:slide={{ duration: 600 }}>
         <Switch
             text={getLang("Choose with a slider")}
@@ -64,4 +79,13 @@
               ? getLang("worse quality")
               : getLang("high bitrate")}</i
     >
+    {#if showBufferSize && type === "video"}
+        <br /><br />
+        <label class="flex hcenter" style="gap: 10px"
+            >Buffer size: <input
+                type="text"
+                bind:value={ConversionOptions.videoOptions.maxRate}
+            /></label
+        >
+    {/if}
 {/if}

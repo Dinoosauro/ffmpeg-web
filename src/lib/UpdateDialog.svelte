@@ -11,6 +11,35 @@
         <AdaptiveAsset asset="icon" width={128}></AdaptiveAsset>
     </div>
     <Card type={1} forceColor={true}>
+        <h3 style="text-align: center;">Version 3.0.6</h3>
+        <Card forceColor={true}>
+            <ul>
+                <li>Added support for VAAPI in the Electron version</li>
+                <li>
+                    Fixed a bug where arguments before the input argument
+                    wouldn't be added in the command
+                </li>
+                <li>
+                    Added option to encode with AV1. It might work only on the
+                    Electron version
+                </li>
+                <li>
+                    The user can now change the maxrate, in case they use
+                    hardware acceleration
+                </li>
+            </ul>
+        </Card>
+    </Card><br />
+    <Card type={1} forceColor={true}>
+        <h3 style="text-align: center;">Version 3.0.5</h3>
+        <Card forceColor={true}>
+            <ul>
+                <li>Improved console message handling</li>
+                <li>WakeLock is now requested when screensaver is enabled</li>
+            </ul>
+        </Card>
+    </Card><br />
+    <Card type={1} forceColor={true}>
         <h3 style="text-align: center;">Version 3.0.4</h3>
         <Card forceColor={true}>
             <ul>

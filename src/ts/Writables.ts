@@ -79,6 +79,10 @@ export let showInstallationCard = writable<boolean>(Settings.showInstallationPro
  * Show the "ffmpeg-web has been updated" dialog
  */
 export let updateDialogShown = writable<boolean>((localStorage.getItem("ffmpegWeb-LastVersion") || window.ffmpegWebVersion) !== window.ffmpegWebVersion); // Set the current version
+/**
+ * If the user should be able to change the buffer size of the encoder
+ */
+export let showBufSize = writable<boolean>(Settings.hardwareAcceleration.type === "vaapi" || Settings.hardwareAcceleration.type === "nvidia" || Settings.hardwareAcceleration.type === "amd");
 localStorage.setItem("ffmpegWeb-LastVersion", window.ffmpegWebVersion);
 /**
  * The keys that are being pressed in the document

@@ -6,6 +6,7 @@
         currentStorageMethod,
         ffmpegVersionUsed,
         screensaverActivationTime,
+        showBufSize,
         showInstallationCard,
         showScreensaver,
         updateDialogShown,
@@ -24,6 +25,7 @@
     import { GetImage, RerenderImageMap } from "../../ts/ImageHandler";
     import AdaptiveAsset from "../UIElements/AdaptiveAsset.svelte";
     import Themes from "../../ts/Customization/Themes";
+    import ConversionOptions from "../../ts/TabOptions/ConversionOptions";
     /**
      * The CSS property that the user is editing
      */
@@ -208,11 +210,24 @@
         <select
             bind:value={Settings.hardwareAcceleration.type}
             on:change={() => {
+                $showBufSize =
+                    Settings.hardwareAcceleration.type === "vaapi" ||
+                    Settings.hardwareAcceleration.type === "nvidia" ||
+                    Settings.hardwareAcceleration.type === "amd";
                 switch (Settings.hardwareAcceleration.type) {
                     case "no":
                     case "amd":
                     case "apple":
                         Settings.hardwareAcceleration.additionalProps = [];
+                        break;
+                    case "vaapi":
+                        Settings.hardwareAcceleration.additionalProps = [
+                            "-vaapi_device",
+                            "/dev/dri/renderD128",
+                        ].map((e) => {
+                            return { id: crypto.randomUUID(), display: e };
+                        });
+                        ConversionOptions.videoOptions.useSlider = true;
                         break;
                     case "nvidia":
                         Settings.hardwareAcceleration.additionalProps = [
@@ -242,6 +257,9 @@
             <option value="intel">Intel (QSV)</option>
             <option value="amd">AMD (AMF)</option>
             <option value="apple">Apple (videotoolbox)</option>
+            <option value="vaapi"
+                >Video Acceleration API (VAAPI, Linux only)</option
+            >
             <option value="custom">{getLang("Custom syntax")}</option>
         </select>
         {#if Settings.hardwareAcceleration.type === "custom"}
