@@ -17,7 +17,11 @@ interface CustomOptions {
     addedFromInput?: boolean,
     suggestedFileExtension?: string,
     albumArtName?: string,
-    getNameWithFfmpegHandler?: boolean
+    getNameWithFfmpegHandler?: boolean,
+    /**
+     * Disable trimming (cutting the length of the vioeo) for the current operation
+     */
+    disableCut?: boolean
 }
 interface FilterElaboration {
     props: (string | number | boolean)[],
@@ -33,6 +37,7 @@ export default class FfmpegHandler {
     #conversion = ConversionOptions;
     constructor(ffmpeg: ffmpeg, options?: CustomOptions) {
         this.#conversion = { ...ConversionOptions }; // Copy conversion preferences so that, even if they are modified by the user later, the conversion will be done with the same arguments
+        if (options?.disableCut) this.#conversion.trimOptions.id = 0;
         this.ffmpeg = ffmpeg;
         this.flags = options ?? {};
     }
@@ -91,9 +96,10 @@ export default class FfmpegHandler {
      * 
      * @param command the string[] with the commands to run
      * @param suggestedFileName if provided, the `suggestedFileName` property of the return object will be this string. Otherwise, the script will provide its file name.
+     * @param skipMultipleFiles if true, the "trimOptions" passed will be ignored
      * @returns an `OperationProps` object, with the `File` string path (if native) or Uint8Array (if WebAssembly), its `extension` and the `suggestedFileName`
      */
-    start = async (command: string[], suggestedFileName = this.flags.addedFromInput && !this.flags.getNameWithFfmpegHandler ? command[command.length - 1] : FFmpegFileNameHandler(this.#files[0])) => {
+    start = async (command: string[], suggestedFileName = this.flags.addedFromInput && !this.flags.getNameWithFfmpegHandler ? command[command.length - 1] : FFmpegFileNameHandler(this.#files[0]), skipMultipleFiles?: boolean) => {
         if (this.#files.length === 0) throw new Error("Please set up files using the addFiles function");
         /**
          * An UUID will be used for this conversion to make the output file string unique.
@@ -113,18 +119,20 @@ export default class FfmpegHandler {
          * If further timestamps needs to be elaborated, and therefore the build script needs to be run again.
          */
         let necessaryNextBuild = false;
-        switch (this.#conversion.trimOptions.id) { // "1" for single timestamp, "2" for multiple timestamps
-            case 1: {
-                command.splice(command.lastIndexOf("-i") + 2, 0, "-ss", this.#conversion.trimOptions.singleTimestamp[0], `-to`, this.#conversion.trimOptions.singleTimestamp[1]);
-                break;
-            }
-            case 2: {
-                const timestamps = this.#multipleTimestampsHandler();
-                command.splice(command.lastIndexOf("-i") + 2, 0, `-ss`, timestamps.start, ...(timestamps.to !== "" ? [`-to`, timestamps.to] : []), ...(this.#conversion.trimOptions.multipleTimestamps.smartMetadata ? ["-metadata", `title=${timestamps.suggestedFileName}`, "-metadata", `track=${this.#conversion.trimOptions.multipleTimestamps.startFrom}`] : []));
-                this.#conversion.trimOptions.multipleTimestamps.smartMetadata && this.#conversion.trimOptions.multipleTimestamps.startFrom++; // Add a number to the track
-                suggestedFileName = `${timestamps.suggestedFileName}.${outputFileExtension}`; // Get the file name provided when creating multiple timestamps
-                necessaryNextBuild = timestamps.to !== "";
-                break;
+        if (!skipMultipleFiles) {
+            switch (this.#conversion.trimOptions.id) { // "1" for single timestamp, "2" for multiple timestamps
+                case 1: {
+                    command.splice(command.lastIndexOf("-i") + 2, 0, "-ss", this.#conversion.trimOptions.singleTimestamp[0], `-to`, this.#conversion.trimOptions.singleTimestamp[1]);
+                    break;
+                }
+                case 2: {
+                    const timestamps = this.#multipleTimestampsHandler();
+                    command.splice(command.lastIndexOf("-i") + 2, 0, `-ss`, timestamps.start, ...(timestamps.to !== "" ? [`-to`, timestamps.to] : []), ...(this.#conversion.trimOptions.multipleTimestamps.smartMetadata ? ["-metadata", `title=${timestamps.suggestedFileName}`, "-metadata", `track=${this.#conversion.trimOptions.multipleTimestamps.startFrom}`] : []));
+                    this.#conversion.trimOptions.multipleTimestamps.smartMetadata && this.#conversion.trimOptions.multipleTimestamps.startFrom++; // Add a number to the track
+                    suggestedFileName = `${timestamps.suggestedFileName}.${outputFileExtension}`; // Get the file name provided when creating multiple timestamps
+                    necessaryNextBuild = timestamps.to !== "";
+                    break;
+                }
             }
         }
         if (command[command.length - 1].startsWith("__FfmpegWebExclusive__0__$ReplaceWithUUID")) command[command.length - 1] = command[command.length - 1].replace("$ReplaceWithUUID", operationUuid); // Add the UUID to the output file
@@ -204,6 +212,51 @@ export default class FfmpegHandler {
         return (str.startsWith(",") || str.endsWith(",")) ? this.#deleteCommaFromFilter(str) : str;
     }
     /**
+     * 
+     * @param isImage if the video codec should be fetched from the image Map instead of the video Map
+     * @param bitrate An object with a `{video: string}` property. By passing it, the video codec won't be added in the hardware acceleration object
+     * @returns An object, with the `{beginning: string}` property that contains the parts needed to initialize hardware acceleration on the device (so, they must be added before anything else); and with the `{after: string}` property that contains the custom video quality for the current operation (so, they must be added)
+     */
+    hardwareAcceleration = (isImage?: boolean, bitrate?: { video: string }) => {
+        const encoderInfo = EncoderInfo.video.get(this.#conversion.videoTypeSelected);
+        const videoCodec = isImage ? this.#conversion.imageTypeSelected : encoderInfo ? encoderInfo[this.ffmpeg.native ? Settings.hardwareAcceleration.type as "nvidia" : "NoHardwareAcceleration"] ?? this.#conversion.videoTypeSelected : this.#conversion.videoTypeSelected; // Get library for hardware acceleration in case the user is encoding a video
+        const currentObject = [];
+        !bitrate && currentObject.push("-vcodec", videoCodec.startsWith("!") ? "copy" : videoCodec.replace("libxh264", "libx264"), this.#isImg ? "-q:v" : this.#conversion.videoOptions.useSlider ? "-crf" : "-b:v", this.#isImg ? this.#conversion.imageOptions.value : this.#conversion.videoOptions.useSlider ? this.#NaNPlaceholder(this.#conversion.videoOptions.value) : this.#conversion.videoOptions.value); // Add video codec and quality. In case a quality slider value is added, the input is sanitized.
+        if (this.ffmpeg.native && (bitrate || (encoderInfo && encoderInfo[Settings.hardwareAcceleration.type as "nvidia"]))) { // Hardware acceleration available: add extra arguments
+            switch (Settings.hardwareAcceleration.type) {
+                case "apple":
+                    currentObject.push("-qmin", !bitrate && this.#conversion.videoOptions.useSlider ? this.#NaNPlaceholder(this.#conversion.videoOptions.value) : bitrate ? "24" : "28", "-qmax", !bitrate && this.#conversion.videoOptions.useSlider ? this.#NaNPlaceholder(this.#conversion.videoOptions.value) : bitrate ? "24" : "28");
+                    break;
+                case "intel":
+                    currentObject.push(...(!bitrate && this.#conversion.videoOptions.useSlider ? ["-global_quality", this.#NaNPlaceholder(this.#conversion.videoOptions.value)] : ["-b:v", bitrate?.video ?? this.#conversion.videoOptions.value, "-maxrate", bitrate?.video ?? this.#conversion.videoOptions.value]));
+                    break;
+                case "nvidia":
+                    currentObject.push(...(!bitrate && this.#conversion.videoOptions.useSlider ? ["-crf", this.#NaNPlaceholder(this.#conversion.videoOptions.value)] : ["-maxrate", bitrate?.video ?? this.#conversion.videoOptions.value, "-bufsize", this.#conversion.videoOptions.maxRate]));
+                    break;
+                case "vaapi":
+                    currentObject.push("-maxrate", bitrate?.video ?? this.#conversion.videoOptions.maxRate, "-bufsize", bitrate?.video ?? this.#conversion.videoOptions.maxRate, "-global_quality", bitrate ? "24" : this.#NaNPlaceholder(this.#conversion.videoOptions.value), "-qp", bitrate ? "24" : this.#NaNPlaceholder(this.#conversion.videoOptions.value));
+                    break;
+                case "amd":
+                    currentObject.push(...(!bitrate && this.#conversion.videoOptions.useSlider ? ["-rc", "qvbr", "-qvbr_quality_level", this.#NaNPlaceholder(this.#conversion.videoOptions.value), "-qmin", this.#NaNPlaceholder(this.#conversion.videoOptions.value), "-qmax", this.#NaNPlaceholder(this.#conversion.videoOptions.value)] : ["-rc", "cbr", "-bufsize", bitrate?.video ?? this.#conversion.videoOptions.maxRate]));
+                    break;
+            }
+        }
+
+        return {
+            beginning: Settings.hardwareAcceleration.additionalProps.map(text => text.display),
+            after: currentObject
+        }
+    }
+    /**
+     * Choose a quality option that could make sense for the video. If the user has chosen quality with a slider, this will return the selected value. Otherwise, it'll try to convert the provided bitrate with a plausible quality number
+     * @param val the value that needs to be converted in a quality number
+     * @returns a number that can be passed for quality
+     */
+    #NaNPlaceholder = (val: string) => {
+        if (isNaN(+val)) return Math.max(0, Math.min(51, Math.floor(51 - (+(val.replace(/k/gi, "000").replace(/m/gi, "000000").match("/\d+/g") ?? ["2800000"])[0] / 100000)))).toString();
+        return val;
+    }
+    /**
      * Get the script for FFmpeg conversion
      * @param isImage if the script needs to be built for image conversion
      * @returns a string[] with the command to run
@@ -211,35 +264,18 @@ export default class FfmpegHandler {
     build = (isImage?: boolean) => {
         this.#isImg = isImage;
         /**
+         * Get the parts for hardware acceleration to add in the script.
+         */
+        const hardwareAccelerationOptions = this.hardwareAcceleration(isImage);
+        /**
          * The arary of commands to run
          */
-        let currentObject: string[] = [...Settings.hardwareAcceleration.additionalProps.map(text => text.display)];
+        let currentObject: string[] = [...hardwareAccelerationOptions.beginning];
         if (this.#files.length === 0) throw new Error("Please set up files using the addFiles function")
         for (let file of this.#files) currentObject.push("-i", FFmpegFileNameHandler(file));
         if (this.#conversion.isVideoSelected || isImage) { // Video-specific arguments
+            currentObject.push(...hardwareAccelerationOptions.after);
             let customFilter = "";
-            const encoderInfo = EncoderInfo.video.get(this.#conversion.videoTypeSelected);
-            const videoCodec = isImage ? this.#conversion.imageTypeSelected : encoderInfo ? encoderInfo[this.ffmpeg.native ? Settings.hardwareAcceleration.type as "nvidia" : "NoHardwareAcceleration"] ?? this.#conversion.videoTypeSelected : this.#conversion.videoTypeSelected; // Get library for hardware acceleration in case the user is encoding a video
-            currentObject.push("-vcodec", videoCodec.startsWith("!") ? "copy" : videoCodec.replace("libxh264", "libx264"), this.#isImg ? "-q:v" : this.#conversion.videoOptions.useSlider ? "-crf" : "-b:v", this.#isImg ? this.#conversion.imageOptions.value : this.#conversion.videoOptions.useSlider ? Math.max(1, Math.min(+this.#conversion.videoOptions.value.replace(/\D/g, ""), 51)).toString() : this.#conversion.videoOptions.value); // Add video codec and quality. In case a quality slider value is added, the input is sanitized.
-            if (this.ffmpeg.native && encoderInfo && encoderInfo[Settings.hardwareAcceleration.type as "nvidia"]) { // Hardware acceleration available: add extra arguments
-                switch (Settings.hardwareAcceleration.type) {
-                    case "apple":
-                        currentObject.push("-qmin", this.#conversion.videoOptions.useSlider ? this.#conversion.videoOptions.value : "28", "-qmax", this.#conversion.videoOptions.useSlider ? this.#conversion.videoOptions.value : "28");
-                        break;
-                    case "intel":
-                        currentObject.push(...(this.#conversion.videoOptions.useSlider ? ["-global_quality", this.#conversion.videoOptions.value] : ["-b:v", this.#conversion.videoOptions.value, "-maxrate", this.#conversion.videoOptions.value]));
-                        break;
-                    case "nvidia":
-                        currentObject.push(...(this.#conversion.videoOptions.useSlider ? ["-crf", this.#conversion.videoOptions.value] : ["-maxrate", this.#conversion.videoOptions.value, "-bufsize", this.#conversion.videoOptions.maxRate]));
-                        break;
-                    case "vaapi":
-                        currentObject.push("-maxrate", this.#conversion.videoOptions.maxRate, "-bufsize", this.#conversion.videoOptions.maxRate, "-global_quality", this.#conversion.videoOptions.value, "-qp", this.#conversion.videoOptions.value);
-                        break;
-                    case "amd":
-                        currentObject.push(...(this.#conversion.videoOptions.useSlider ? ["-rc", "qvbr", "-qvbr_quality_level", this.#conversion.videoOptions.value, "-qmin", this.#conversion.videoOptions.value, "-qmax", this.#conversion.videoOptions.value] : ["-rc", "cbr", "-bufsize", this.#conversion.videoOptions.maxRate]));
-                        break;
-                }
-            }
             if (this.#conversion.videoOptions.aspectRatio.isBeingEdited) { // Change aspect ratio and rotation
                 this.#conversion.videoOptions.aspectRatio.height !== -1 && this.#conversion.videoOptions.aspectRatio.width !== -1 && currentObject.push(`-aspect`, `${this.#conversion.videoOptions.aspectRatio.width}/${this.#conversion.videoOptions.aspectRatio.height}`);
                 this.#conversion.videoOptions.aspectRatio.rotation !== -1 && (customFilter += `,rotate=PI*${this.#conversion.videoOptions.aspectRatio.rotation}:oh=iw:ow=ih`);

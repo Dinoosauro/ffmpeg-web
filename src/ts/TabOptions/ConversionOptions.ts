@@ -69,6 +69,49 @@ let ConversionOptions = {
             smartMetadata: false,
             startFrom: 1
         }
+    },
+    audioToVideo: {
+        ms: 2000,
+        extension: "mkv",
+        fps: -1,
+        videoBitrate: "1100k",
+        audioBitrate: "192k",
+        font: "Work Sans",
+        content: {
+            /**
+             * Show album art
+             */
+            showAlbumArt: true,
+            /**
+             * Show essential metadata information
+             */
+            showQuickInfo: true,
+            /**
+             * Show all metadata information
+             */
+            showMetadataRecap: true,
+            /**
+             * Show the selected custom background image
+             */
+            showImportedImage: false
+        },
+        scale: 2,
+        /**
+         * Save temporary images on device
+         */
+        saveTemp: false,
+        /**
+         * Disable 0.11.x only for this section (since it's unstable)
+         */
+        disable011: true,
+        /**
+         * Get loop from audio duration. Disable it if you're having issues with the length of the file.
+         */
+        useDuration: true,
+        /**
+         * Set `max_interleave_delta` to 0. This *might* help fixing wrong timestamps in Matroska files.
+         */
+        useInterleaveDelta: false
     }
 };
 if (localStorage.getItem("ffmpegWeb-SavePreferences") !== "a") {

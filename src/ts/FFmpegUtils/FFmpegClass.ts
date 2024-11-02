@@ -53,7 +53,7 @@ export default class ffmpeg {
     #resolvePromise!: (value: void | PromiseLike<void>) => void;
     load!: () => Promise<void>;
     writeFile!: (file: File, alsoOnOS?: boolean) => Promise<void>;
-    readFile!: (name: string) => Promise<Uint8Array | undefined>;
+    readFile!: (name: string, alsoOnOS?: boolean) => Promise<Uint8Array | undefined>;
     exec!: (command: string[]) => Promise<void>;
     removeFile!: (file: File | string) => Promise<void>;
     exit!: () => void;
@@ -153,7 +153,10 @@ export default class ffmpeg {
                         name: FFmpegFileNameHandler(file)
                     });
                 };
-                this.readFile = async () => { return undefined; }
+                this.readFile = async (name, alsoOnOS) => {
+                    if (alsoOnOS) return await ipcRenderer.invoke("ReadFile", name);
+                    return undefined;
+                }
                 this.exec = async (command) => {
                     await ipcRenderer.invoke(`FfmpegCommand`, { command, operation: this.operationId });
                 }

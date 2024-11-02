@@ -11,28 +11,36 @@
     import { GetImage } from "../../../ts/ImageHandler";
     import AdaptiveAsset from "../../UIElements/AdaptiveAsset.svelte";
     const dispatch = createEventDispatcher();
+    /**
+     * If only the selection should be displayed, without the title
+     */
+    export let isMinimal = false;
 </script>
 
 <div in:slide={{ duration: 600, delay: 600 }} out:slide={{ duration: 600 }}>
-    <div class="flex hcenter wcenter" style="gap: 10px">
-        <AdaptiveAsset asset="convertrange"></AdaptiveAsset>
-        <h2>{getLang("Conversion options:")}</h2>
-    </div>
-    <p>
-        {getLang(
-            "You can choose between lots of formats. Click on the switch to select what media type(s) you want in your final file:",
-        )}
-    </p>
-    <Switch
-        on:change={({ detail }) => {
-            ConversionOptions.isVideoSelected = detail;
-            dispatch("enabledCard", { isVideo: true, result: detail });
-        }}
-        checked={ConversionOptions.isVideoSelected}
-        text={getLang("Enable video source")}
-    ></Switch><br />
+    {#if !isMinimal}
+        <div class="flex hcenter wcenter" style="gap: 10px">
+            <AdaptiveAsset asset="convertrange"></AdaptiveAsset>
+            <h2>{getLang("Conversion options:")}</h2>
+        </div>
+        <p>
+            {getLang(
+                "You can choose between lots of formats. Click on the switch to select what media type(s) you want in your final file:",
+            )}
+        </p>
+        <Switch
+            on:change={({ detail }) => {
+                ConversionOptions.isVideoSelected = detail;
+                dispatch("enabledCard", { isVideo: true, result: detail });
+            }}
+            checked={ConversionOptions.isVideoSelected}
+            text={getLang("Enable video source")}
+        ></Switch><br />
+    {:else}
+        <h4 style="margin-top: 10px">{getLang("Video codec")}:</h4>
+    {/if}
 </div>
-{#if ConversionOptions.isVideoSelected}
+{#if ConversionOptions.isVideoSelected || isMinimal}
     <span in:slide={{ duration: 600 }} out:slide={{ duration: 600 }}>
         <ChipContainer>
             <Chip
@@ -52,15 +60,19 @@
         <br />
     </span>
 {/if}
-<Switch
-    on:change={({ detail }) => {
-        ConversionOptions.isAudioSelected = detail;
-        dispatch("enabledCard", { isVideo: false, result: detail });
-    }}
-    checked={ConversionOptions.isAudioSelected}
-    text={getLang("Enable audio source")}
-></Switch><br />
-{#if ConversionOptions.isAudioSelected}
+{#if !isMinimal}
+    <Switch
+        on:change={({ detail }) => {
+            ConversionOptions.isAudioSelected = detail;
+            dispatch("enabledCard", { isVideo: false, result: detail });
+        }}
+        checked={ConversionOptions.isAudioSelected}
+        text={getLang("Enable audio source")}
+    ></Switch>
+{:else}
+    <h4 style="margin-top: 0px">{getLang("Audio codec")}:</h4>
+{/if}
+{#if ConversionOptions.isAudioSelected || isMinimal}
     <span in:slide={{ duration: 600 }} out:slide={{ duration: 600 }}>
         <ChipContainer>
             <Chip

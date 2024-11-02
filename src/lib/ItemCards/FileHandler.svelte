@@ -16,6 +16,7 @@
     import Settings from "../../ts/TabOptions/Settings";
     import { GetImage } from "../../ts/ImageHandler";
     import AdaptiveAsset from "../UIElements/AdaptiveAsset.svelte";
+    import AudioToVideoLogic from "../../ts/CommandBuilderLogic/AudioToVideoLogic";
 
     /**
      * Process files that ends with this string
@@ -51,7 +52,9 @@
                     ? ImageLogic(arr, directoryHandle)
                     : $applicationSection === "Metadata"
                       ? MetadataLogic(arr, directoryHandle)
-                      : FileLogic(arr, directoryHandle);
+                      : $applicationSection === "AudioToVideo"
+                        ? AudioToVideoLogic(arr, directoryHandle)
+                        : FileLogic(arr, directoryHandle);
             directoryHandle = undefined;
         };
         input.click();

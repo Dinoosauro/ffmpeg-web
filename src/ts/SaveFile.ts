@@ -69,7 +69,7 @@ export default class FileSaver {
      * @param allowSlash if the / shouldn't be replaced
      * @returns the sanitized string
      */
-    #sanitize = (str: string, allowSlash?: boolean) => {
+    sanitize = (str: string, allowSlash?: boolean) => {
         return str.replaceAll("<", "‹").replaceAll(">", "›").replaceAll(":", "∶").replaceAll("\"", "″").replaceAll("/", allowSlash ? "/" : "∕").replaceAll("\\", "∖").replaceAll("|", "¦").replaceAll("?", "¿").replaceAll("*", "")
     }
     /**
@@ -98,7 +98,7 @@ export default class FileSaver {
             }
             case "zip": {
                 if (!this.#jsZip) throw new Error("Zip file must be initialized. Please await this.promise");
-                this.#jsZip.file(this.#sanitize(name, true), file, { createFolders: true });
+                this.#jsZip.file(this.sanitize(name, true), file, { createFolders: true });
                 break;
             }
             case "handle": {
@@ -107,7 +107,7 @@ export default class FileSaver {
                 const fileName = fileSplit.pop() ?? crypto.randomUUID();
                 let tempHandle = this.#directoryHandle;
                 for (let remainingPath of fileSplit) tempHandle = await tempHandle.getDirectoryHandle(remainingPath, { create: true });
-                const systemFile = await tempHandle.getFileHandle(this.#sanitize(fileName), { create: true });
+                const systemFile = await tempHandle.getFileHandle(this.sanitize(fileName), { create: true });
                 const writable = await systemFile.createWritable();
                 await writable.write(file);
                 await writable.close();
