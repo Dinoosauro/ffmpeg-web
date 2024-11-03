@@ -73,7 +73,7 @@ let ConversionOptions = {
     audioToVideo: {
         ms: 2000,
         extension: "mkv",
-        fps: -1,
+        fps: 1,
         videoBitrate: "1100k",
         audioBitrate: "192k",
         font: "Work Sans",
@@ -111,7 +111,11 @@ let ConversionOptions = {
         /**
          * Set `max_interleave_delta` to 0. This *might* help fixing wrong timestamps in Matroska files.
          */
-        useInterleaveDelta: false
+        useInterleaveDelta: false,
+        /**
+         * Restore presentation timestamps to START. This *might* help fixing wrong timestamps.
+         */
+        restorePTS: false
     }
 };
 if (localStorage.getItem("ffmpegWeb-SavePreferences") !== "a") {

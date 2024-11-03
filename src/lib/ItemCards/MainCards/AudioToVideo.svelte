@@ -25,7 +25,7 @@
     <input type="text" bind:value={ConversionOptions.audioToVideo.extension} />
 </label><br />
 <Card type={1}>
-    <h3>{getLang("Output codecs:")}"</h3>
+    <h3>{getLang("Output codecs:")}</h3>
     <p>
         {getLang(
             "It might be a good idea keeping the original audio and video file, but you can still choose the output codec, and its bitrate",

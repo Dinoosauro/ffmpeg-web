@@ -149,5 +149,14 @@
             }}
             checked={ConversionOptions.audioToVideo.useInterleaveDelta}
         ></Switch><br />
+        <Switch
+            text={getLang(
+                "Restore presentation timestamps to START. This *might* help fixing wrong timestamps.",
+            )}
+            on:change={({ detail }) => {
+                ConversionOptions.audioToVideo.restorePTS = detail;
+            }}
+            checked={ConversionOptions.audioToVideo.restorePTS}
+        ></Switch><br />
     </Card>
 </Dialog>
