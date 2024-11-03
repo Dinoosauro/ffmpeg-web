@@ -29,6 +29,14 @@
                 bind:value={ConversionOptions.audioToVideo.font}
             /></label
         ><br />
+        <label class="flex hcenter" style="gap: 5px;"
+            >{getLang("FPS (-1 for variable)")}:
+            <input
+                type="number"
+                min="-1"
+                bind:value={ConversionOptions.audioToVideo.fps}
+            /></label
+        ><br />
         <Switch
             checked={albumToVideoBackground.img !== undefined}
             text={getLang("Use a custom background image")}

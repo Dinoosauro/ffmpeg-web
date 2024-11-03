@@ -238,7 +238,8 @@ let translations = new Map<string, TranslationRequirements>([
     ["Audio bitrate:", { it: "Bitrate dell'audio:" }],
     ["Show advanced settings", { it: "Mostra impostazioni avanzate" }],
     ["Video codec", { it: "Codec video" }],
-    ["Audio codec", { it: "Codec audio" }]
+    ["Audio codec", { it: "Codec audio" }],
+    ["FPS (-1 for variable)", { it: "FPS (-1 per variabile)" }]
 ])
 /**
  * Translate a string

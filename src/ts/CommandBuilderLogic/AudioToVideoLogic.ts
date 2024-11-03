@@ -228,10 +228,10 @@ export default async function AudioToVideoLogic(pickedFiles: File[], handle?: Fi
         if (chosenConversionOptions.content.showAlbumArt) runFile += `${runFile.length === 0 ? "" : "\n"}file '__FfmpegWebExclusive__img_${randomImageIdentifier}.png'\nduration ${duration}`; // If the user wants to show the album art, add it to the runFile.
         metadataImages.push(metadataImages[metadataImages.length - 1]); // We'll add two times the same last image so that it's displayed in the loop. I don't know why FFmpeg needs this, but otherwise it doesn't work.
         for (let i = 0; i < metadataImages.length; i++) {
-            obj.writeFile(new File([metadataImages[i]], `__FfmpegWebExclusive__${i}_${randomImageIdentifier}.png`));
+            await obj.writeFile(new File([metadataImages[i]], `__FfmpegWebExclusive__${i}_${randomImageIdentifier}.png`));
             runFile += `${runFile.length === 0 ? "" : "\n"}file '__FfmpegWebExclusive__${i}_${randomImageIdentifier}.png'\nduration ${duration}`;
         }
-        obj.writeFile(new File([runFile], `__FfmpegWebExclusive__run${randomImageIdentifier}.txt`));
+        await obj.writeFile(new File([runFile], `__FfmpegWebExclusive__run${randomImageIdentifier}.txt`));
         /**
          * Get information about hardware acceleration for the output video
          */
