@@ -11,7 +11,7 @@
 </script>
 
 <div class="flex hcenter wcenter" style="gap: 10px">
-    <AdaptiveAsset asset="windowconsole"></AdaptiveAsset>
+    <AdaptiveAsset asset="audionote2play"></AdaptiveAsset>
     <h2>{getLang("Music to video:")}</h2>
 </div>
 <p>

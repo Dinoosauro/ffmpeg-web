@@ -212,7 +212,7 @@ export default class FfmpegHandler {
         return (str.startsWith(",") || str.endsWith(",")) ? this.#deleteCommaFromFilter(str) : str;
     }
     /**
-     * 
+     * Get the content that should be added in the script to enable hardware acceleration
      * @param isImage if the video codec should be fetched from the image Map instead of the video Map
      * @param bitrate An object with a `{video: string}` property. By passing it, the video codec won't be added in the hardware acceleration object
      * @returns An object, with the `{beginning: string}` property that contains the parts needed to initialize hardware acceleration on the device (so, they must be added before anything else); and with the `{after: string}` property that contains the custom video quality for the current operation (so, they must be added)

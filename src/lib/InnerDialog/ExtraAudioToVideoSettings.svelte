@@ -22,7 +22,7 @@
             <h3>{getLang("Video customization:")}</h3>
         </div>
 
-        <label class="flex hcenter" style="gap: 5px;"
+        <label class="flex hcenter" style="gap: 10px;"
             >{getLang("Font")}:
             <input
                 type="text"
