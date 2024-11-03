@@ -239,7 +239,8 @@ let translations = new Map<string, TranslationRequirements>([
     ["Show advanced settings", { it: "Mostra impostazioni avanzate" }],
     ["Video codec", { it: "Codec video" }],
     ["Audio codec", { it: "Codec audio" }],
-    ["FPS (-1 for variable)", { it: "FPS (-1 per variabile)" }]
+    ["FPS (-1 for variable)", { it: "FPS (-1 per variabile)" }],
+    ["Restore presentation timestamps to START. This *might* help fixing wrong timestamps.", { it: "Reimposta presentation timestamps all'inizio. Questo *potrebbe* aiutare a sistemare i timestamp sbagliati." }]
 ])
 /**
  * Translate a string

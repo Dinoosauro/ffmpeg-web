@@ -139,11 +139,12 @@ export default async function AudioToVideoLogic(pickedFiles: File[], handle?: Fi
         const blurredImage = Object.assign(document.createElement("canvas"), { width: chosenImage?.width ?? 1000, height: chosenImage?.height ?? 1000 });
         const [width, height] = await new Promise<[number, number]>((resolve) => {
             const image = new Image();
-            image.onload = () => {
+            image.onload = async () => {
                 blurredImage.width = image.naturalWidth;
                 blurredImage.height = image.naturalHeight;
                 const ctx = blurredImage.getContext("2d");
                 if (ctx) {
+                    typeof document.createElement("canvas")?.getContext("2d")?.filter === "undefined" && await import("context-filter-polyfill");
                     ctx.filter = "brightness(50%)";
                     ctx.drawImage(image, 0, 0, blurredImage.width, blurredImage.height); // First, let's draw the canvas only with the brightness change.
                     ctx.filter = "blur(8px)"; // Add it after brightness so that we don't have white corners
