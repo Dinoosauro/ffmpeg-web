@@ -24,10 +24,13 @@
     "vite-plugin-cross-origin-isolation": "^0.1.6"
   },
   "dependencies": {
+    "context-filter-polyfill": "^0.3.21",
     "electron": "^31.1.0",
     "ffmpeg11": "npm:@ffmpeg/ffmpeg@^0.11.6",
     "ffmpeg12": "npm:@ffmpeg/ffmpeg@^0.12.10",
     "jszip": "^3.10.1"
   },
-  "extraFiles": ["electorn/userContent/**/*"]
+  "extraFiles": [
+    "electorn/userContent/**/*"
+  ]
 }

@@ -97,4 +97,7 @@ window.addEventListener("keyup", (e) => currentlyPressedKeys.update(prev => {
     prev.splice(prev.indexOf(e.key.toLowerCase()), 1);
     return [...prev];
 }));
-
+/**
+ * The object that'll contain the custom image for the "Audio to video section", if the user has chosen to use it.
+ */
+export let albumToVideoBackground: { img: HTMLImageElement | undefined } = { img: undefined };

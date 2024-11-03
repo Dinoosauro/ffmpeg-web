@@ -75,6 +75,10 @@ function handleFileStringForOS(str) {
 ipcMain.handle("MoveFile", async (event, { from, to }) => {
     console.log(`Moving file from: ${from} to ${to}`);
     await new Promise((res) => rename(from, to, () => res()));
+});
+ipcMain.handle("ReadFile", async (event, file) => {
+    console.log(`Reading: ${file}`);
+    return new Uint8Array(readFileSync(file));
 })
 ipcMain.handle("DeleteFile", async (event, file) => {
     if (handleFileStringForOS(file).startsWith("__FfmpegWebExclusive__")) {

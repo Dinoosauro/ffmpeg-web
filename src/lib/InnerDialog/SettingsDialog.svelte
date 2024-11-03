@@ -543,6 +543,7 @@
                     id: "Electron contributors & 2013-2020 GitHub Inc.",
                 },
                 { display: "Svelte", id: "2016-24 these people" },
+                { display: "context-filter-polyfill", id: "2019 David Enke" },
             ]}
         ></Chip>
     </ChipContainer><br />

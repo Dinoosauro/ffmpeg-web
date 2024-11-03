@@ -17,6 +17,8 @@
     import { slide } from "svelte/transition";
     import MetadataAdd from "./MainCards/MetadataAdd.svelte";
     import MediaEncoding from "./MainCards/MediaEncoding.svelte";
+    import AudioToVideo from "./MainCards/AudioToVideo.svelte";
+    import ExtraAudioToVideoSettings from "../InnerDialog/ExtraAudioToVideoSettings.svelte";
     const dispatch = createEventDispatcher();
     /**
      * What operation the user wants to do
@@ -26,6 +28,11 @@
         if (applicationPart === "Merge" || applicationPart === "Image")
             ConversionOptions.trimOptions.id = 0;
     }
+    /**
+     * If set to true, the Audio to Video dialog must be shown.
+     * This is done here (and not on the AudioToVideo Svelte component) to avoid render issues
+     */
+    let showCustomAudioToVideo = false;
 </script>
 
 <Card>
@@ -43,6 +50,10 @@
                 { display: getLang("Merge content"), id: "Merge" },
                 { display: getLang("Convert to image"), id: "Image" },
                 { display: getLang("Add metadata"), id: "Metadata" },
+                {
+                    display: getLang("Convert music file to video"),
+                    id: "AudioToVideo",
+                },
             ]}
             on:userSelection={({ detail }) => {
                 applicationPart = detail;
@@ -82,6 +93,17 @@
         >
             <MetadataAdd></MetadataAdd>
         </div>
+    {:else if applicationPart === "AudioToVideo"}
+        <div
+            in:slide={{ duration: 600, delay: 600 }}
+            out:slide={{ duration: 600 }}
+        >
+            <AudioToVideo
+                showExtraDialog={() => {
+                    showCustomAudioToVideo = true;
+                }}
+            ></AudioToVideo><br />
+        </div>
     {/if}<br />
     {#if applicationPart !== "Merge" && applicationPart !== "Image"}
         <TrimContent></TrimContent>
@@ -93,6 +115,13 @@
         )}</span
     >
 </Card>
+{#if applicationPart === "AudioToVideo" && showCustomAudioToVideo}
+    <ExtraAudioToVideoSettings
+        closeFunction={() => {
+            showCustomAudioToVideo = false;
+        }}
+    ></ExtraAudioToVideoSettings>
+{/if}
 
 <style>
     .center {

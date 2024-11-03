@@ -5,11 +5,30 @@
     import Dialog from "./UIElements/Dialog.svelte";
 </script>
 
-<Dialog closeFunction={() => updateDialogShown.set(false)}>
+<Dialog closeFunction={() => updateDialogShown.set(false)} closeAtTop={true}>
     <h2>What's new in ffmpeg-web</h2>
     <div class="flex hcenter wcenter">
         <AdaptiveAsset asset="icon" width={128}></AdaptiveAsset>
     </div>
+    <Card type={1} forceColor={true}>
+        <h3 style="text-align: center;">Version 3.1.0</h3>
+        <Card forceColor={true}>
+            <ul>
+                <li>Added the new «Audio to video» mode</li>
+                <ul>
+                    <li>
+                        Create a video that shows the album art of an audio file
+                    </li>
+                    <li>
+                        It's possible to display also the essential metadata
+                        (title, artist, album) and/or every metadata fetched by
+                        FFmpeg
+                    </li>
+                    <li>A custom album art can be provided for the video</li>
+                </ul>
+            </ul>
+        </Card>
+    </Card><br />
     <Card type={1} forceColor={true}>
         <h3 style="text-align: center;">Version 3.0.6</h3>
         <Card forceColor={true}>
